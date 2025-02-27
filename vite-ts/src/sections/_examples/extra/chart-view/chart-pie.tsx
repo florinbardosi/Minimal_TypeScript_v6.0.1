@@ -27,10 +27,7 @@ export function ChartPie({ chart }: Props) {
     colors: chartColors,
     labels: chart.categories,
     stroke: { width: 0 },
-    dataLabels: {
-      enabled: true,
-      dropShadow: { enabled: false },
-    },
+    dataLabels: { enabled: true, dropShadow: { enabled: false } },
     plotOptions: { pie: { donut: { labels: { show: false } } } },
   });
 
@@ -39,21 +36,18 @@ export function ChartPie({ chart }: Props) {
       <ChartLegends
         labels={chartOptions?.labels}
         colors={chartOptions?.colors}
-        sx={{
-          p: 3,
-          justifyContent: 'center',
-        }}
+        sx={{ p: 3, justifyContent: 'center' }}
       />
 
       <Chart
         type="pie"
         series={chart.series}
         options={chartOptions}
-        width={240}
-        height={240}
         sx={{
           my: 3,
           mx: 'auto',
+          width: 240,
+          height: 240,
         }}
       />
     </>

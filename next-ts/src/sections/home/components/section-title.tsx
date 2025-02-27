@@ -1,14 +1,12 @@
 import type { MotionProps } from 'framer-motion';
-import type { StackProps } from '@mui/material/Stack';
+import type { BoxProps } from '@mui/material/Box';
 import type { Theme, SxProps } from '@mui/material/styles';
 
 import { m } from 'framer-motion';
+import { varAlpha } from 'minimal-shared/utils';
 
 import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-
-import { varAlpha, textGradient } from 'src/theme/styles';
 
 import { varFade } from 'src/components/animate';
 
@@ -20,7 +18,7 @@ type TextProps = {
   variants?: MotionProps['variants'];
 };
 
-type Props = StackProps & {
+type SectionTitleProps = BoxProps & {
   txtGradient?: string;
   title: React.ReactNode;
   caption?: React.ReactNode;
@@ -33,15 +31,26 @@ type Props = StackProps & {
 };
 
 export function SectionTitle({
+  sx,
   title,
   caption,
   slotProps,
   txtGradient,
   description,
   ...other
-}: Props) {
+}: SectionTitleProps) {
   return (
-    <Stack spacing={3} {...other}>
+    <Box
+      sx={[
+        {
+          gap: 3,
+          display: 'flex',
+          flexDirection: 'column',
+        },
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
+      {...other}
+    >
       {caption && (
         <SectionCaption
           title={caption}
@@ -53,7 +62,7 @@ export function SectionTitle({
       <Typography
         component={m.h2}
         variant="h2"
-        variants={slotProps?.title?.variants ?? varFade({ distance: 24 }).inUp}
+        variants={slotProps?.title?.variants ?? varFade('inUp', { distance: 24 })}
         sx={slotProps?.title?.sx}
       >
         {`${title} `}
@@ -62,7 +71,7 @@ export function SectionTitle({
           sx={(theme) => ({
             opacity: 0.4,
             display: 'inline-block',
-            ...textGradient(
+            ...theme.mixins.textGradient(
               `to right, ${theme.vars.palette.text.primary}, ${varAlpha(theme.vars.palette.text.primaryChannel, 0.2)}`
             ),
           })}
@@ -74,26 +83,35 @@ export function SectionTitle({
       {description && (
         <Typography
           component={m.p}
-          variants={slotProps?.description?.variants ?? varFade({ distance: 24 }).inUp}
-          sx={{ color: 'text.secondary', ...slotProps?.description?.sx }}
+          variants={slotProps?.description?.variants ?? varFade('inUp', { distance: 24 })}
+          sx={[
+            { color: 'text.secondary' },
+            ...(Array.isArray(slotProps?.description?.sx)
+              ? (slotProps?.description?.sx ?? [])
+              : [slotProps?.description?.sx]),
+          ]}
         >
           {description}
         </Typography>
       )}
-    </Stack>
+    </Box>
   );
 }
 
 // ----------------------------------------------------------------------
 
-export function SectionCaption({ title, variants, sx }: TextProps) {
+export function SectionCaption({ title, variants, sx, ...other }: TextProps) {
   return (
-    <Stack
+    <Box
       component={m.span}
-      variants={variants ?? varFade({ distance: 24 }).inUp}
-      sx={{ typography: 'overline', color: 'text.disabled', ...sx }}
+      variants={variants ?? varFade('inUp', { distance: 24 })}
+      sx={[
+        () => ({ typography: 'overline', color: 'text.disabled' }),
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
+      {...other}
     >
       {title}
-    </Stack>
+    </Box>
   );
 }

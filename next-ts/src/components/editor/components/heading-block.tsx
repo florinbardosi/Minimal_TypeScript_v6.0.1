@@ -1,10 +1,9 @@
 import { useState } from 'react';
+import { varAlpha } from 'minimal-shared/utils';
 
 import Menu from '@mui/material/Menu';
 import { listClasses } from '@mui/material/List';
 import ButtonBase, { buttonBaseClasses } from '@mui/material/ButtonBase';
-
-import { varAlpha } from 'src/theme/styles';
 
 import { Iconify } from '../../iconify';
 import { ToolbarItem } from './toolbar-item';
@@ -48,15 +47,15 @@ export function HeadingBlock({ editor }: Pick<EditorToolbarProps, 'editor'>) {
         aria-haspopup="true"
         aria-expanded={anchorEl ? 'true' : undefined}
         onClick={handleClick}
-        sx={{
+        sx={(theme) => ({
           px: 1,
           width: 120,
           height: 32,
           borderRadius: 0.75,
           typography: 'body2',
           justifyContent: 'space-between',
-          border: (theme) => `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.2)}`,
-        }}
+          border: `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.2)}`,
+        })}
       >
         {(editor.isActive('heading', { level: 1 }) && 'Heading 1') ||
           (editor.isActive('heading', { level: 2 }) && 'Heading 2') ||

@@ -27,7 +27,11 @@ export function ChartLine({ chart }: Props) {
     colors: chartColors,
     legend: { show: true },
     xaxis: { categories: chart.categories },
+    markers: {
+      size: 6,
+      strokeWidth: 3,
+    },
   });
 
-  return <Chart type="line" series={chart.series} options={chartOptions} height={320} />;
+  return <Chart type="line" series={chart.series} options={chartOptions} sx={{ height: 320 }} />;
 }

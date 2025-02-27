@@ -1,13 +1,13 @@
 import type { IDateValue } from 'src/types/common';
 
+import { useBoolean } from 'minimal-shared/hooks';
+
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-
-import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fDate } from 'src/utils/format-time';
 
@@ -40,7 +40,7 @@ export function PostCommentItem({ name, avatarUrl, message, tagUser, postedAt, h
 
       <Stack
         flexGrow={1}
-        sx={{ pb: 3, borderBottom: (theme) => `solid 1px ${theme.vars.palette.divider}` }}
+        sx={[(theme) => ({ pb: 3, borderBottom: `solid 1px ${theme.vars.palette.divider}` })]}
       >
         <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
           {name}

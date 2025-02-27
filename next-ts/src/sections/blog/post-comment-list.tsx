@@ -45,7 +45,14 @@ export function PostCommentList({ comments = [] }: Props) {
         );
       })}
 
-      <Pagination count={8} sx={{ my: { xs: 5, md: 8 }, mx: 'auto' }} />
+      <Pagination
+        count={8}
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          my: { xs: 5, md: 8 },
+        }}
+      />
     </>
   );
 }

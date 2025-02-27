@@ -13,12 +13,13 @@ export function ContactView() {
   return (
     <>
       <ContactHero />
-
       <Container component="section" sx={{ py: 10 }}>
         <Box
-          gap={10}
-          display="grid"
-          gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
+          sx={{
+            gap: 10,
+            display: 'grid',
+            gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
+          }}
         >
           <ContactForm />
 

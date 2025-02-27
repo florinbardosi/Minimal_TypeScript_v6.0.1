@@ -3,6 +3,7 @@
 import { z as zod } from 'zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useBoolean } from 'minimal-shared/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Box from '@mui/material/Box';
@@ -14,13 +15,12 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
-import { useBoolean } from 'src/hooks/use-boolean';
-
 import { NewPasswordIcon } from 'src/assets/icons';
 
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
 
+import { getErrorMessage } from '../../utils';
 import { FormHead } from '../../components/form-head';
 import { updatePassword } from '../../context/supabase';
 
@@ -46,11 +46,14 @@ export const UpdatePasswordSchema = zod
 export function SupabaseUpdatePasswordView() {
   const router = useRouter();
 
-  const [errorMsg, setErrorMsg] = useState('');
+  const showPassword = useBoolean();
 
-  const password = useBoolean();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const defaultValues = { password: '', confirmPassword: '' };
+  const defaultValues: UpdatePasswordSchemaType = {
+    password: '',
+    confirmPassword: '',
+  };
 
   const methods = useForm<UpdatePasswordSchemaType>({
     resolver: zodResolver(UpdatePasswordSchema),
@@ -69,42 +72,47 @@ export function SupabaseUpdatePasswordView() {
       router.push(paths.dashboard.root);
     } catch (error) {
       console.error(error);
-      setErrorMsg(typeof error === 'string' ? error : error.message);
+      const feedbackMessage = getErrorMessage(error);
+      setErrorMessage(feedbackMessage);
     }
   });
 
-  const renderForm = (
-    <Box gap={3} display="flex" flexDirection="column">
+  const renderForm = () => (
+    <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
       <Field.Text
         name="password"
         label="Password"
         placeholder="6+ characters"
-        type={password.value ? 'text' : 'password'}
-        InputLabelProps={{ shrink: true }}
-        InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              <IconButton onClick={password.onToggle} edge="end">
-                <Iconify icon={password.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
-              </IconButton>
-            </InputAdornment>
-          ),
+        type={showPassword.value ? 'text' : 'password'}
+        slotProps={{
+          inputLabel: { shrink: true },
+          input: {
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton onClick={showPassword.onToggle} edge="end">
+                  <Iconify icon={showPassword.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
+                </IconButton>
+              </InputAdornment>
+            ),
+          },
         }}
       />
 
       <Field.Text
         name="confirmPassword"
         label="Confirm password"
-        type={password.value ? 'text' : 'password'}
-        InputLabelProps={{ shrink: true }}
-        InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              <IconButton onClick={password.onToggle} edge="end">
-                <Iconify icon={password.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
-              </IconButton>
-            </InputAdornment>
-          ),
+        type={showPassword.value ? 'text' : 'password'}
+        slotProps={{
+          inputLabel: { shrink: true },
+          input: {
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton onClick={showPassword.onToggle} edge="end">
+                  <Iconify icon={showPassword.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
+                </IconButton>
+              </InputAdornment>
+            ),
+          },
         }}
       />
 
@@ -129,14 +137,14 @@ export function SupabaseUpdatePasswordView() {
         description="Successful updates enable access using the new password."
       />
 
-      {!!errorMsg && (
+      {!!errorMessage && (
         <Alert severity="error" sx={{ mb: 3 }}>
-          {errorMsg}
+          {errorMessage}
         </Alert>
       )}
 
       <Form methods={methods} onSubmit={onSubmit}>
-        {renderForm}
+        {renderForm()}
       </Form>
     </>
   );

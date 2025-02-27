@@ -30,14 +30,8 @@ export function ChartMixed({ chart }: Props) {
     stroke: { width: [0, 2, 2] },
     fill: { type: ['solid', 'gradient', 'solid'] },
     legend: { show: true },
-    xaxis: {
-      type: 'datetime',
-      categories: chart.categories,
-    },
-    yaxis: {
-      min: 0,
-      title: { text: 'Points' },
-    },
+    xaxis: { type: 'datetime', categories: chart.categories },
+    yaxis: { min: 0, title: { text: 'Points' } },
     tooltip: {
       shared: true,
       intersect: false,
@@ -45,5 +39,5 @@ export function ChartMixed({ chart }: Props) {
     },
   });
 
-  return <Chart type="line" series={chart.series} options={chartOptions} height={320} />;
+  return <Chart type="line" series={chart.series} options={chartOptions} sx={{ height: 320 }} />;
 }

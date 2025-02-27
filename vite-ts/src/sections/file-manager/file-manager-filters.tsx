@@ -1,8 +1,10 @@
 import type { IFileFilters } from 'src/types/file';
 import type { IDatePickerControl } from 'src/types/common';
-import type { UseSetStateReturn } from 'src/hooks/use-set-state';
+import type { UseSetStateReturn } from 'minimal-shared/hooks';
 
 import { useCallback } from 'react';
+import { varAlpha } from 'minimal-shared/utils';
+import { usePopover } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
@@ -13,12 +15,10 @@ import InputAdornment from '@mui/material/InputAdornment';
 
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
-import { varAlpha } from 'src/theme/styles';
-
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { FileThumbnail } from 'src/components/file-thumbnail';
-import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import { CustomPopover } from 'src/components/custom-popover';
 import { CustomDateRangePicker } from 'src/components/custom-date-range-picker';
 
 // ----------------------------------------------------------------------
@@ -44,120 +44,127 @@ export function FileManagerFilters({
   onOpenDateRange,
   onCloseDateRange,
 }: Props) {
-  const popover = usePopover();
+  const menuActions = usePopover();
 
-  const renderLabel = filters.state.type.length
-    ? filters.state.type.slice(0, 2).join(',')
+  const { state: currentFilters, setState: updateFilters } = filters;
+
+  const displayLabel = currentFilters.type.length
+    ? currentFilters.type.slice(0, 2).join(',')
     : 'All type';
 
   const handleFilterName = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       onResetPage();
-      filters.setState({ name: event.target.value });
+      updateFilters({ name: event.target.value });
     },
-    [filters, onResetPage]
+    [onResetPage, updateFilters]
   );
 
   const handleFilterStartDate = useCallback(
     (newValue: IDatePickerControl) => {
       onResetPage();
-      filters.setState({ startDate: newValue });
+      updateFilters({ startDate: newValue });
     },
-    [filters, onResetPage]
+    [onResetPage, updateFilters]
   );
 
   const handleFilterEndDate = useCallback(
     (newValue: IDatePickerControl) => {
-      filters.setState({ endDate: newValue });
+      updateFilters({ endDate: newValue });
     },
-    [filters]
+    [updateFilters]
   );
 
   const handleFilterType = useCallback(
     (newValue: string) => {
-      const checked = filters.state.type.includes(newValue)
-        ? filters.state.type.filter((value) => value !== newValue)
-        : [...filters.state.type, newValue];
+      const checked = currentFilters.type.includes(newValue)
+        ? currentFilters.type.filter((value) => value !== newValue)
+        : [...currentFilters.type, newValue];
 
-      filters.setState({ type: checked });
+      updateFilters({ type: checked });
     },
-    [filters]
+    [updateFilters, currentFilters.type]
   );
 
   const handleResetType = useCallback(() => {
-    popover.onClose();
-    filters.setState({ type: [] });
-  }, [filters, popover]);
+    menuActions.onClose();
+    updateFilters({ type: [] });
+  }, [menuActions, updateFilters]);
 
-  const renderFilterName = (
+  const renderFilterName = () => (
     <TextField
-      value={filters.state.name}
+      value={currentFilters.name}
       onChange={handleFilterName}
       placeholder="Search..."
-      InputProps={{
-        startAdornment: (
-          <InputAdornment position="start">
-            <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-          </InputAdornment>
-        ),
+      slotProps={{
+        input: {
+          startAdornment: (
+            <InputAdornment position="start">
+              <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+            </InputAdornment>
+          ),
+        },
       }}
       sx={{ width: { xs: 1, md: 260 } }}
     />
   );
 
-  const renderFilterType = (
+  const renderFilterType = () => (
     <>
       <Button
         color="inherit"
-        onClick={popover.onOpen}
+        onClick={menuActions.onOpen}
         endIcon={
           <Iconify
-            icon={popover.open ? 'eva:arrow-ios-upward-fill' : 'eva:arrow-ios-downward-fill'}
+            icon={menuActions.open ? 'eva:arrow-ios-upward-fill' : 'eva:arrow-ios-downward-fill'}
             sx={{ ml: -0.5 }}
           />
         }
       >
-        {renderLabel}
-        {filters.state.type.length > 2 && (
+        {displayLabel}
+        {currentFilters.type.length > 2 && (
           <Label color="info" sx={{ ml: 1 }}>
-            +{filters.state.type.length - 2}
+            +{currentFilters.type.length - 2}
           </Label>
         )}
       </Button>
 
       <CustomPopover
-        open={popover.open}
-        anchorEl={popover.anchorEl}
-        onClose={popover.onClose}
+        open={menuActions.open}
+        anchorEl={menuActions.anchorEl}
+        onClose={menuActions.onClose}
         slotProps={{ paper: { sx: { p: 2.5 } } }}
       >
         <Stack spacing={2.5}>
           <Box
-            gap={1}
-            display="grid"
-            gridTemplateColumns={{ xs: 'repeat(2, 1fr)', sm: 'repeat(4, 1fr)' }}
+            sx={{
+              gap: 1,
+              display: 'grid',
+              gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(4, 1fr)' },
+            }}
           >
             {options.types.map((type) => {
-              const selected = filters.state.type.includes(type);
+              const selected = currentFilters.type.includes(type);
 
               return (
                 <CardActionArea
                   key={type}
                   onClick={() => handleFilterType(type)}
-                  sx={{
-                    p: 1,
-                    borderRadius: 1,
-                    cursor: 'pointer',
-                    border: (theme) =>
-                      `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}`,
-                    ...(selected && { bgcolor: 'action.selected' }),
-                  }}
+                  sx={[
+                    (theme) => ({
+                      p: 1,
+                      borderRadius: 1,
+                      cursor: 'pointer',
+                      border: `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}`,
+                      ...(selected && { bgcolor: 'action.selected' }),
+                    }),
+                  ]}
                 >
-                  <Stack
-                    spacing={1}
-                    direction="row"
-                    alignItems="center"
+                  <Box
                     sx={{
+                      gap: 1,
+                      display: 'flex',
+                      alignItems: 'center',
                       typography: 'caption',
                       textTransform: 'capitalize',
                       ...(selected && { fontWeight: 'fontWeightSemiBold' }),
@@ -165,27 +172,34 @@ export function FileManagerFilters({
                   >
                     <FileThumbnail file={type} sx={{ width: 24, height: 24 }} />
                     {type}
-                  </Stack>
+                  </Box>
                 </CardActionArea>
               );
             })}
           </Box>
 
-          <Stack spacing={1.5} direction="row" alignItems="center" justifyContent="flex-end">
+          <Box
+            sx={{
+              gap: 1.5,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+            }}
+          >
             <Button variant="outlined" color="inherit" onClick={handleResetType}>
               Clear
             </Button>
 
-            <Button variant="contained" onClick={popover.onClose}>
+            <Button variant="contained" onClick={menuActions.onClose}>
               Apply
             </Button>
-          </Stack>
+          </Box>
         </Stack>
       </CustomPopover>
     </>
   );
 
-  const renderFilterDate = (
+  const renderFilterDate = () => (
     <>
       <Button
         color="inherit"
@@ -197,39 +211,49 @@ export function FileManagerFilters({
           />
         }
       >
-        {!!filters.state.startDate && !!filters.state.endDate
-          ? fDateRangeShortLabel(filters.state.startDate, filters.state.endDate)
+        {!!currentFilters.startDate && !!currentFilters.endDate
+          ? fDateRangeShortLabel(currentFilters.startDate, currentFilters.endDate)
           : 'Select date'}
       </Button>
 
       <CustomDateRangePicker
         variant="calendar"
-        startDate={filters.state.startDate}
-        endDate={filters.state.endDate}
+        startDate={currentFilters.startDate}
+        endDate={currentFilters.endDate}
         onChangeStartDate={handleFilterStartDate}
         onChangeEndDate={handleFilterEndDate}
         open={openDateRange}
         onClose={onCloseDateRange}
-        selected={!!filters.state.startDate && !!filters.state.endDate}
+        selected={!!currentFilters.startDate && !!currentFilters.endDate}
         error={dateError}
       />
     </>
   );
 
   return (
-    <Stack
-      spacing={1}
-      direction={{ xs: 'column', md: 'row' }}
-      alignItems={{ xs: 'flex-end', md: 'center' }}
-      sx={{ width: 1 }}
+    <Box
+      sx={{
+        gap: 1,
+        width: 1,
+        display: 'flex',
+        flexDirection: { xs: 'column', md: 'row' },
+        alignItems: { xs: 'flex-end', md: 'center' },
+      }}
     >
-      {renderFilterName}
+      {renderFilterName()}
 
-      <Stack spacing={1} direction="row" alignItems="center" justifyContent="flex-end" flexGrow={1}>
-        {renderFilterDate}
-
-        {renderFilterType}
-      </Stack>
-    </Stack>
+      <Box
+        sx={{
+          gap: 1,
+          flexGrow: 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-end',
+        }}
+      >
+        {renderFilterDate()}
+        {renderFilterType()}
+      </Box>
+    </Box>
   );
 }

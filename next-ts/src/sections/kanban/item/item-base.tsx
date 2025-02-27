@@ -1,19 +1,14 @@
 import type { IKanbanTask } from 'src/types/kanban';
 import type { Transform } from '@dnd-kit/utilities';
-import type { StackProps } from '@mui/material/Stack';
 import type { DraggableSyntheticListeners } from '@dnd-kit/core';
 
 import { memo, useEffect, forwardRef } from 'react';
+import { varAlpha, mergeClasses } from 'minimal-shared/utils';
 
 import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
-import ListItem from '@mui/material/ListItem';
 import { styled } from '@mui/material/styles';
-import Typography from '@mui/material/Typography';
 import AvatarGroup, { avatarGroupClasses } from '@mui/material/AvatarGroup';
-
-import { varAlpha, stylesMode } from 'src/theme/styles';
 
 import { Iconify } from 'src/components/iconify';
 import { imageClasses } from 'src/components/image';
@@ -22,45 +17,9 @@ import { kanbanClasses } from '../classes';
 
 // ----------------------------------------------------------------------
 
-export const StyledItemWrap = styled(ListItem)(() => ({
-  '@keyframes fadeIn': { '0%': { opacity: 0 }, '100%': { opacity: 1 } },
-  transform:
-    'translate3d(var(--translate-x, 0), var(--translate-y, 0), 0) scaleX(var(--scale-x, 1)) scaleY(var(--scale-y, 1))',
-  transformOrigin: '0 0',
-  touchAction: 'manipulation',
-  [`&.${kanbanClasses.state.fadeIn}`]: { animation: 'fadeIn 500ms ease' },
-  [`&.${kanbanClasses.state.dragOverlay}`]: { zIndex: 999 },
-}));
-
-export const StyledItem = styled(Stack)(({ theme }) => ({
-  width: '100%',
-  cursor: 'grab',
-  outline: 'none',
-  overflow: 'hidden',
-  position: 'relative',
-  transformOrigin: '50% 50%',
-  touchAction: 'manipulation',
-  boxShadow: theme.customShadows.z1,
-  borderRadius: 'var(--item-radius)',
-  WebkitTapHighlightColor: 'transparent',
-  backgroundColor: theme.vars.palette.common.white,
-  transition: theme.transitions.create(['box-shadow']),
-  [stylesMode.dark]: { backgroundColor: theme.vars.palette.grey[900] },
-  [`&.${kanbanClasses.state.disabled}`]: {},
-  [`&.${kanbanClasses.state.sorting}`]: {},
-  [`&.${kanbanClasses.state.dragOverlay}`]: {
-    backdropFilter: `blur(6px)`,
-    boxShadow: theme.customShadows.z20,
-    backgroundColor: varAlpha(theme.vars.palette.common.whiteChannel, 0.48),
-    [stylesMode.dark]: { backgroundColor: varAlpha(theme.vars.palette.grey['900Channel'], 0.48) },
-  },
-  [`&.${kanbanClasses.state.dragging}`]: { opacity: 0.2, filter: 'grayscale(1)' },
-}));
-
-// ----------------------------------------------------------------------
-
-type ItemBaseProps = StackProps & {
+export type ItemBaseProps = React.ComponentProps<typeof ItemRoot> & {
   task: IKanbanTask;
+  open?: boolean;
   stateProps?: {
     fadeIn?: boolean;
     sorting?: boolean;
@@ -73,139 +32,209 @@ type ItemBaseProps = StackProps & {
   };
 };
 
-const ItemBase = forwardRef<HTMLLIElement, ItemBaseProps>(
-  ({ task, stateProps, sx, ...other }, ref) => {
-    useEffect(() => {
-      if (!stateProps?.dragOverlay) {
-        return;
+const ItemBase = forwardRef<HTMLLIElement, ItemBaseProps>((props, ref) => {
+  const { task, open, stateProps, sx, ...other } = props;
+
+  const { fadeIn, sorting, disabled, dragging, dragOverlay, transition, transform, listeners } =
+    stateProps ?? {};
+
+  useEffect(() => {
+    if (!dragOverlay) {
+      return;
+    }
+
+    document.body.style.cursor = 'grabbing';
+
+    // eslint-disable-next-line consistent-return
+    return () => {
+      document.body.style.cursor = '';
+    };
+  }, [dragOverlay]);
+
+  const renderPriority = () => (
+    <Iconify
+      icon={
+        (task.priority === 'low' && 'solar:double-alt-arrow-down-bold-duotone') ||
+        (task.priority === 'medium' && 'solar:double-alt-arrow-right-bold-duotone') ||
+        'solar:double-alt-arrow-up-bold-duotone'
       }
+      sx={{
+        top: 4,
+        right: 4,
+        position: 'absolute',
+        ...(task.priority === 'low' && { color: 'info.main' }),
+        ...(task.priority === 'medium' && { color: 'warning.main' }),
+        ...(task.priority === 'hight' && { color: 'error.main' }),
+      }}
+    />
+  );
 
-      document.body.style.cursor = 'grabbing';
-
-      // eslint-disable-next-line consistent-return
-      return () => {
-        document.body.style.cursor = '';
-      };
-    }, [stateProps?.dragOverlay]);
-
-    const itemWrapClassName = kanbanClasses.itemWrap.concat(
-      (stateProps?.fadeIn && ` ${kanbanClasses.state.fadeIn}`) ||
-        (stateProps?.dragOverlay && ` ${kanbanClasses.state.dragOverlay}`) ||
-        ''
-    );
-
-    const itemClassName = kanbanClasses.item.concat(
-      (stateProps?.dragging && ` ${kanbanClasses.state.dragging}`) ||
-        (stateProps?.disabled && ` ${kanbanClasses.state.disabled}`) ||
-        (stateProps?.sorting && ` ${kanbanClasses.state.sorting}`) ||
-        (stateProps?.dragOverlay && ` ${kanbanClasses.state.dragOverlay}`) ||
-        ''
-    );
-
-    const renderPriority = (
-      <Iconify
-        icon={
-          (task.priority === 'low' && 'solar:double-alt-arrow-down-bold-duotone') ||
-          (task.priority === 'medium' && 'solar:double-alt-arrow-right-bold-duotone') ||
-          'solar:double-alt-arrow-up-bold-duotone'
-        }
-        sx={{
-          top: 4,
-          right: 4,
-          position: 'absolute',
-          ...(task.priority === 'low' && { color: 'info.main' }),
-          ...(task.priority === 'medium' && { color: 'warning.main' }),
-          ...(task.priority === 'hight' && { color: 'error.main' }),
-        }}
-      />
-    );
-
-    const renderImg = !!task?.attachments?.length && (
-      <Box
-        sx={{
-          p: (theme) => theme.spacing(1, 1, 0, 1),
-        }}
-      >
-        <Box
-          component="img"
+  const renderImage = () =>
+    !!task?.attachments?.length && (
+      <Box sx={[(theme) => ({ p: theme.spacing(1, 1, 0, 1) })]}>
+        <ItemImage
+          open={open}
           className={imageClasses.root}
           alt={task?.attachments?.[0]}
           src={task?.attachments?.[0]}
-          sx={{
-            width: 320,
-            height: 'auto',
-            borderRadius: 1.5,
-            aspectRatio: '4/3',
-            objectFit: 'cover',
-          }}
         />
       </Box>
     );
 
-    const renderInfo = (
-      <Stack direction="row" alignItems="center">
-        <Stack
-          flexGrow={1}
-          direction="row"
-          alignItems="center"
-          sx={{ typography: 'caption', color: 'text.disabled' }}
-        >
-          <Iconify width={16} icon="solar:chat-round-dots-bold" sx={{ mr: 0.25 }} />
-
-          <Box component="span" sx={{ mr: 1 }}>
-            {task?.comments?.length}
-          </Box>
-
-          <Iconify width={16} icon="eva:attach-2-fill" sx={{ mr: 0.25 }} />
-          <Box component="span">{task?.attachments?.length}</Box>
-        </Stack>
-
-        <AvatarGroup sx={{ [`& .${avatarGroupClasses.avatar}`]: { width: 24, height: 24 } }}>
-          {task?.assignee?.map((user) => (
-            <Avatar key={user.id} alt={user.name} src={user.avatarUrl} />
-          ))}
-        </AvatarGroup>
-      </Stack>
-    );
-
-    return (
-      <StyledItemWrap
-        ref={ref}
-        disablePadding
-        className={itemWrapClassName}
+  const renderInfo = () => (
+    <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
+      <Box
         sx={{
-          ...(!!stateProps?.transition && { transition: stateProps.transition }),
-          ...(!!stateProps?.transform && {
-            '--translate-x': `${Math.round(stateProps.transform.x)}px`,
-            '--translate-y': `${Math.round(stateProps.transform.y)}px`,
-            '--scale-x': `${stateProps.transform.scaleX}`,
-            '--scale-y': `${stateProps.transform.scaleY}`,
-          }),
+          flexGrow: 1,
+          display: 'flex',
+          alignItems: 'center',
+          typography: 'caption',
+          color: 'text.disabled',
         }}
       >
-        <StyledItem
-          className={itemClassName}
-          data-cypress="draggable-item"
-          sx={sx}
-          tabIndex={0}
-          {...stateProps?.listeners}
-          {...other}
-        >
-          {renderImg}
+        {!!task?.comments?.length && (
+          <>
+            <Iconify width={16} icon="solar:chat-round-dots-bold" sx={{ mr: 0.25 }} />
+            <Box component="span" sx={{ mr: 1 }}>
+              {task?.comments?.length}
+            </Box>
+          </>
+        )}
 
-          <Box sx={{ px: 2, py: 2.5, position: 'relative' }}>
-            {renderPriority}
+        {!!task?.attachments?.length && (
+          <>
+            <Iconify width={16} icon="eva:attach-2-fill" sx={{ mr: 0.25 }} />
+            <Box component="span">{task?.attachments?.length}</Box>
+          </>
+        )}
+      </Box>
 
-            <Typography variant="subtitle2" sx={{ mb: 2 }}>
-              {task.name}
-            </Typography>
+      <AvatarGroup sx={{ [`& .${avatarGroupClasses.avatar}`]: { width: 24, height: 24 } }}>
+        {task?.assignee?.map((user) => (
+          <Avatar key={user.id} alt={user.name} src={user.avatarUrl} />
+        ))}
+      </AvatarGroup>
+    </Box>
+  );
 
-            {renderInfo}
-          </Box>
-        </StyledItem>
-      </StyledItemWrap>
-    );
-  }
-);
+  return (
+    <ItemWrap
+      ref={ref}
+      className={mergeClasses([kanbanClasses.itemWrap], {
+        [kanbanClasses.state.fadeIn]: fadeIn,
+        [kanbanClasses.state.dragOverlay]: dragOverlay,
+      })}
+      style={{
+        ...(!!transition && { transition }),
+        ...(!!transform && {
+          '--translate-x': `${Math.round(transform.x)}px`,
+          '--translate-y': `${Math.round(transform.y)}px`,
+          '--scale-x': `${transform.scaleX}`,
+          '--scale-y': `${transform.scaleY}`,
+        }),
+      }}
+    >
+      <ItemRoot
+        className={mergeClasses([kanbanClasses.item], {
+          [kanbanClasses.state.sorting]: sorting,
+          [kanbanClasses.state.dragging]: dragging,
+          [kanbanClasses.state.disabled]: disabled,
+          [kanbanClasses.state.dragOverlay]: dragOverlay,
+        })}
+        data-cypress="draggable-item"
+        tabIndex={0}
+        sx={sx}
+        {...listeners}
+        {...other}
+      >
+        {renderImage()}
+
+        <ItemContent>
+          {renderPriority()}
+          {task.name}
+          {renderInfo()}
+        </ItemContent>
+      </ItemRoot>
+    </ItemWrap>
+  );
+});
 
 export default memo(ItemBase);
+
+// ----------------------------------------------------------------------
+
+const ItemWrap = styled('li')(() => ({
+  '@keyframes fadeIn': {
+    '0%': { opacity: 0 },
+    '100%': { opacity: 1 },
+  },
+  display: 'flex',
+  transform:
+    'translate3d(var(--translate-x, 0), var(--translate-y, 0), 0) scaleX(var(--scale-x, 1)) scaleY(var(--scale-y, 1))',
+  transformOrigin: '0 0',
+  touchAction: 'manipulation',
+  [`&.${kanbanClasses.state.fadeIn}`]: {
+    animation: 'fadeIn 500ms ease',
+  },
+  [`&.${kanbanClasses.state.dragOverlay}`]: {
+    zIndex: 999,
+  },
+}));
+
+const ItemRoot = styled('div')(({ theme }) => ({
+  width: '100%',
+  cursor: 'grab',
+  outline: 'none',
+  overflow: 'hidden',
+  position: 'relative',
+  transformOrigin: '50% 50%',
+  touchAction: 'manipulation',
+  borderRadius: 'var(--item-radius)',
+  WebkitTapHighlightColor: 'transparent',
+  boxShadow: theme.vars.customShadows.z1,
+  backgroundColor: theme.vars.palette.common.white,
+  transition: theme.transitions.create(['box-shadow']),
+  ...theme.applyStyles('dark', {
+    backgroundColor: theme.vars.palette.grey[900],
+  }),
+  [`&.${kanbanClasses.state.disabled}`]: {},
+  [`&.${kanbanClasses.state.sorting}`]: {},
+  // When move item overlay
+  [`&.${kanbanClasses.state.dragOverlay}`]: {
+    backdropFilter: 'blur(6px)',
+    boxShadow: theme.vars.customShadows.z20,
+    backgroundColor: varAlpha(theme.vars.palette.common.whiteChannel, 0.48),
+    ...theme.applyStyles('dark', {
+      backgroundColor: varAlpha(theme.vars.palette.grey['900Channel'], 0.48),
+    }),
+  },
+  // Placeholder when dragging item
+  [`&.${kanbanClasses.state.dragging}`]: {
+    opacity: 0.2,
+    filter: 'grayscale(1)',
+  },
+}));
+
+const ItemContent = styled('div')(({ theme }) => ({
+  ...theme.typography.subtitle2,
+  position: 'relative',
+  padding: theme.spacing(2.5, 2),
+}));
+
+const ItemImage = styled('img', {
+  shouldForwardProp: (prop: string) => !['open', 'sx'].includes(prop),
+})<Pick<ItemBaseProps, 'open'>>(({ theme }) => ({
+  width: 320,
+  height: 'auto',
+  aspectRatio: '4/3',
+  objectFit: 'cover',
+  borderRadius: theme.shape.borderRadius * 1.5,
+  variants: [
+    {
+      props: { open: true },
+      style: {
+        opacity: 0.8,
+      },
+    },
+  ],
+}));

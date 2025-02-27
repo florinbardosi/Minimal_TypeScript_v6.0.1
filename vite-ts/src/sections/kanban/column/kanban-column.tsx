@@ -4,9 +4,8 @@ import type { IKanbanTask, IKanbanColumn } from 'src/types/kanban';
 
 import { useCallback } from 'react';
 import { CSS } from '@dnd-kit/utilities';
+import { useBoolean } from 'minimal-shared/hooks';
 import { useSortable, defaultAnimateLayoutChanges } from '@dnd-kit/sortable';
-
-import { useBoolean } from 'src/hooks/use-boolean';
 
 import { createTask, clearColumn, deleteColumn, updateColumn } from 'src/actions/kanban';
 
@@ -25,6 +24,9 @@ type ColumnProps = {
   column: IKanbanColumn;
   children: React.ReactNode;
 };
+
+const animateLayoutChanges: AnimateLayoutChanges = (args) =>
+  defaultAnimateLayoutChanges({ ...args, wasDragging: true });
 
 export function KanbanColumn({ children, column, tasks, disabled, sx }: ColumnProps) {
   const openAddTask = useBoolean();
@@ -92,10 +94,14 @@ export function KanbanColumn({ children, column, tasks, disabled, sx }: ColumnPr
   return (
     <ColumnBase
       ref={disabled ? undefined : setNodeRef}
-      sx={{ transition, transform: CSS.Translate.toString(transform), ...sx }}
+      style={{
+        transition,
+        transform: CSS.Translate.toString(transform),
+      }}
+      sx={sx}
       stateProps={{
         dragging: isDragging,
-        hover: isOverContainer,
+        overContainer: isOverContainer,
         handleProps: { ...attributes, ...listeners },
       }}
       slots={{
@@ -110,7 +116,7 @@ export function KanbanColumn({ children, column, tasks, disabled, sx }: ColumnPr
             onToggleAddTask={openAddTask.onToggle}
           />
         ),
-        main: <>{children}</>,
+        main: children,
         action: (
           <KanbanTaskAdd
             status={column.name}
@@ -123,8 +129,3 @@ export function KanbanColumn({ children, column, tasks, disabled, sx }: ColumnPr
     />
   );
 }
-
-// ----------------------------------------------------------------------
-
-const animateLayoutChanges: AnimateLayoutChanges = (args) =>
-  defaultAnimateLayoutChanges({ ...args, wasDragging: true });

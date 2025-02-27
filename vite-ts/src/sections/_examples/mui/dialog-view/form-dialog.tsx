@@ -1,3 +1,5 @@
+import { useBoolean } from 'minimal-shared/hooks';
+
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import TextField from '@mui/material/TextField';
@@ -6,20 +8,18 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 
-import { useBoolean } from 'src/hooks/use-boolean';
-
 // ----------------------------------------------------------------------
 
 export function FormDialog() {
-  const dialog = useBoolean();
+  const openDialog = useBoolean();
 
   return (
     <div>
-      <Button variant="outlined" color="warning" onClick={dialog.onTrue}>
+      <Button variant="outlined" color="warning" onClick={openDialog.onTrue}>
         Form Dialogs
       </Button>
 
-      <Dialog open={dialog.value} onClose={dialog.onFalse}>
+      <Dialog open={openDialog.value} onClose={openDialog.onFalse}>
         <DialogTitle>Subscribe</DialogTitle>
 
         <DialogContent>
@@ -39,10 +39,10 @@ export function FormDialog() {
         </DialogContent>
 
         <DialogActions>
-          <Button onClick={dialog.onFalse} variant="outlined" color="inherit">
+          <Button onClick={openDialog.onFalse} variant="outlined" color="inherit">
             Cancel
           </Button>
-          <Button onClick={dialog.onFalse} variant="contained">
+          <Button onClick={openDialog.onFalse} variant="contained">
             Subscribe
           </Button>
         </DialogActions>

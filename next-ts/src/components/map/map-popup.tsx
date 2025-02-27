@@ -1,16 +1,19 @@
-import type { PopupProps } from 'react-map-gl';
-import type { BoxProps } from '@mui/material/Box';
-
 import { Popup } from 'react-map-gl';
 
-import Box from '@mui/material/Box';
+import { styled } from '@mui/material/styles';
 
 // ----------------------------------------------------------------------
 
-export function MapPopup({ sx, children, ...other }: PopupProps & BoxProps) {
+export type MapPopupProps = React.ComponentProps<typeof MapPopupRoot>;
+
+export function MapPopup({ sx, children, ...other }: MapPopupProps) {
   return (
-    <Box component={Popup} anchor="bottom" sx={sx} {...other}>
+    <MapPopupRoot anchor="bottom" sx={sx} {...other}>
       {children}
-    </Box>
+    </MapPopupRoot>
   );
 }
+
+// ----------------------------------------------------------------------
+
+const MapPopupRoot = styled(Popup)``;

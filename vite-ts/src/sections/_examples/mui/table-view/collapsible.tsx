@@ -1,3 +1,5 @@
+import { useBoolean } from 'minimal-shared/hooks';
+
 import Table from '@mui/material/Table';
 import Paper from '@mui/material/Paper';
 import TableRow from '@mui/material/TableRow';
@@ -8,26 +10,77 @@ import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 
-import { useBoolean } from 'src/hooks/use-boolean';
-
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-
-import { createData } from './utils';
 
 // ----------------------------------------------------------------------
 
 const TABLE_DATA = [
-  createData('Frozen yoghurt', 159, 6.0, 24, 4.0, 3.99),
-  createData('Ice cream sandwich', 237, 9.0, 37, 4.3, 4.99),
-  createData('Eclair', 262, 16.0, 24, 6.0, 3.79),
-  createData('Cupcake', 305, 3.7, 67, 4.3, 2.5),
-  createData('Gingerbread', 356, 16.0, 49, 3.9, 1.5),
+  {
+    name: 'Frozen yoghurt',
+    calories: 159,
+    fat: 6,
+    carbs: 24,
+    protein: 4,
+    price: 3.99,
+    history: [
+      { date: '2020-01-05', customerId: '11091700', amount: 3 },
+      { date: '2020-01-02', customerId: 'Anonymous', amount: 1 },
+    ],
+  },
+  {
+    name: 'Ice cream sandwich',
+    calories: 237,
+    fat: 9,
+    carbs: 37,
+    protein: 4.3,
+    price: 4.99,
+    history: [
+      { date: '2020-01-05', customerId: '11091700', amount: 3 },
+      { date: '2020-01-02', customerId: 'Anonymous', amount: 1 },
+    ],
+  },
+  {
+    name: 'Eclair',
+    calories: 262,
+    fat: 16,
+    carbs: 24,
+    protein: 6,
+    price: 3.79,
+    history: [
+      { date: '2020-01-05', customerId: '11091700', amount: 3 },
+      { date: '2020-01-02', customerId: 'Anonymous', amount: 1 },
+    ],
+  },
+  {
+    name: 'Cupcake',
+    calories: 305,
+    fat: 3.7,
+    carbs: 67,
+    protein: 4.3,
+    price: 2.5,
+    history: [
+      { date: '2020-01-05', customerId: '11091700', amount: 3 },
+      { date: '2020-01-02', customerId: 'Anonymous', amount: 1 },
+    ],
+  },
+  {
+    name: 'Gingerbread',
+    calories: 356,
+    fat: 16,
+    carbs: 49,
+    protein: 3.9,
+    price: 1.5,
+    history: [
+      { date: '2020-01-05', customerId: '11091700', amount: 3 },
+      { date: '2020-01-02', customerId: 'Anonymous', amount: 1 },
+    ],
+  },
 ];
 
 export function CollapsibleTable() {
   return (
-    <Scrollbar>
+    <Scrollbar sx={{ minHeight: 372 }}>
       <Table sx={{ minWidth: 800 }}>
         <TableHead>
           <TableRow>
@@ -53,7 +106,7 @@ export function CollapsibleTable() {
 // ----------------------------------------------------------------------
 
 type CollapsibleTableRowProps = {
-  row: ReturnType<typeof createData>;
+  row: (typeof TABLE_DATA)[number];
 };
 
 function CollapsibleTableRow({ row }: CollapsibleTableRowProps) {
@@ -87,12 +140,14 @@ function CollapsibleTableRow({ row }: CollapsibleTableRowProps) {
           <Collapse in={collapsible.value} timeout="auto" unmountOnExit>
             <Paper
               variant="outlined"
-              sx={{
-                py: 2,
-                mb: 2,
-                borderRadius: 1.5,
-                ...(collapsible.value && { boxShadow: (theme) => theme.customShadows.z20 }),
-              }}
+              sx={[
+                (theme) => ({
+                  py: 2,
+                  mb: 2,
+                  borderRadius: 1.5,
+                  ...(collapsible.value && { boxShadow: theme.vars.customShadows.z20 }),
+                }),
+              ]}
             >
               <Typography variant="h6" component="div" sx={{ p: 2 }}>
                 History

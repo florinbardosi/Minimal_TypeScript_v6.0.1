@@ -2,32 +2,19 @@ import Paper from '@mui/material/Paper';
 
 import { NavSectionHorizontal } from 'src/components/nav-section';
 
-import { NAV_ITEMS } from './data';
+import { NAV_SECTION_ITEMS } from './data';
 
 // ----------------------------------------------------------------------
 
 export function NavHorizontal() {
   return (
-    <Paper
-      variant="outlined"
-      sx={{
-        px: 2,
-        height: 80,
-        borderRadius: 2,
-      }}
-    >
+    <Paper variant="outlined" sx={{ px: 2, height: 80, borderRadius: 1.5 }}>
       <NavSectionHorizontal
-        data={NAV_ITEMS}
-        cssVars={{
-          '--nav-item-gap': '24px',
-        }}
+        data={NAV_SECTION_ITEMS}
+        cssVars={{ '--nav-item-gap': '16px' }}
         slotProps={{
-          paper: {},
           rootItem: {
-            sx: {
-              typography: 'subtitle1',
-              fontFamily: (theme) => theme.typography.fontSecondaryFamily,
-            },
+            sx: {},
             icon: {},
             title: {},
             caption: {},
@@ -42,6 +29,7 @@ export function NavHorizontal() {
             info: {},
             arrow: {},
           },
+          dropdown: { paper: {} },
         }}
       />
     </Paper>

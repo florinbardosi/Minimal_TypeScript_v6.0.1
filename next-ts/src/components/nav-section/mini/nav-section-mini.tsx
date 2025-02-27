@@ -1,10 +1,10 @@
-import Stack from '@mui/material/Stack';
+import { mergeClasses } from 'minimal-shared/utils';
+
 import { useTheme } from '@mui/material/styles';
 
 import { NavList } from './nav-list';
-import { NavUl, NavLi } from '../styles';
-import { navSectionClasses } from '../classes';
-import { navSectionCssVars } from '../css-vars';
+import { Nav, NavUl, NavLi } from '../components';
+import { navSectionClasses, navSectionCssVars } from '../styles';
 
 import type { NavGroupProps, NavSectionProps } from '../types';
 
@@ -14,19 +14,23 @@ export function NavSectionMini({
   sx,
   data,
   render,
+  className,
   slotProps,
+  currentRole,
   enabledRootRedirect,
   cssVars: overridesVars,
+  ...other
 }: NavSectionProps) {
   const theme = useTheme();
 
-  const cssVars = {
-    ...navSectionCssVars.mini(theme),
-    ...overridesVars,
-  };
+  const cssVars = { ...navSectionCssVars.mini(theme), ...overridesVars };
 
   return (
-    <Stack component="nav" className={navSectionClasses.mini.root} sx={{ ...cssVars, ...sx }}>
+    <Nav
+      className={mergeClasses([navSectionClasses.mini, className])}
+      sx={[{ ...cssVars }, ...(Array.isArray(sx) ? sx : [sx])]}
+      {...other}
+    >
       <NavUl sx={{ flex: '1 1 auto', gap: 'var(--nav-item-gap)' }}>
         {data.map((group) => (
           <Group
@@ -35,17 +39,25 @@ export function NavSectionMini({
             cssVars={cssVars}
             items={group.items}
             slotProps={slotProps}
+            currentRole={currentRole}
             enabledRootRedirect={enabledRootRedirect}
           />
         ))}
       </NavUl>
-    </Stack>
+    </Nav>
   );
 }
 
 // ----------------------------------------------------------------------
 
-function Group({ items, render, slotProps, enabledRootRedirect, cssVars }: NavGroupProps) {
+function Group({
+  items,
+  render,
+  cssVars,
+  slotProps,
+  currentRole,
+  enabledRootRedirect,
+}: NavGroupProps) {
   return (
     <NavLi>
       <NavUl sx={{ gap: 'var(--nav-item-gap)' }}>
@@ -57,6 +69,7 @@ function Group({ items, render, slotProps, enabledRootRedirect, cssVars }: NavGr
             render={render}
             cssVars={cssVars}
             slotProps={slotProps}
+            currentRole={currentRole}
             enabledRootRedirect={enabledRootRedirect}
           />
         ))}

@@ -27,7 +27,7 @@ type Props = CardProps & {
   };
 };
 
-export function FileStorageOverview({ data, total, chart, ...other }: Props) {
+export function FileStorageOverview({ data, total, chart, sx, ...other }: Props) {
   const theme = useTheme();
 
   const chartColors = chart.colors ?? [theme.palette.secondary.main, theme.palette.secondary.light];
@@ -67,14 +67,13 @@ export function FileStorageOverview({ data, total, chart, ...other }: Props) {
   });
 
   return (
-    <Card {...other}>
+    <Card sx={sx} {...other}>
       <Chart
         type="radialBar"
         series={[chart.series]}
         options={chartOptions}
-        width={240}
-        height={240}
-        sx={{ mx: 'auto' }}
+        slotProps={{ loading: { p: 3 } }}
+        sx={{ mx: 'auto', width: 240, height: 240 }}
       />
 
       <Stack
@@ -89,12 +88,14 @@ export function FileStorageOverview({ data, total, chart, ...other }: Props) {
         }}
       >
         {data.map((category) => (
-          <Stack
+          <Box
             key={category.name}
-            spacing={2}
-            direction="row"
-            alignItems="center"
-            sx={{ typography: 'subtitle2' }}
+            sx={{
+              gap: 2,
+              display: 'flex',
+              alignItems: 'center',
+              typography: 'subtitle2',
+            }}
           >
             <Box sx={{ width: 36, height: 36 }}>{category.icon}</Box>
 
@@ -107,7 +108,7 @@ export function FileStorageOverview({ data, total, chart, ...other }: Props) {
             </Stack>
 
             <Box component="span"> {fData(category.usedStorage)} </Box>
-          </Stack>
+          </Box>
         ))}
       </Stack>
     </Card>

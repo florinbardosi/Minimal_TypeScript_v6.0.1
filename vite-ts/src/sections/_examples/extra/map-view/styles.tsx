@@ -1,13 +1,13 @@
-import { styled } from '@mui/material/styles';
+import { varAlpha } from 'minimal-shared/utils';
 
-import { bgBlur, varAlpha } from 'src/theme/styles';
+import { styled } from '@mui/material/styles';
 
 // ----------------------------------------------------------------------
 
-export const StyledControlPanel = styled('div')(({ theme }) => ({
-  ...bgBlur({ color: varAlpha(theme.vars.palette.grey['900Channel'], 0.8) }),
+export const ControlPanelRoot = styled('div')(({ theme }) => ({
+  ...theme.mixins.bgBlur({ color: varAlpha(theme.vars.palette.grey['900Channel'], 0.8) }),
   zIndex: 9,
-  minWidth: 200,
+  minWidth: 180,
   position: 'absolute',
   top: theme.spacing(1),
   right: theme.spacing(1),

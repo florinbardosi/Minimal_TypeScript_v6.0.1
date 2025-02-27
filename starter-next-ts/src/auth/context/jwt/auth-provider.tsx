@@ -1,12 +1,11 @@
 'use client';
 
+import { useSetState } from 'minimal-shared/hooks';
 import { useMemo, useEffect, useCallback } from 'react';
 
-import { useSetState } from 'src/hooks/use-set-state';
+import axios, { endpoints } from 'src/lib/axios';
 
-import axios, { endpoints } from 'src/utils/axios';
-
-import { STORAGE_KEY } from './constant';
+import { JWT_STORAGE_KEY } from './constant';
 import { AuthContext } from '../auth-context';
 import { setSession, isValidToken } from './utils';
 
@@ -25,14 +24,11 @@ type Props = {
 };
 
 export function AuthProvider({ children }: Props) {
-  const { state, setState } = useSetState<AuthState>({
-    user: null,
-    loading: true,
-  });
+  const { state, setState } = useSetState<AuthState>({ user: null, loading: true });
 
   const checkUserSession = useCallback(async () => {
     try {
-      const accessToken = sessionStorage.getItem(STORAGE_KEY);
+      const accessToken = sessionStorage.getItem(JWT_STORAGE_KEY);
 
       if (accessToken && isValidToken(accessToken)) {
         setSession(accessToken);
@@ -64,12 +60,7 @@ export function AuthProvider({ children }: Props) {
 
   const memoizedValue = useMemo(
     () => ({
-      user: state.user
-        ? {
-            ...state.user,
-            role: state.user?.role ?? 'admin',
-          }
-        : null,
+      user: state.user ? { ...state.user, role: state.user?.role ?? 'admin' } : null,
       checkUserSession,
       loading: status === 'loading',
       authenticated: status === 'authenticated',

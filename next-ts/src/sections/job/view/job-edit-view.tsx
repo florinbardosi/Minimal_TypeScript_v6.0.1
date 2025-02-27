@@ -21,6 +21,7 @@ export function JobEditView({ job }: Props) {
     <DashboardContent>
       <CustomBreadcrumbs
         heading="Edit"
+        backHref={paths.dashboard.job.root}
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'Job', href: paths.dashboard.job.root },

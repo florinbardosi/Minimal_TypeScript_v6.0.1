@@ -36,7 +36,7 @@ type Props = DialogProps & {
 };
 
 export function ProductReviewNewForm({ onClose, ...other }: Props) {
-  const defaultValues = {
+  const defaultValues: ReviewSchemaType = {
     rating: 0,
     review: '',
     name: '',

@@ -1,15 +1,13 @@
 import 'src/global.css';
 
-// ----------------------------------------------------------------------
+import { useEffect } from 'react';
 
-import { Router } from 'src/routes/sections';
+import { usePathname } from 'src/routes/hooks';
 
-import { useScrollToTop } from 'src/hooks/use-scroll-to-top';
-
-import { CONFIG } from 'src/config-global';
+import { CONFIG } from 'src/global-config';
 import { LocalizationProvider } from 'src/locales';
+import { themeConfig, ThemeProvider } from 'src/theme';
 import { I18nProvider } from 'src/locales/i18n-provider';
-import { ThemeProvider } from 'src/theme/theme-provider';
 
 import { Snackbar } from 'src/components/snackbar';
 import { ProgressBar } from 'src/components/progress-bar';
@@ -33,27 +31,49 @@ const AuthProvider =
   (CONFIG.auth.method === 'auth0' && Auth0AuthProvider) ||
   JwtAuthProvider;
 
-export default function App() {
+// ----------------------------------------------------------------------
+
+type AppProps = {
+  children: React.ReactNode;
+};
+
+export default function App({ children }: AppProps) {
   useScrollToTop();
 
   return (
     <I18nProvider>
-      <LocalizationProvider>
-        <AuthProvider>
-          <SettingsProvider settings={defaultSettings}>
-            <ThemeProvider>
+      <AuthProvider>
+        <SettingsProvider defaultSettings={defaultSettings}>
+          <LocalizationProvider>
+            <ThemeProvider
+              noSsr
+              defaultMode={themeConfig.defaultMode}
+              modeStorageKey={themeConfig.modeStorageKey}
+            >
               <MotionLazy>
                 <CheckoutProvider>
                   <Snackbar />
                   <ProgressBar />
-                  <SettingsDrawer />
-                  <Router />
+                  <SettingsDrawer defaultSettings={defaultSettings} />
+                  {children}
                 </CheckoutProvider>
               </MotionLazy>
             </ThemeProvider>
-          </SettingsProvider>
-        </AuthProvider>
-      </LocalizationProvider>
+          </LocalizationProvider>
+        </SettingsProvider>
+      </AuthProvider>
     </I18nProvider>
   );
+}
+
+// ----------------------------------------------------------------------
+
+function useScrollToTop() {
+  const pathname = usePathname();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
 }

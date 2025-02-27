@@ -1,5 +1,6 @@
 import type { DialogProps } from '@mui/material/Dialog';
 
+import { useBoolean } from 'minimal-shared/hooks';
 import { useRef, useState, useEffect, useCallback } from 'react';
 
 import Button from '@mui/material/Button';
@@ -9,33 +10,31 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 
-import { useBoolean } from 'src/hooks/use-boolean';
-
 // ----------------------------------------------------------------------
 
 export function ScrollDialog() {
-  const dialog = useBoolean();
+  const openDialog = useBoolean();
 
   const [scroll, setScroll] = useState<DialogProps['scroll']>('paper');
 
   const handleClickOpen = useCallback(
     (scrollType: DialogProps['scroll']) => () => {
-      dialog.onTrue();
+      openDialog.onTrue();
       setScroll(scrollType);
     },
-    [dialog]
+    [openDialog]
   );
 
   const descriptionElementRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    if (dialog.value) {
+    if (openDialog.value) {
       const { current: descriptionElement } = descriptionElementRef;
       if (descriptionElement) {
         descriptionElement.focus();
       }
     }
-  }, [dialog.value]);
+  }, [openDialog.value]);
 
   return (
     <>
@@ -47,7 +46,7 @@ export function ScrollDialog() {
         scroll=body
       </Button>
 
-      <Dialog open={dialog.value} onClose={dialog.onFalse} scroll={scroll}>
+      <Dialog open={openDialog.value} onClose={openDialog.onFalse} scroll={scroll}>
         <DialogTitle sx={{ pb: 2 }}>Subscribe</DialogTitle>
 
         <DialogContent dividers={scroll === 'paper'}>
@@ -64,9 +63,9 @@ Praesent commodo cursus magna, vel scelerisque nisl consectetur et.`
         </DialogContent>
 
         <DialogActions>
-          <Button onClick={dialog.onFalse}>Cancel</Button>
+          <Button onClick={openDialog.onFalse}>Cancel</Button>
 
-          <Button variant="contained" onClick={dialog.onFalse}>
+          <Button variant="contained" onClick={openDialog.onFalse}>
             Subscribe
           </Button>
         </DialogActions>

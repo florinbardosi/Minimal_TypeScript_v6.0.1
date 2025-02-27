@@ -3,8 +3,6 @@ import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
 import CardContent from '@mui/material/CardContent';
 
-import { maxLine, varAlpha, bgGradient } from 'src/theme/styles';
-
 import { Iconify } from 'src/components/iconify';
 import {
   Carousel,
@@ -51,7 +49,12 @@ export function CarouselDotsNumber({ data }: Props) {
         scrollSnaps={carousel.dots.scrollSnaps}
         selectedIndex={carousel.dots.selectedIndex}
         onClickDot={carousel.dots.onClickDot}
-        sx={{ mt: 5, mb: 2, width: 1, justifyContent: 'center' }}
+        sx={{
+          mt: 5,
+          mb: 2,
+          width: 1,
+          justifyContent: 'center',
+        }}
       />
     </>
   );
@@ -78,18 +81,24 @@ function CarouselItem({ item, index }: CarouselItemProps) {
 
       <CardContent
         sx={(theme) => ({
-          ...bgGradient({
-            color: `to top, ${theme.vars.palette.grey[900]} 25%, ${varAlpha(theme.vars.palette.grey['900Channel'], 0)} 100%`,
-          }),
           width: 1,
           bottom: 0,
           zIndex: 9,
           textAlign: 'left',
           position: 'absolute',
           color: 'common.white',
+          backgroundImage: `linear-gradient(to top, ${theme.vars.palette.grey[900]} 25%, transparent)`,
         })}
       >
-        <Typography variant="h5" sx={{ ...maxLine({ line: 2 }), mb: 2 }}>
+        <Typography
+          variant="h5"
+          sx={[
+            (theme) => ({
+              ...theme.mixins.maxLine({ line: 2 }),
+              mb: 2,
+            }),
+          ]}
+        >
           {item.title}
         </Typography>
 

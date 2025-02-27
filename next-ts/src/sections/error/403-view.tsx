@@ -17,22 +17,26 @@ import { varBounce, MotionContainer } from 'src/components/animate';
 
 export function View403() {
   return (
-    <SimpleLayout content={{ compact: true }}>
+    <SimpleLayout
+      slotProps={{
+        content: { compact: true },
+      }}
+    >
       <Container component={MotionContainer}>
-        <m.div variants={varBounce().in}>
+        <m.div variants={varBounce('in')}>
           <Typography variant="h3" sx={{ mb: 2 }}>
             No permission
           </Typography>
         </m.div>
 
-        <m.div variants={varBounce().in}>
+        <m.div variants={varBounce('in')}>
           <Typography sx={{ color: 'text.secondary' }}>
             The page you’re trying to access has restricted access. Please refer to your system
             administrator.
           </Typography>
         </m.div>
 
-        <m.div variants={varBounce().in}>
+        <m.div variants={varBounce('in')}>
           <ForbiddenIllustration sx={{ my: { xs: 5, sm: 10 } }} />
         </m.div>
 

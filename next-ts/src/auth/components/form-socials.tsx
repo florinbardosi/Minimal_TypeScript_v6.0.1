@@ -21,7 +21,17 @@ export function FormSocials({
   ...other
 }: FormSocialsProps) {
   return (
-    <Box gap={1.5} display="flex" justifyContent="center" sx={sx} {...other}>
+    <Box
+      sx={[
+        () => ({
+          gap: 1.5,
+          display: 'flex',
+          justifyContent: 'center',
+        }),
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
+      {...other}
+    >
       <IconButton color="inherit" onClick={signInWithGoogle}>
         <GoogleIcon width={22} />
       </IconButton>

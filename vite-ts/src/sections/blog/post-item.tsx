@@ -2,6 +2,8 @@ import type { IPostItem } from 'src/types/blog';
 import type { BoxProps } from '@mui/material/Box';
 import type { CardProps } from '@mui/material/Card';
 
+import { varAlpha } from 'minimal-shared/utils';
+
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Card from '@mui/material/Card';
@@ -9,13 +11,11 @@ import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
 import CardContent from '@mui/material/CardContent';
 
-import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { fDate } from 'src/utils/format-time';
 import { fShortenNumber } from 'src/utils/format-number';
 
-import { maxLine, varAlpha } from 'src/theme/styles';
 import { AvatarShape } from 'src/assets/illustrations';
 
 import { Image } from 'src/components/image';
@@ -25,11 +25,10 @@ import { Iconify } from 'src/components/iconify';
 
 type PostItemProps = CardProps & {
   post: IPostItem;
+  detailsHref: string;
 };
 
-export function PostItem({ post, sx, ...other }: PostItemProps) {
-  const linkTo = paths.post.details(post.title);
-
+export function PostItem({ post, detailsHref, sx, ...other }: PostItemProps) {
   return (
     <Card sx={sx} {...other}>
       <Box sx={{ position: 'relative' }}>
@@ -65,11 +64,11 @@ export function PostItem({ post, sx, ...other }: PostItemProps) {
 
         <Link
           component={RouterLink}
-          href={linkTo}
+          href={detailsHref}
           color="inherit"
           variant="subtitle2"
           sx={(theme) => ({
-            ...maxLine({ line: 2, persistent: theme.typography.subtitle2 }),
+            ...theme.mixins.maxLine({ line: 2, persistent: theme.typography.subtitle2 }),
           })}
         >
           {post.title}
@@ -90,11 +89,10 @@ export function PostItem({ post, sx, ...other }: PostItemProps) {
 type PostItemLatestProps = {
   post: IPostItem;
   index: number;
+  detailsHref: string;
 };
 
-export function PostItemLatest({ post, index }: PostItemLatestProps) {
-  const linkTo = paths.post.details(post.title);
-
+export function PostItemLatest({ post, index, detailsHref }: PostItemLatestProps) {
   const postSmall = index === 1 || index === 2;
 
   return (
@@ -116,7 +114,11 @@ export function PostItemLatest({ post, index }: PostItemLatestProps) {
         ratio="4/3"
         sx={{ height: 360 }}
         slotProps={{
-          overlay: { bgcolor: (theme) => varAlpha(theme.vars.palette.grey['900Channel'], 0.64) },
+          overlay: {
+            sx: (theme) => ({
+              bgcolor: varAlpha(theme.vars.palette.grey['900Channel'], 0.64),
+            }),
+          },
         }}
       />
 
@@ -135,11 +137,11 @@ export function PostItemLatest({ post, index }: PostItemLatestProps) {
 
         <Link
           component={RouterLink}
-          href={linkTo}
+          href={detailsHref}
           color="inherit"
           variant={postSmall ? 'subtitle2' : 'h5'}
           sx={(theme) => ({
-            ...maxLine({
+            ...theme.mixins.maxLine({
               line: 2,
               persistent: postSmall ? theme.typography.subtitle2 : theme.typography.h5,
             }),
@@ -163,37 +165,33 @@ export function PostItemLatest({ post, index }: PostItemLatestProps) {
 
 type InfoBlockProps = BoxProps & Pick<IPostItem, 'totalViews' | 'totalShares' | 'totalComments'>;
 
-export function InfoBlock({
-  sx,
-  totalComments,
-  totalViews,
-  totalShares,
-  ...other
-}: InfoBlockProps) {
+function InfoBlock({ sx, totalViews, totalShares, totalComments, ...other }: InfoBlockProps) {
   return (
     <Box
-      gap={1.5}
-      display="flex"
-      justifyContent="flex-end"
-      sx={{
-        mt: 3,
-        typography: 'caption',
-        color: 'text.disabled',
-        ...sx,
-      }}
+      sx={[
+        () => ({
+          mt: 3,
+          gap: 1.5,
+          display: 'flex',
+          typography: 'caption',
+          color: 'text.disabled',
+          justifyContent: 'flex-end',
+        }),
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...other}
     >
-      <Box gap={0.5} display="flex" alignItems="center">
+      <Box sx={{ gap: 0.5, display: 'flex', alignItems: 'center' }}>
         <Iconify width={16} icon="eva:message-circle-fill" />
         {fShortenNumber(totalComments)}
       </Box>
 
-      <Box gap={0.5} display="flex" alignItems="center">
+      <Box sx={{ gap: 0.5, display: 'flex', alignItems: 'center' }}>
         <Iconify width={16} icon="solar:eye-bold" />
         {fShortenNumber(totalViews)}
       </Box>
 
-      <Box gap={0.5} display="flex" alignItems="center">
+      <Box sx={{ gap: 0.5, display: 'flex', alignItems: 'center' }}>
         <Iconify width={16} icon="solar:share-bold" />
         {fShortenNumber(totalShares)}
       </Box>

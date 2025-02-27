@@ -2,6 +2,7 @@ import type { IFile } from 'src/types/file';
 import type { DrawerProps } from '@mui/material/Drawer';
 
 import { useState, useCallback } from 'react';
+import { useBoolean } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
@@ -14,8 +15,6 @@ import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import Autocomplete from '@mui/material/Autocomplete';
-
-import { useBoolean } from 'src/hooks/use-boolean';
 
 import { fData } from 'src/utils/format-number';
 import { fDateTime } from 'src/utils/format-time';
@@ -30,7 +29,7 @@ import { FileManagerInvitedItem } from './file-manager-invited-item';
 // ----------------------------------------------------------------------
 
 type Props = DrawerProps & {
-  item: IFile;
+  file: IFile;
   favorited?: boolean;
   onClose: () => void;
   onDelete: () => void;
@@ -39,7 +38,7 @@ type Props = DrawerProps & {
 };
 
 export function FileManagerFileDetails({
-  item,
+  file,
   open,
   onClose,
   onDelete,
@@ -48,19 +47,14 @@ export function FileManagerFileDetails({
   onCopyLink,
   ...other
 }: Props) {
-  const { name, size, url, type, shared, modifiedAt } = item;
-
-  const hasShared = shared && !!shared.length;
-
-  const toggleTags = useBoolean(true);
-
-  const share = useBoolean();
-
-  const properties = useBoolean(true);
+  const shareDialog = useBoolean();
+  const showTags = useBoolean(true);
+  const showProperties = useBoolean(true);
 
   const [inviteEmail, setInviteEmail] = useState('');
+  const [tags, setTags] = useState(file?.tags.slice(0, 3));
 
-  const [tags, setTags] = useState(item.tags.slice(0, 3));
+  const hasShared = file?.shared && !!file?.shared.length;
 
   const handleChangeInvite = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setInviteEmail(event.target.value);
@@ -70,29 +64,107 @@ export function FileManagerFileDetails({
     setTags(newValue);
   }, []);
 
-  const renderTags = (
+  const renderHead = () => (
+    <Box
+      sx={{
+        p: 2.5,
+        display: 'flex',
+        alignItems: 'center',
+      }}
+    >
+      <Typography variant="h6" sx={{ flexGrow: 1 }}>
+        Info
+      </Typography>
+
+      <Checkbox
+        color="warning"
+        icon={<Iconify icon="eva:star-outline" />}
+        checkedIcon={<Iconify icon="eva:star-fill" />}
+        checked={favorited}
+        onChange={onFavorite}
+        inputProps={{
+          id: `favorite-${file.id}-checkbox`,
+          'aria-label': `Favorite ${file.id} checkbox`,
+        }}
+      />
+    </Box>
+  );
+
+  const renderProperties = () => (
     <Stack spacing={1.5}>
-      <Stack
-        direction="row"
-        alignItems="center"
-        justifyContent="space-between"
-        sx={{ typography: 'subtitle2' }}
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          typography: 'subtitle2',
+          justifyContent: 'space-between',
+        }}
       >
-        Tags
-        <IconButton size="small" onClick={toggleTags.onToggle}>
+        Properties
+        <IconButton size="small" onClick={showProperties.onToggle}>
           <Iconify
-            icon={toggleTags.value ? 'eva:arrow-ios-upward-fill' : 'eva:arrow-ios-downward-fill'}
+            icon={
+              showProperties.value ? 'eva:arrow-ios-upward-fill' : 'eva:arrow-ios-downward-fill'
+            }
           />
         </IconButton>
-      </Stack>
+      </Box>
 
-      {toggleTags.value && (
+      {showProperties.value && (
+        <>
+          <Box sx={{ display: 'flex', typography: 'caption', textTransform: 'capitalize' }}>
+            <Box component="span" sx={{ width: 80, color: 'text.secondary', mr: 2 }}>
+              Size
+            </Box>
+
+            {fData(file?.size)}
+          </Box>
+
+          <Box sx={{ display: 'flex', typography: 'caption', textTransform: 'capitalize' }}>
+            <Box component="span" sx={{ width: 80, color: 'text.secondary', mr: 2 }}>
+              Modified
+            </Box>
+
+            {fDateTime(file?.modifiedAt)}
+          </Box>
+
+          <Box sx={{ display: 'flex', typography: 'caption', textTransform: 'capitalize' }}>
+            <Box component="span" sx={{ width: 80, color: 'text.secondary', mr: 2 }}>
+              Type
+            </Box>
+
+            {fileFormat(file?.type)}
+          </Box>
+        </>
+      )}
+    </Stack>
+  );
+
+  const renderTags = () => (
+    <Stack spacing={1.5}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          typography: 'subtitle2',
+          justifyContent: 'space-between',
+        }}
+      >
+        Tags
+        <IconButton size="small" onClick={showTags.onToggle}>
+          <Iconify
+            icon={showTags.value ? 'eva:arrow-ios-upward-fill' : 'eva:arrow-ios-downward-fill'}
+          />
+        </IconButton>
+      </Box>
+
+      {showTags.value && (
         <Autocomplete
           multiple
           freeSolo
-          options={item.tags.map((option) => option)}
+          options={file?.tags.map((option) => option)}
           getOptionLabel={(option) => option}
-          defaultValue={item.tags.slice(0, 3)}
+          defaultValue={file?.tags.slice(0, 3)}
           value={tags}
           onChange={(event, newValue) => {
             handleChangeTags(newValue);
@@ -119,58 +191,22 @@ export function FileManagerFileDetails({
     </Stack>
   );
 
-  const renderProperties = (
-    <Stack spacing={1.5}>
-      <Stack
-        direction="row"
-        alignItems="center"
-        justifyContent="space-between"
-        sx={{ typography: 'subtitle2' }}
-      >
-        Properties
-        <IconButton size="small" onClick={properties.onToggle}>
-          <Iconify
-            icon={properties.value ? 'eva:arrow-ios-upward-fill' : 'eva:arrow-ios-downward-fill'}
-          />
-        </IconButton>
-      </Stack>
-
-      {properties.value && (
-        <>
-          <Stack direction="row" sx={{ typography: 'caption', textTransform: 'capitalize' }}>
-            <Box component="span" sx={{ width: 80, color: 'text.secondary', mr: 2 }}>
-              Size
-            </Box>
-            {fData(size)}
-          </Stack>
-
-          <Stack direction="row" sx={{ typography: 'caption', textTransform: 'capitalize' }}>
-            <Box component="span" sx={{ width: 80, color: 'text.secondary', mr: 2 }}>
-              Modified
-            </Box>
-            {fDateTime(modifiedAt)}
-          </Stack>
-
-          <Stack direction="row" sx={{ typography: 'caption', textTransform: 'capitalize' }}>
-            <Box component="span" sx={{ width: 80, color: 'text.secondary', mr: 2 }}>
-              Type
-            </Box>
-            {fileFormat(type)}
-          </Stack>
-        </>
-      )}
-    </Stack>
-  );
-
-  const renderShared = (
+  const renderShared = () => (
     <>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ p: 2.5 }}>
-        <Typography variant="subtitle2"> Share with </Typography>
-
+      <Box
+        sx={{
+          p: 2.5,
+          display: 'flex',
+          alignItems: 'center',
+          typography: 'subtitle2',
+          justifyContent: 'space-between',
+        }}
+      >
+        Share with
         <IconButton
           size="small"
           color="primary"
-          onClick={share.onTrue}
+          onClick={shareDialog.onTrue}
           sx={{
             width: 24,
             height: 24,
@@ -179,13 +215,13 @@ export function FileManagerFileDetails({
             '&:hover': { bgcolor: 'primary.dark' },
           }}
         >
-          <Iconify icon="mingcute:add-line" />
+          <Iconify width={16} icon="mingcute:add-line" />
         </IconButton>
-      </Stack>
+      </Box>
 
       {hasShared && (
         <Box component="ul" sx={{ pl: 2, pr: 1 }}>
-          {shared.map((person) => (
+          {file?.shared?.map((person) => (
             <FileManagerInvitedItem key={person.id} person={person} />
           ))}
         </Box>
@@ -204,50 +240,33 @@ export function FileManagerFileDetails({
         {...other}
       >
         <Scrollbar>
-          <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ p: 2.5 }}>
-            <Typography variant="h6"> Info </Typography>
-
-            <Checkbox
-              color="warning"
-              icon={<Iconify icon="eva:star-outline" />}
-              checkedIcon={<Iconify icon="eva:star-fill" />}
-              checked={favorited}
-              onChange={onFavorite}
-            />
-          </Stack>
+          {renderHead()}
 
           <Stack
             spacing={2.5}
-            justifyContent="center"
-            sx={{ p: 2.5, bgcolor: 'background.neutral' }}
+            sx={{ p: 2.5, justifyContent: 'center', bgcolor: 'background.neutral' }}
           >
             <FileThumbnail
               imageView
-              file={type === 'folder' ? type : url}
+              file={file?.type === 'folder' ? file?.type : file?.url}
               sx={{ width: 'auto', height: 'auto', alignSelf: 'flex-start' }}
               slotProps={{
-                img: {
-                  width: 320,
-                  height: 'auto',
-                  aspectRatio: '4/3',
-                  objectFit: 'cover',
-                },
-                icon: { width: 64, height: 64 },
+                img: { sx: { width: 320, height: 'auto', aspectRatio: '4/3', objectFit: 'cover' } },
+                icon: { sx: { width: 64, height: 64 } },
               }}
             />
 
             <Typography variant="subtitle1" sx={{ wordBreak: 'break-all' }}>
-              {name}
+              {file?.name}
             </Typography>
 
             <Divider sx={{ borderStyle: 'dashed' }} />
 
-            {renderTags}
-
-            {renderProperties}
+            {renderTags()}
+            {renderProperties()}
           </Stack>
 
-          {renderShared}
+          {renderShared()}
         </Scrollbar>
 
         <Box sx={{ p: 2.5 }}>
@@ -265,13 +284,13 @@ export function FileManagerFileDetails({
       </Drawer>
 
       <FileManagerShareDialog
-        open={share.value}
-        shared={shared}
+        open={shareDialog.value}
+        shared={file?.shared}
         inviteEmail={inviteEmail}
         onChangeInvite={handleChangeInvite}
         onCopyLink={onCopyLink}
         onClose={() => {
-          share.onFalse();
+          shareDialog.onFalse();
           setInviteEmail('');
         }}
       />

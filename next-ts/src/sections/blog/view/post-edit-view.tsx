@@ -21,6 +21,7 @@ export function PostEditView({ post }: Props) {
     <DashboardContent>
       <CustomBreadcrumbs
         heading="Edit"
+        backHref={paths.dashboard.post.root}
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'Blog', href: paths.dashboard.post.root },

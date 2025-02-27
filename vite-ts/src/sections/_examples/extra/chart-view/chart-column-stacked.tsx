@@ -29,17 +29,10 @@ export function ChartColumnStacked({ chart }: Props) {
     chart: { stacked: true },
     colors: chartColors,
     stroke: { width: 0 },
-    legend: {
-      show: true,
-      position: 'right',
-      itemMargin: { vertical: 8 },
-    },
-    xaxis: {
-      type: 'datetime',
-      categories: chart.categories,
-    },
+    legend: { show: true, position: 'right', itemMargin: { vertical: 8 } },
+    xaxis: { type: 'datetime', categories: chart.categories },
     plotOptions: { bar: { columnWidth: '36%' } },
   });
 
-  return <Chart type="bar" series={chart.series} options={chartOptions} height={320} />;
+  return <Chart type="bar" series={chart.series} options={chartOptions} sx={{ height: 320 }} />;
 }

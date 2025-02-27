@@ -1,3 +1,5 @@
+import type { MegaMenuProps } from 'src/components/mega-menu';
+
 import { _mock } from 'src/_mock';
 
 import { Label } from 'src/components/label';
@@ -54,12 +56,12 @@ const arr_5 = [
 
 // ----------------------------------------------------------------------
 
-export const navItems1 = [
+export const MEGA_MENU_ITEMS: MegaMenuProps['data'] = [
   {
     title: 'Item 1',
     path: '#',
     icon: <Iconify icon="solar:home-2-outline" />,
-    slides: [...Array(16)].map((_, index) => ({
+    slides: Array.from({ length: 16 }, (_, index) => ({
       name: _mock.productName(index),
       coverUrl: _mock.image.product(index),
       path: '#',
@@ -116,13 +118,13 @@ export const navItems1 = [
   },
   {
     title: 'Item 5',
-    path: '#',
+    path: '/components',
     icon: <Iconify icon="solar:gallery-circle-outline" />,
     children: [
       {
         items: [
           { title: 'Foods', path: '#' },
-          { title: 'Cosmetics  ', path: '#' },
+          { title: 'Cosmetics  ', path: '/components/extra/mega-menu' },
           { title: 'Clothes ', path: '#' },
         ],
       },
@@ -142,20 +144,7 @@ export const navItems1 = [
       },
     ],
   },
-  {
-    title: 'Item 7',
-    path: '#',
-    icon: <Iconify icon="solar:letter-outline" />,
-    children: [
-      {
-        items: [
-          { title: 'Foods', path: '#' },
-          { title: 'Cosmetics  ', path: '#' },
-          { title: 'Clothes ', path: '#' },
-        ],
-      },
-    ],
-  },
+  { title: 'Item 7', path: '/components', icon: <Iconify icon="solar:letter-outline" /> },
   {
     title: 'Item 8',
     path: 'https://www.google.com/',
@@ -166,12 +155,12 @@ export const navItems1 = [
 
 // ----------------------------------------------------------------------
 
-export const navItems2 = [
+export const MEGA_MENU_ITEMS_WITH_RENDER: MegaMenuProps['data'] = [
   {
     title: 'Item 1',
     path: '#',
     icon: 'icon.item1',
-    slides: [...Array(16)].map((_, index) => ({
+    slides: Array.from({ length: 16 }, (_, index) => ({
       name: _mock.productName(index),
       coverUrl: _mock.image.product(index),
       path: '#',
@@ -213,14 +202,14 @@ export const navItems2 = [
   },
   {
     title: 'Item 4',
-    path: '#',
+    path: '/components',
     icon: 'icon.item4',
     info: ['info.item4', '+72'],
     children: [
       {
         items: [
           { title: 'Foods', path: '#' },
-          { title: 'Cosmetics  ', path: '#' },
+          { title: 'Cosmetics  ', path: '/components/extra/mega-menu' },
           { title: 'Clothes ', path: '#' },
         ],
       },
@@ -230,6 +219,7 @@ export const navItems2 = [
     title: 'Item 5',
     path: '#',
     icon: 'icon.item5',
+    disabled: true,
     children: [
       {
         items: [
@@ -240,4 +230,5 @@ export const navItems2 = [
       },
     ],
   },
+  { title: 'Item 6', path: '#', icon: 'icon.item5' },
 ];

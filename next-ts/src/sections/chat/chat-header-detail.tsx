@@ -1,23 +1,24 @@
 import type { IChatParticipant } from 'src/types/chat';
 
 import { useCallback } from 'react';
+import { usePopover } from 'minimal-shared/hooks';
 
-import Stack from '@mui/material/Stack';
+import Box from '@mui/material/Box';
 import Badge from '@mui/material/Badge';
 import Avatar from '@mui/material/Avatar';
 import Divider from '@mui/material/Divider';
 import MenuList from '@mui/material/MenuList';
 import MenuItem from '@mui/material/MenuItem';
+import { useTheme } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import AvatarGroup, { avatarGroupClasses } from '@mui/material/AvatarGroup';
-
-import { useResponsive } from 'src/hooks/use-responsive';
 
 import { fToNow } from 'src/utils/format-time';
 
 import { Iconify } from 'src/components/iconify';
-import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import { CustomPopover } from 'src/components/custom-popover';
 
 import { ChatHeaderSkeleton } from './chat-skeleton';
 
@@ -32,11 +33,12 @@ type Props = {
 };
 
 export function ChatHeaderDetail({ collapseNav, participants, loading }: Props) {
-  const popover = usePopover();
+  const theme = useTheme();
+  const lgUp = useMediaQuery(theme.breakpoints.up('lg'));
 
-  const lgUp = useResponsive('up', 'lg');
+  const menuActions = usePopover();
 
-  const group = participants.length > 1;
+  const isGroup = participants.length > 1;
 
   const singleParticipant = participants[0];
 
@@ -51,7 +53,7 @@ export function ChatHeaderDetail({ collapseNav, participants, loading }: Props) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lgUp]);
 
-  const renderGroup = (
+  const renderGroup = () => (
     <AvatarGroup max={3} sx={{ [`& .${avatarGroupClasses.avatar}`]: { width: 32, height: 32 } }}>
       {participants.map((participant) => (
         <Avatar key={participant.id} alt={participant.name} src={participant.avatarUrl} />
@@ -59,12 +61,9 @@ export function ChatHeaderDetail({ collapseNav, participants, loading }: Props) 
     </AvatarGroup>
   );
 
-  const renderSingle = (
-    <Stack direction="row" alignItems="center" spacing={2}>
-      <Badge
-        variant={singleParticipant?.status}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-      >
+  const renderSingle = () => (
+    <Box sx={{ gap: 2, display: 'flex', alignItems: 'center' }}>
+      <Badge variant={singleParticipant?.status} badgeContent="">
         <Avatar src={singleParticipant?.avatarUrl} alt={singleParticipant?.name} />
       </Badge>
 
@@ -75,23 +74,51 @@ export function ChatHeaderDetail({ collapseNav, participants, loading }: Props) 
             ? fToNow(singleParticipant?.lastActivity)
             : singleParticipant?.status
         }
-        secondaryTypographyProps={{
-          component: 'span',
-          ...(singleParticipant?.status !== 'offline' && { textTransform: 'capitalize' }),
-        }}
       />
-    </Stack>
+    </Box>
   );
 
   if (loading) {
     return <ChatHeaderSkeleton />;
   }
 
+  const renderMenuActions = () => (
+    <CustomPopover
+      open={menuActions.open}
+      anchorEl={menuActions.anchorEl}
+      onClose={menuActions.onClose}
+    >
+      <MenuList>
+        <MenuItem onClick={() => menuActions.onClose()}>
+          <Iconify icon="solar:bell-off-bold" />
+          Hide notifications
+        </MenuItem>
+
+        <MenuItem onClick={() => menuActions.onClose()}>
+          <Iconify icon="solar:forbidden-circle-bold" />
+          Block
+        </MenuItem>
+
+        <MenuItem onClick={() => menuActions.onClose()}>
+          <Iconify icon="solar:danger-triangle-bold" />
+          Report
+        </MenuItem>
+
+        <Divider sx={{ borderStyle: 'dashed' }} />
+
+        <MenuItem onClick={() => menuActions.onClose()} sx={{ color: 'error.main' }}>
+          <Iconify icon="solar:trash-bin-trash-bold" />
+          Delete
+        </MenuItem>
+      </MenuList>
+    </CustomPopover>
+  );
+
   return (
     <>
-      {group ? renderGroup : renderSingle}
+      {isGroup ? renderGroup() : renderSingle()}
 
-      <Stack direction="row" flexGrow={1} justifyContent="flex-end">
+      <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end' }}>
         <IconButton>
           <Iconify icon="solar:phone-bold" />
         </IconButton>
@@ -104,53 +131,12 @@ export function ChatHeaderDetail({ collapseNav, participants, loading }: Props) 
           <Iconify icon={!collapseDesktop ? 'ri:sidebar-unfold-fill' : 'ri:sidebar-fold-fill'} />
         </IconButton>
 
-        <IconButton onClick={popover.onOpen}>
+        <IconButton onClick={menuActions.onOpen}>
           <Iconify icon="eva:more-vertical-fill" />
         </IconButton>
-      </Stack>
+      </Box>
 
-      <CustomPopover open={popover.open} anchorEl={popover.anchorEl} onClose={popover.onClose}>
-        <MenuList>
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:bell-off-bold" />
-            Hide notifications
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:forbidden-circle-bold" />
-            Block
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:danger-triangle-bold" />
-            Report
-          </MenuItem>
-
-          <Divider sx={{ borderStyle: 'dashed' }} />
-
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-            }}
-            sx={{ color: 'error.main' }}
-          >
-            <Iconify icon="solar:trash-bin-trash-bold" />
-            Delete
-          </MenuItem>
-        </MenuList>
-      </CustomPopover>
+      {renderMenuActions()}
     </>
   );
 }

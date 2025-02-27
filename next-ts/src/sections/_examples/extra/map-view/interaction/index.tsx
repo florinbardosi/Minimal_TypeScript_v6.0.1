@@ -1,15 +1,17 @@
-import type { MapProps } from 'react-map-gl';
+import type { MapProps } from 'src/components/map';
 
 import { useState, useCallback } from 'react';
 
-import { Map, MapControl } from 'src/components/map';
+import { Map, MapControls } from 'src/components/map';
 
-import { ControlPanel } from './control-panel';
+import { MapControlPanel } from './control-panel';
+
+import type { MapSettings } from './control-panel';
 
 // ----------------------------------------------------------------------
 
-export function MapInteraction({ ...other }: MapProps) {
-  const [settings, setSettings] = useState({
+export function MapInteraction({ sx, ...other }: MapProps) {
+  const [settings, setSettings] = useState<MapSettings>({
     minZoom: 0,
     maxZoom: 20,
     minPitch: 0,
@@ -26,11 +28,9 @@ export function MapInteraction({ ...other }: MapProps) {
     touchZoomRotate: true,
   });
 
-  const updateSettings = useCallback(
-    (name: string, value: boolean | number) =>
-      setSettings((prevSettings) => ({ ...prevSettings, [name]: value })),
-    []
-  );
+  const updateSettings = useCallback((name: string, value: boolean | number) => {
+    setSettings((prevSettings) => ({ ...prevSettings, [name]: value }));
+  }, []);
 
   return (
     <Map
@@ -42,11 +42,12 @@ export function MapInteraction({ ...other }: MapProps) {
         bearing: 0,
         pitch: 50,
       }}
+      sx={sx}
       {...other}
     >
-      <MapControl />
+      <MapControls />
 
-      <ControlPanel settings={settings} onChange={updateSettings} />
+      <MapControlPanel settings={settings} onChange={updateSettings} />
     </Map>
   );
 }

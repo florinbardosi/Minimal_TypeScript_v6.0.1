@@ -1,6 +1,6 @@
 import type { IFile } from 'src/types/file';
 import type { BoxProps } from '@mui/material/Box';
-import type { TableProps } from 'src/components/table';
+import type { UseTableReturn, TableHeadCellProps } from 'src/components/table';
 
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
@@ -23,24 +23,19 @@ import { FileManagerTableRow } from './file-manager-table-row';
 
 // ----------------------------------------------------------------------
 
-const TABLE_HEAD = [
+const TABLE_HEAD: TableHeadCellProps[] = [
   { id: 'name', label: 'Name' },
   { id: 'size', label: 'Size', width: 120 },
   { id: 'type', label: 'Type', width: 120 },
   { id: 'modifiedAt', label: 'Modified', width: 140 },
-  {
-    id: 'shared',
-    label: 'Shared',
-    align: 'right',
-    width: 140,
-  },
+  { id: 'shared', label: 'Shared', align: 'right', width: 140 },
   { id: '', width: 88 },
 ];
 
 // ----------------------------------------------------------------------
 
 type Props = BoxProps & {
-  table: TableProps;
+  table: UseTableReturn;
   notFound: boolean;
   dataFiltered: IFile[];
   onOpenConfirm: () => void;
@@ -62,11 +57,11 @@ export function FileManagerTable({
     order,
     orderBy,
     rowsPerPage,
-    //
+    /********/
     selected,
     onSelectRow,
     onSelectAllRows,
-    //
+    /********/
     onSort,
     onChangeDense,
     onChangePage,
@@ -76,11 +71,10 @@ export function FileManagerTable({
   return (
     <>
       <Box
-        sx={{
-          position: 'relative',
-          m: (theme) => ({ md: theme.spacing(-2, -3, 0, -3) }),
-          ...sx,
-        }}
+        sx={[
+          (theme) => ({ position: 'relative', m: { md: theme.spacing(-2, -3, 0, -3) } }),
+          ...(Array.isArray(sx) ? sx : [sx]),
+        ]}
         {...other}
       >
         <TableSelectedAction
@@ -127,7 +121,7 @@ export function FileManagerTable({
             <TableHeadCustom
               order={order}
               orderBy={orderBy}
-              headLabel={TABLE_HEAD}
+              headCells={TABLE_HEAD}
               rowCount={dataFiltered.length}
               numSelected={selected.length}
               onSort={onSort}
@@ -160,11 +154,13 @@ export function FileManagerTable({
 
               <TableNoData
                 notFound={notFound}
-                sx={{
-                  m: -2,
-                  borderRadius: 1.5,
-                  border: (theme) => `dashed 1px ${theme.vars.palette.divider}`,
-                }}
+                sx={[
+                  (theme) => ({
+                    m: -2,
+                    borderRadius: 1.5,
+                    border: `dashed 1px ${theme.vars.palette.divider}`,
+                  }),
+                ]}
               />
             </TableBody>
           </Table>

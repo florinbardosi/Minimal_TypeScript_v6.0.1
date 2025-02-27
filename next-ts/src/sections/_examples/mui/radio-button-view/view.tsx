@@ -3,17 +3,12 @@
 import { useState } from 'react';
 
 import Radio from '@mui/material/Radio';
+import FormLabel from '@mui/material/FormLabel';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
-import { paths } from 'src/routes/paths';
-
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-
-import { ComponentHero } from '../../component-hero';
-import { ComponentBlock } from '../../component-block';
-import { ScrollToViewTemplate } from '../../component-template';
+import { ComponentBox, ComponentLayout } from '../../layout';
 
 // ----------------------------------------------------------------------
 
@@ -30,11 +25,11 @@ export function RadioButtonView() {
     setValue((event.target as HTMLInputElement).value);
   };
 
-  const DEMO = [
+  const DEMO_COMPONENTS = [
     {
       name: 'Basic',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <FormControl component="fieldset">
             <RadioGroup row defaultValue="nn">
               <Radio size="medium" value="nn" />
@@ -42,24 +37,24 @@ export function RadioButtonView() {
               <Radio size="medium" disabled value="hh" />
             </RadioGroup>
           </FormControl>
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Sizes',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <RadioGroup row defaultValue="g">
             <FormControlLabel value="g" control={<Radio size="medium" />} label="Normal" />
             <FormControlLabel value="p" control={<Radio size="small" />} label="Small" />
           </RadioGroup>
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Placement',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <FormControl component="fieldset">
             <RadioGroup row defaultValue="top">
               {PLACEMENTS.map((placement) => (
@@ -74,15 +69,18 @@ export function RadioButtonView() {
               ))}
             </RadioGroup>
           </FormControl>
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Colors',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <FormControl component="fieldset">
-            <RadioGroup value={value} onChange={handleChange}>
+            <FormLabel component="legend" id="colors-radios" sx={{ mb: 1, typography: 'body2' }}>
+              Colors
+            </FormLabel>
+            <RadioGroup aria-labelledby="colors-radios" value={value} onChange={handleChange}>
               {COLORS.map((color) => (
                 <FormControlLabel
                   key={color}
@@ -101,22 +99,18 @@ export function RadioButtonView() {
               />
             </RadioGroup>
           </FormControl>
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
   ];
 
   return (
-    <>
-      <ComponentHero>
-        <CustomBreadcrumbs
-          heading="Radio Buttons"
-          links={[{ name: 'Components', href: paths.components }, { name: 'Radio Buttons' }]}
-          moreLink={['https://mui.com/components/radio-buttons']}
-        />
-      </ComponentHero>
-
-      <ScrollToViewTemplate data={DEMO} />
-    </>
+    <ComponentLayout
+      sectionData={DEMO_COMPONENTS}
+      heroProps={{
+        heading: 'Radio group',
+        moreLinks: ['https://mui.com/material-ui/react-radio-button/'],
+      }}
+    />
   );
 }

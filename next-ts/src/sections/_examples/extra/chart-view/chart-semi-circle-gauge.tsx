@@ -19,24 +19,13 @@ export function ChartSemiCircleGauge({ chart }: Props) {
   const chartColors = chart.colors ?? [theme.palette.secondary.main, theme.palette.secondary.light];
 
   const chartOptions = useChart({
-    chart: {
-      offsetY: 56,
-      sparkline: { enabled: true },
-    },
+    chart: { offsetY: 56, sparkline: { enabled: true } },
     fill: {
       type: 'gradient',
       gradient: {
         colorStops: [
-          {
-            offset: 0,
-            color: chartColors[0],
-            opacity: 1,
-          },
-          {
-            offset: 100,
-            color: chartColors[1],
-            opacity: 1,
-          },
+          { offset: 0, color: chartColors[0], opacity: 1 },
+          { offset: 100, color: chartColors[1], opacity: 1 },
         ],
       },
     },
@@ -65,9 +54,7 @@ export function ChartSemiCircleGauge({ chart }: Props) {
       type="radialBar"
       series={chart.series}
       options={chartOptions}
-      width={260}
-      height={260}
-      sx={{ mx: 'auto' }}
+      sx={{ mx: 'auto', width: 260, height: 260 }}
     />
   );
 }

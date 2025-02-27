@@ -1,6 +1,6 @@
-import { useTheme } from '@mui/material/styles';
+import { varAlpha } from 'minimal-shared/utils';
 
-import { varAlpha } from 'src/theme/styles';
+import { useTheme } from '@mui/material/styles';
 
 import { Chart, useChart } from 'src/components/chart';
 
@@ -19,32 +19,17 @@ export function ChartStrokedGauge({ chart }: Props) {
   const chartColors = chart.colors ?? [theme.palette.error.main, theme.palette.error.light];
 
   const chartOptions = useChart({
-    chart: {
-      offsetY: 16,
-      sparkline: { enabled: true },
-    },
+    chart: { offsetY: 16, sparkline: { enabled: true } },
     fill: {
       type: 'gradient',
       gradient: {
         colorStops: [
-          {
-            offset: 0,
-            color: chartColors[0],
-            opacity: 1,
-          },
-          {
-            offset: 100,
-            color: chartColors[1],
-            opacity: 1,
-          },
+          { offset: 0, color: chartColors[0], opacity: 1 },
+          { offset: 100, color: chartColors[1], opacity: 1 },
         ],
       },
     },
-    stroke: {
-      dashArray: 4,
-      curve: 'straight',
-      lineCap: 'butt',
-    },
+    stroke: { dashArray: 4, curve: 'straight', lineCap: 'butt' },
     plotOptions: {
       radialBar: {
         startAngle: -135,
@@ -74,9 +59,7 @@ export function ChartStrokedGauge({ chart }: Props) {
       type="radialBar"
       series={chart.series}
       options={chartOptions}
-      width={260}
-      height={260}
-      sx={{ mx: 'auto' }}
+      sx={{ mx: 'auto', width: 260, height: 260 }}
     />
   );
 }

@@ -1,5 +1,6 @@
 import type { IKanbanTask } from 'src/types/kanban';
 
+import { uuidv4 } from 'minimal-shared/utils';
 import { useMemo, useState, useCallback } from 'react';
 
 import Paper from '@mui/material/Paper';
@@ -7,7 +8,6 @@ import FormHelperText from '@mui/material/FormHelperText';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 import InputBase, { inputBaseClasses } from '@mui/material/InputBase';
 
-import { uuidv4 } from 'src/utils/uuidv4';
 import { fAdd, today } from 'src/utils/format-time';
 
 import { _mock } from 'src/_mock';
@@ -67,11 +67,13 @@ export function KanbanTaskAdd({ status, openAddTask, onAddTask, onCloseAddTask }
     <ClickAwayListener onClickAway={handleCancel}>
       <div>
         <Paper
-          sx={{
-            borderRadius: 1.5,
-            bgcolor: 'background.default',
-            boxShadow: (theme) => theme.customShadows.z1,
-          }}
+          sx={[
+            (theme) => ({
+              borderRadius: 1.5,
+              bgcolor: 'background.default',
+              boxShadow: theme.vars.customShadows.z1,
+            }),
+          ]}
         >
           <InputBase
             autoFocus

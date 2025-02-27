@@ -20,12 +20,14 @@ export function FormResendCode({
 }: FormResendCodeProps) {
   return (
     <Box
-      sx={{
-        mt: 3,
-        typography: 'body2',
-        alignSelf: 'center',
-        ...sx,
-      }}
+      sx={[
+        () => ({
+          mt: 3,
+          typography: 'body2',
+          alignSelf: 'center',
+        }),
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...other}
     >
       {`Don’t have a code? `}
@@ -34,10 +36,7 @@ export function FormResendCode({
         onClick={onResendCode}
         sx={{
           cursor: 'pointer',
-          ...(disabled && {
-            color: 'text.disabled',
-            pointerEvents: 'none',
-          }),
+          ...(disabled && { color: 'text.disabled', pointerEvents: 'none' }),
         }}
       >
         Resend {disabled && value && value > 0 && `(${value}s)`}

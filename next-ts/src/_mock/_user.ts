@@ -29,33 +29,33 @@ export const _userAbout = {
   },
 };
 
-export const _userFollowers = [...Array(18)].map((_, index) => ({
+export const _userFollowers = Array.from({ length: 18 }, (_, index) => ({
   id: _mock.id(index),
   name: _mock.fullName(index),
   country: _mock.countryNames(index),
   avatarUrl: _mock.image.avatar(index),
 }));
 
-export const _userFriends = [...Array(18)].map((_, index) => ({
+export const _userFriends = Array.from({ length: 18 }, (_, index) => ({
   id: _mock.id(index),
   role: _mock.role(index),
   name: _mock.fullName(index),
   avatarUrl: _mock.image.avatar(index),
 }));
 
-export const _userGallery = [...Array(12)].map((_, index) => ({
+export const _userGallery = Array.from({ length: 12 }, (_, index) => ({
   id: _mock.id(index),
   postedAt: _mock.time(index),
   title: _mock.postTitle(index),
   imageUrl: _mock.image.cover(index),
 }));
 
-export const _userFeeds = [...Array(3)].map((_, index) => ({
+export const _userFeeds = Array.from({ length: 3 }, (_, index) => ({
   id: _mock.id(index),
   createdAt: _mock.time(index),
   media: _mock.image.travel(index + 1),
   message: _mock.sentence(index),
-  personLikes: [...Array(20)].map((__, personIndex) => ({
+  personLikes: Array.from({ length: 20 }, (__, personIndex) => ({
     name: _mock.fullName(personIndex),
     avatarUrl: _mock.image.avatar(personIndex + 2),
   })),
@@ -84,7 +84,7 @@ export const _userFeeds = [...Array(3)].map((_, index) => ({
   ],
 }));
 
-export const _userCards = [...Array(21)].map((_, index) => ({
+export const _userCards = Array.from({ length: 21 }, (_, index) => ({
   id: _mock.id(index),
   role: _mock.role(index),
   name: _mock.fullName(index),
@@ -95,14 +95,14 @@ export const _userCards = [...Array(21)].map((_, index) => ({
   totalFollowing: _mock.number.nativeL(index + 1),
 }));
 
-export const _userPayment = [...Array(3)].map((_, index) => ({
+export const _userPayment = Array.from({ length: 3 }, (_, index) => ({
   id: _mock.id(index),
   cardNumber: ['**** **** **** 1234', '**** **** **** 5678', '**** **** **** 7878'][index],
   cardType: ['mastercard', 'visa', 'visa'][index],
   primary: index === 1,
 }));
 
-export const _userAddressBook = [...Array(4)].map((_, index) => ({
+export const _userAddressBook = Array.from({ length: 4 }, (_, index) => ({
   id: _mock.id(index),
   primary: index === 0,
   name: _mock.fullName(index),
@@ -111,7 +111,7 @@ export const _userAddressBook = [...Array(4)].map((_, index) => ({
   addressType: (index === 0 && 'Home') || 'Office',
 }));
 
-export const _userInvoices = [...Array(10)].map((_, index) => ({
+export const _userInvoices = Array.from({ length: 10 }, (_, index) => ({
   id: _mock.id(index),
   invoiceNumber: `INV-199${index}`,
   createdAt: _mock.time(index),
@@ -124,7 +124,7 @@ export const _userPlans = [
   { subscription: 'premium', price: 9.99, primary: false },
 ];
 
-export const _userList = [...Array(20)].map((_, index) => ({
+export const _userList = Array.from({ length: 20 }, (_, index) => ({
   id: _mock.id(index),
   zipCode: '85807',
   state: 'Virginia',

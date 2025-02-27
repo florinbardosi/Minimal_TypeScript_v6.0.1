@@ -1,59 +1,51 @@
 'use client';
 
 import { Fragment } from 'react';
+import { useTabs } from 'minimal-shared/hooks';
 
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Paper from '@mui/material/Paper';
 
-import { paths } from 'src/routes/paths';
-
-import { useTabs } from 'src/hooks/use-tabs';
-
 import { Iconify } from 'src/components/iconify';
 import { CustomTabs } from 'src/components/custom-tabs';
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { ComponentHero } from '../../component-hero';
-import { ComponentBlock } from '../../component-block';
-import { ScrollToViewTemplate } from '../../component-template';
+import { ComponentBox, ComponentLayout } from '../../layout';
 
 // ----------------------------------------------------------------------
 
 const TABS = [
-  { value: 'one', icon: <Iconify icon="solar:phone-bold" width={24} />, label: 'Item one' },
-  { value: 'two', icon: <Iconify icon="solar:heart-bold" width={24} />, label: 'Item two' },
+  { value: 'one', icon: <Iconify width={24} icon="solar:phone-bold" />, label: 'Item one' },
+  { value: 'two', icon: <Iconify width={24} icon="solar:heart-bold" />, label: 'Item two' },
   {
     value: 'three',
-    icon: <Iconify icon="eva:headphones-fill" width={24} />,
+    icon: <Iconify width={24} icon="eva:headphones-fill" />,
     label: 'Item three',
     disabled: true,
   },
-  { value: 'four', icon: <Iconify icon="eva:headphones-fill" width={24} />, label: 'Item four' },
+  { value: 'four', icon: <Iconify width={24} icon="eva:headphones-fill" />, label: 'Item four' },
   {
     value: 'five',
-    icon: <Iconify icon="eva:headphones-fill" width={24} />,
+    icon: <Iconify width={24} icon="eva:headphones-fill" />,
     label: 'Item five',
     disabled: true,
   },
-  { value: 'six', icon: <Iconify icon="eva:headphones-fill" width={24} />, label: 'Item six' },
-  { value: 'seven', icon: <Iconify icon="eva:headphones-fill" width={24} />, label: 'Item seven' },
+  { value: 'six', icon: <Iconify width={24} icon="eva:headphones-fill" />, label: 'Item six' },
+  { value: 'seven', icon: <Iconify width={24} icon="eva:headphones-fill" />, label: 'Item seven' },
 ];
 
 // ----------------------------------------------------------------------
 
 export function TabsView() {
   const basicTabs = useTabs('one');
-
   const customTabs = useTabs('one');
-
   const scrollableTabs = useTabs('one');
 
-  const DEMO = [
+  const DEMO_COMPONENTS = [
     {
       name: 'Text',
       component: (
-        <ComponentBlock sx={{ flexDirection: 'column', alignItems: 'unset' }}>
+        <ComponentBox sx={{ flexDirection: 'column', alignItems: 'unset' }}>
           <Tabs value={basicTabs.value} onChange={basicTabs.onChange}>
             {TABS.slice(0, 3).map((tab) => (
               <Tab key={tab.value} value={tab.value} label={tab.label} />
@@ -67,25 +59,25 @@ export function TabsView() {
               ) : null
             )}
           </Paper>
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Icon',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <Tabs value={basicTabs.value} onChange={basicTabs.onChange}>
             {TABS.slice(0, 3).map((tab) => (
               <Tab key={tab.value} icon={tab.icon} value={tab.value} />
             ))}
           </Tabs>
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Top',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <Tabs value={basicTabs.value} onChange={basicTabs.onChange}>
             {TABS.slice(0, 3).map((tab) => (
               <Tab
@@ -98,13 +90,13 @@ export function TabsView() {
               />
             ))}
           </Tabs>
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Bottom',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <Tabs value={basicTabs.value} onChange={basicTabs.onChange}>
             {TABS.slice(0, 3).map((tab) => (
               <Tab
@@ -117,13 +109,13 @@ export function TabsView() {
               />
             ))}
           </Tabs>
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Start',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <Tabs value={basicTabs.value} onChange={basicTabs.onChange}>
             {TABS.slice(0, 3).map((tab) => (
               <Tab
@@ -135,13 +127,13 @@ export function TabsView() {
               />
             ))}
           </Tabs>
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'End',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <Tabs value={basicTabs.value} onChange={basicTabs.onChange}>
             {TABS.slice(0, 3).map((tab) => (
               <Tab
@@ -154,13 +146,13 @@ export function TabsView() {
               />
             ))}
           </Tabs>
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Scrollable',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <Tabs
             value={scrollableTabs.value}
             onChange={scrollableTabs.onChange}
@@ -170,47 +162,73 @@ export function TabsView() {
               <Tab key={tab.value} label={tab.label} value={tab.value} />
             ))}
           </Tabs>
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Custom',
       component: (
-        <ComponentBlock sx={{ flexDirection: 'column', alignItems: 'unset' }}>
-          <CustomTabs
-            value={customTabs.value}
-            onChange={customTabs.onChange}
-            variant="scrollable"
-            sx={{ mx: 'auto', maxWidth: 320, borderRadius: 1 }}
-          >
-            {TABS.map((tab) => (
-              <Tab key={tab.value} value={tab.value} label={tab.label} />
-            ))}
-          </CustomTabs>
+        <>
+          <ComponentBox title="Dynamic width" sx={{ flexDirection: 'column' }}>
+            <CustomTabs
+              value={customTabs.value}
+              onChange={customTabs.onChange}
+              sx={{ borderRadius: 1 }}
+            >
+              {TABS.slice(0, 4).map((tab) => (
+                <Tab key={tab.value} value={tab.value} label={tab.label} />
+              ))}
+            </CustomTabs>
+          </ComponentBox>
 
-          <Paper variant="outlined" sx={{ p: 2.5, typography: 'body2', borderRadius: 1.5 }}>
-            {TABS.map((tab) =>
-              tab.value === basicTabs.value ? (
-                <Fragment key={tab.value}>{tab.label}</Fragment>
-              ) : null
-            )}
-          </Paper>
-        </ComponentBlock>
+          <ComponentBox title="Scrollable width" sx={{ my: 5, flexDirection: 'column' }}>
+            <CustomTabs
+              value={customTabs.value}
+              onChange={customTabs.onChange}
+              variant="scrollable"
+              sx={{ maxWidth: 320, borderRadius: 1 }}
+            >
+              {TABS.slice(0, 4).map((tab) => (
+                <Tab key={tab.value} value={tab.value} label={tab.label} />
+              ))}
+            </CustomTabs>
+          </ComponentBox>
+
+          <ComponentBox title="Full width" sx={{ flexDirection: 'column' }}>
+            <CustomTabs
+              value={customTabs.value}
+              onChange={customTabs.onChange}
+              variant="fullWidth"
+              sx={{ width: 1, borderRadius: 1 }}
+            >
+              {TABS.slice(0, 4).map((tab) => (
+                <Tab key={tab.value} value={tab.value} label={tab.label} />
+              ))}
+            </CustomTabs>
+
+            <Paper
+              variant="outlined"
+              sx={{ p: 2.5, width: 1, borderRadius: 1.5, typography: 'body2' }}
+            >
+              {TABS.map((tab) =>
+                tab.value === customTabs.value ? (
+                  <Fragment key={tab.value}>{tab.label}</Fragment>
+                ) : null
+              )}
+            </Paper>
+          </ComponentBox>
+        </>
       ),
     },
   ];
 
   return (
-    <>
-      <ComponentHero>
-        <CustomBreadcrumbs
-          heading="Tabs"
-          links={[{ name: 'Components', href: paths.components }, { name: 'Tabs' }]}
-          moreLink={['https://mui.com/components/tabs']}
-        />
-      </ComponentHero>
-
-      <ScrollToViewTemplate data={DEMO} />
-    </>
+    <ComponentLayout
+      sectionData={DEMO_COMPONENTS}
+      heroProps={{
+        heading: 'Tabs',
+        moreLinks: ['https://mui.com/material-ui/react-tabs/'],
+      }}
+    />
   );
 }

@@ -1,13 +1,14 @@
 import type { IPostItem } from 'src/types/blog';
 
+import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
+import Grid from '@mui/material/Grid2';
 import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import Checkbox from '@mui/material/Checkbox';
 import Container from '@mui/material/Container';
-import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
 import AvatarGroup from '@mui/material/AvatarGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -75,7 +76,9 @@ export function PostDetailsHomeView({ post, latestPosts, loading, error }: Props
 
       <Container
         maxWidth={false}
-        sx={{ py: 3, mb: 5, borderBottom: (theme) => `solid 1px ${theme.vars.palette.divider}` }}
+        sx={[
+          (theme) => ({ py: 3, mb: 5, borderBottom: `solid 1px ${theme.vars.palette.divider}` }),
+        ]}
       >
         <CustomBreadcrumbs
           links={[
@@ -95,18 +98,21 @@ export function PostDetailsHomeView({ post, latestPosts, loading, error }: Props
 
           <Stack
             spacing={3}
-            sx={{
-              py: 3,
-              borderTop: (theme) => `dashed 1px ${theme.vars.palette.divider}`,
-              borderBottom: (theme) => `dashed 1px ${theme.vars.palette.divider}`,
-            }}
+            sx={[
+              (theme) => ({
+                py: 3,
+                borderTop: `dashed 1px ${theme.vars.palette.divider}`,
+                borderBottom: `dashed 1px ${theme.vars.palette.divider}`,
+              }),
+            ]}
           >
-            <Stack direction="row" flexWrap="wrap" spacing={1}>
+            <Box sx={{ gap: 1, display: 'flex', flexWrap: 'wrap' }}>
               {post?.tags.map((tag) => <Chip key={tag} label={tag} variant="soft" />)}
-            </Stack>
+            </Box>
 
-            <Stack direction="row" alignItems="center">
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <FormControlLabel
+                label={fShortenNumber(post?.totalFavorites)}
                 control={
                   <Checkbox
                     defaultChecked
@@ -114,10 +120,12 @@ export function PostDetailsHomeView({ post, latestPosts, loading, error }: Props
                     color="error"
                     icon={<Iconify icon="solar:heart-bold" />}
                     checkedIcon={<Iconify icon="solar:heart-bold" />}
-                    inputProps={{ id: 'favorite-checkbox', 'aria-label': 'Favorite checkbox' }}
+                    inputProps={{
+                      id: 'favorite-checkbox',
+                      'aria-label': 'Favorite checkbox',
+                    }}
                   />
                 }
-                label={fShortenNumber(post?.totalFavorites)}
                 sx={{ mr: 1 }}
               />
 
@@ -126,16 +134,16 @@ export function PostDetailsHomeView({ post, latestPosts, loading, error }: Props
                   <Avatar key={person.name} alt={person.name} src={person.avatarUrl} />
                 ))}
               </AvatarGroup>
-            </Stack>
+            </Box>
           </Stack>
 
-          <Stack direction="row" sx={{ mb: 3, mt: 5 }}>
+          <Box sx={{ mb: 3, mt: 5, display: 'flex' }}>
             <Typography variant="h4">Comments</Typography>
 
             <Typography variant="subtitle2" sx={{ color: 'text.disabled' }}>
               ({post?.comments.length})
             </Typography>
-          </Stack>
+          </Box>
 
           <PostCommentForm />
 
@@ -153,8 +161,16 @@ export function PostDetailsHomeView({ post, latestPosts, loading, error }: Props
 
           <Grid container spacing={3}>
             {latestPosts?.slice(latestPosts.length - 4).map((latestPost) => (
-              <Grid key={latestPost.id} xs={12} sm={6} md={4} lg={3}>
-                <PostItem post={latestPost} />
+              <Grid
+                key={latestPost.id}
+                size={{
+                  xs: 12,
+                  sm: 6,
+                  md: 4,
+                  lg: 3,
+                }}
+              >
+                <PostItem post={latestPost} detailsHref={paths.post.details(latestPost.title)} />
               </Grid>
             ))}
           </Grid>

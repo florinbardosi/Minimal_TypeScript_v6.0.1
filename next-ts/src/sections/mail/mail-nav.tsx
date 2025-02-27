@@ -5,7 +5,7 @@ import Stack from '@mui/material/Stack';
 import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
 
-import { CONFIG } from 'src/config-global';
+import { CONFIG } from 'src/global-config';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -17,33 +17,33 @@ import { MailNavItemSkeleton } from './mail-skeleton';
 // ----------------------------------------------------------------------
 
 type Props = {
-  empty: boolean;
+  isEmpty: boolean;
   openNav: boolean;
   loading: boolean;
   labels: IMailLabel[];
   selectedLabelId: string;
   onCloseNav: () => void;
   onToggleCompose: () => void;
-  handleClickLabel: (labelId: string) => void;
+  onClickLabel: (labelId: string) => void;
 };
 
 export function MailNav({
-  empty,
+  isEmpty,
+  loading,
   labels,
   openNav,
-  loading,
   onCloseNav,
+  onClickLabel,
   selectedLabelId,
   onToggleCompose,
-  handleClickLabel,
 }: Props) {
-  const renderLoading = (
+  const renderLoading = () => (
     <Stack sx={{ flex: '1 1 auto', px: { xs: 2.5, md: 1.5 } }}>
       <MailNavItemSkeleton />
     </Stack>
   );
 
-  const renderEmpty = (
+  const renderEmpty = () => (
     <Stack sx={{ flex: '1 1 auto', px: { xs: 2.5, md: 1.5 } }}>
       <EmptyContent
         title="No labels"
@@ -52,38 +52,29 @@ export function MailNav({
     </Stack>
   );
 
-  const renderList = (
-    <Scrollbar sx={{ flex: '1 1 0' }}>
-      <nav>
-        <Box
-          component="ul"
-          sx={{
-            pb: 1.5,
-            px: { xs: 1.5, md: 0.5 },
-          }}
-        >
-          {labels.map((label) => (
-            <MailNavItem
-              key={label.id}
-              label={label}
-              selected={selectedLabelId === label.id}
-              onClickNavItem={() => {
-                handleClickLabel(label.id);
-              }}
-            />
-          ))}
-        </Box>
-      </nav>
-    </Scrollbar>
-  );
+  const renderList = () =>
+    isEmpty ? (
+      renderEmpty()
+    ) : (
+      <Scrollbar sx={{ flex: '1 1 0' }}>
+        <nav>
+          <Box component="ul" sx={{ pb: 1.5, px: { xs: 1.5, md: 0.5 } }}>
+            {labels.map((label) => (
+              <MailNavItem
+                key={label.id}
+                label={label}
+                selected={selectedLabelId === label.id}
+                onClickNavItem={() => onClickLabel(label.id)}
+              />
+            ))}
+          </Box>
+        </nav>
+      </Scrollbar>
+    );
 
-  const renderContent = (
+  const renderContent = () => (
     <>
-      <Box
-        sx={(theme) => ({
-          p: { xs: 2.5, md: theme.spacing(2, 1.5) },
-        })}
-      >
+      <Box sx={(theme) => ({ p: { xs: 2.5, md: theme.spacing(2, 1.5) } })}>
         <Button
           fullWidth
           color="inherit"
@@ -95,13 +86,13 @@ export function MailNav({
         </Button>
       </Box>
 
-      {loading ? renderLoading : <>{empty ? renderEmpty : renderList}</>}
+      {loading ? renderLoading() : renderList()}
     </>
   );
 
   return (
     <>
-      {renderContent}
+      {renderContent()}
 
       <Drawer
         open={openNav}
@@ -109,7 +100,7 @@ export function MailNav({
         slotProps={{ backdrop: { invisible: true } }}
         PaperProps={{ sx: { width: 280 } }}
       >
-        {renderContent}
+        {renderContent()}
       </Drawer>
     </>
   );

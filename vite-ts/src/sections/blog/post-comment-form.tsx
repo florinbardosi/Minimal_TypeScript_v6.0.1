@@ -2,7 +2,7 @@ import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import Stack from '@mui/material/Stack';
+import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import LoadingButton from '@mui/lab/LoadingButton';
 
@@ -20,7 +20,9 @@ export const CommentSchema = zod.object({
 // ----------------------------------------------------------------------
 
 export function PostCommentForm() {
-  const defaultValues = { comment: '' };
+  const defaultValues: CommentSchemaType = {
+    comment: '',
+  };
 
   const methods = useForm<CommentSchemaType>({
     resolver: zodResolver(CommentSchema),
@@ -45,7 +47,7 @@ export function PostCommentForm() {
 
   return (
     <Form methods={methods} onSubmit={onSubmit}>
-      <Stack spacing={3}>
+      <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
         <Field.Text
           name="comment"
           placeholder="Write some of your comments..."
@@ -53,8 +55,8 @@ export function PostCommentForm() {
           rows={4}
         />
 
-        <Stack direction="row" alignItems="center">
-          <Stack direction="row" alignItems="center" flexGrow={1}>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
             <IconButton>
               <Iconify icon="solar:gallery-add-bold" />
             </IconButton>
@@ -66,13 +68,13 @@ export function PostCommentForm() {
             <IconButton>
               <Iconify icon="eva:smiling-face-fill" />
             </IconButton>
-          </Stack>
+          </Box>
 
           <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
             Post comment
           </LoadingButton>
-        </Stack>
-      </Stack>
+        </Box>
+      </Box>
     </Form>
   );
 }

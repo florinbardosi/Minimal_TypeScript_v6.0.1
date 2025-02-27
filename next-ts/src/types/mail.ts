@@ -43,6 +43,6 @@ export type IMail = {
 };
 
 export type IMails = {
-  byId: Record<string, IMail>;
   allIds: string[];
+  byId: Record<string, IMail>;
 };

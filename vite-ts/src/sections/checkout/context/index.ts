@@ -1,3 +1,5 @@
-export { CheckoutProvider } from './checkout-provider';
+export * from './checkout-context';
 
-export { useCheckoutContext } from './use-checkout-context';
+export * from './checkout-provider';
+
+export * from './use-checkout-context';

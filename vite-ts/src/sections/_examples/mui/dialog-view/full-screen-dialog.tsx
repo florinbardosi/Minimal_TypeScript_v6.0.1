@@ -1,6 +1,7 @@
 import type { TransitionProps } from '@mui/material/transitions';
 
 import { forwardRef } from 'react';
+import { useBoolean } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Slide from '@mui/material/Slide';
@@ -14,39 +15,34 @@ import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemButton from '@mui/material/ListItemButton';
 
-import { useBoolean } from 'src/hooks/use-boolean';
-
 import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
 const Transition = forwardRef(
-  (
-    props: TransitionProps & {
-      children: React.ReactElement;
-    },
-    ref: React.Ref<unknown>
-  ) => <Slide direction="up" ref={ref} {...props} />
+  (props: TransitionProps & { children: React.ReactElement }, ref: React.Ref<unknown>) => (
+    <Slide direction="up" ref={ref} {...props} />
+  )
 );
 
 export function FullScreenDialog() {
-  const dialog = useBoolean();
+  const openDialog = useBoolean();
 
   return (
     <>
-      <Button variant="outlined" color="error" onClick={dialog.onTrue}>
+      <Button variant="outlined" color="error" onClick={openDialog.onTrue}>
         Full screen dialogs
       </Button>
 
       <Dialog
         fullScreen
-        open={dialog.value}
-        onClose={dialog.onFalse}
+        open={openDialog.value}
+        onClose={openDialog.onFalse}
         TransitionComponent={Transition}
       >
         <AppBar position="relative" color="default">
           <Toolbar>
-            <IconButton color="inherit" edge="start" onClick={dialog.onFalse}>
+            <IconButton color="inherit" edge="start" onClick={openDialog.onFalse}>
               <Iconify icon="mingcute:close-line" />
             </IconButton>
 
@@ -54,26 +50,26 @@ export function FullScreenDialog() {
               Sound
             </Typography>
 
-            <Button autoFocus color="inherit" variant="contained" onClick={dialog.onFalse}>
+            <Button autoFocus color="inherit" variant="contained" onClick={openDialog.onFalse}>
               Save
             </Button>
           </Toolbar>
         </AppBar>
 
-        <Box component="ul">
-          <Box component="li" sx={{ display: 'flex' }}>
+        <Box component="ul" sx={{ '& li': { display: 'flex' } }}>
+          <li>
             <ListItemButton>
               <ListItemText primary="Phone ringtone" secondary="Titania" />
             </ListItemButton>
-          </Box>
+          </li>
 
           <Divider />
 
-          <Box component="li" sx={{ display: 'flex' }}>
+          <li>
             <ListItemButton>
               <ListItemText primary="Default notification ringtone" secondary="Tethys" />
             </ListItemButton>
-          </Box>
+          </li>
         </Box>
       </Dialog>
     </>

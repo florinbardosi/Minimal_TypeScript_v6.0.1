@@ -4,9 +4,8 @@ import { useMemo } from 'react';
 import Paper from '@mui/material/Paper';
 import Skeleton from '@mui/material/Skeleton';
 
-import { fetcher } from 'src/utils/axios';
-
-import { CONFIG } from 'src/config-global';
+import { fetcher } from 'src/lib/axios';
+import { CONFIG } from 'src/global-config';
 
 import { Label } from 'src/components/label';
 import { SvgColor } from 'src/components/svg-color';
@@ -46,11 +45,11 @@ export function NavAPI() {
         width: 1,
         mx: 'auto',
         maxWidth: 320,
-        borderRadius: 2,
+        borderRadius: 1.5,
       }}
     >
       {navItems.isLoading ? (
-        [...Array(8)].map((i, index) => (
+        Array.from({ length: 8 }, (i, index) => (
           <Skeleton key={index} variant="rounded" height={48} sx={{ borderRadius: 1, my: 0.5 }} />
         ))
       ) : (

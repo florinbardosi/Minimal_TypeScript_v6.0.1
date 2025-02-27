@@ -88,5 +88,14 @@ type Props = {
 };
 
 export function DataGridBasic({ data }: Props) {
-  return <DataGrid columns={columns} rows={data} checkboxSelection disableRowSelectionOnClick />;
+  return (
+    <DataGrid
+      rows={data}
+      columns={columns}
+      checkboxSelection
+      disableRowSelectionOnClick
+      initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+      pageSizeOptions={[5, 10, 20]}
+    />
+  );
 }

@@ -3,14 +3,12 @@ import type { UniqueIdentifier } from '@dnd-kit/core';
 import type { Theme, SxProps } from '@mui/material/styles';
 
 import { useSortable } from '@dnd-kit/sortable';
+import { useBoolean } from 'minimal-shared/hooks';
 import { useState, useEffect, useCallback } from 'react';
-
-import { useBoolean } from 'src/hooks/use-boolean';
 
 import { deleteTask, updateTask } from 'src/actions/kanban';
 
 import { toast } from 'src/components/snackbar';
-import { imageClasses } from 'src/components/image';
 
 import ItemBase from './item-base';
 import { KanbanDetails } from '../details/kanban-details';
@@ -25,14 +23,13 @@ type TaskItemProps = {
 };
 
 export function KanbanTaskItem({ task, disabled, columnId, sx }: TaskItemProps) {
-  const openDetails = useBoolean();
+  const taskDetailsDialog = useBoolean();
 
   const { setNodeRef, listeners, isDragging, isSorting, transform, transition } = useSortable({
     id: task?.id,
   });
 
   const mounted = useMountStatus();
-
   const mountedWhileDragging = isDragging && !mounted;
 
   const handleDeleteTask = useCallback(async () => {
@@ -55,12 +52,23 @@ export function KanbanTaskItem({ task, disabled, columnId, sx }: TaskItemProps) 
     [columnId]
   );
 
+  const renderTaskDetailsDialog = () => (
+    <KanbanDetails
+      task={task}
+      open={taskDetailsDialog.value}
+      onClose={taskDetailsDialog.onFalse}
+      onUpdateTask={handleUpdateTask}
+      onDeleteTask={handleDeleteTask}
+    />
+  );
+
   return (
     <>
       <ItemBase
         ref={disabled ? undefined : setNodeRef}
         task={task}
-        onClick={openDetails.onTrue}
+        open={taskDetailsDialog.value}
+        onClick={taskDetailsDialog.onTrue}
         stateProps={{
           transform,
           listeners,
@@ -69,16 +77,10 @@ export function KanbanTaskItem({ task, disabled, columnId, sx }: TaskItemProps) 
           dragging: isDragging,
           fadeIn: mountedWhileDragging,
         }}
-        sx={{ ...(openDetails.value && { [`& .${imageClasses.root}`]: { opacity: 0.8 } }), ...sx }}
+        sx={sx}
       />
 
-      <KanbanDetails
-        task={task}
-        openDetails={openDetails.value}
-        onCloseDetails={openDetails.onFalse}
-        onUpdateTask={handleUpdateTask}
-        onDeleteTask={handleDeleteTask}
-      />
+      {renderTaskDetailsDialog()}
     </>
   );
 }

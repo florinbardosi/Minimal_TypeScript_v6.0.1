@@ -7,6 +7,7 @@ const MuiStack: Components<Theme>['MuiStack'] = {
    * DEFAULT PROPS
    *************************************** */
   defaultProps: { useFlexGap: true },
+
   /** **************************************
    * STYLE
    *************************************** */

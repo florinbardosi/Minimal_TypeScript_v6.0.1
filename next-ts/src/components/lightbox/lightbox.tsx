@@ -1,14 +1,10 @@
-import Zoom from 'yet-another-react-lightbox/plugins/zoom';
-import Video from 'yet-another-react-lightbox/plugins/video';
-import Captions from 'yet-another-react-lightbox/plugins/captions';
-import Slideshow from 'yet-another-react-lightbox/plugins/slideshow';
-import Fullscreen from 'yet-another-react-lightbox/plugins/fullscreen';
-import Thumbnails from 'yet-another-react-lightbox/plugins/thumbnails';
+import { mergeClasses } from 'minimal-shared/utils';
 import ReactLightbox, { useLightboxState } from 'yet-another-react-lightbox';
 
 import Box from '@mui/material/Box';
 
 import { Iconify } from '../iconify';
+import { getPlugins } from './utils';
 import { lightboxClasses } from './classes';
 
 import type { LightBoxProps } from './types';
@@ -68,44 +64,10 @@ export function Lightbox({
         iconExitFullscreen: () => <Iconify width={24} icon="carbon:center-to-fit" />,
         iconEnterFullscreen: () => <Iconify width={24} icon="carbon:fit-to-screen" />,
       }}
-      className={lightboxClasses.root.concat(className ? ` ${className}` : '')}
+      className={mergeClasses([lightboxClasses.root, className])}
       {...other}
     />
   );
-}
-
-// ----------------------------------------------------------------------
-
-export function getPlugins({
-  disableZoom,
-  disableVideo,
-  disableCaptions,
-  disableSlideshow,
-  disableThumbnails,
-  disableFullscreen,
-}: Partial<LightBoxProps>) {
-  let plugins = [Captions, Fullscreen, Slideshow, Thumbnails, Video, Zoom];
-
-  if (disableThumbnails) {
-    plugins = plugins.filter((plugin) => plugin !== Thumbnails);
-  }
-  if (disableCaptions) {
-    plugins = plugins.filter((plugin) => plugin !== Captions);
-  }
-  if (disableFullscreen) {
-    plugins = plugins.filter((plugin) => plugin !== Fullscreen);
-  }
-  if (disableSlideshow) {
-    plugins = plugins.filter((plugin) => plugin !== Slideshow);
-  }
-  if (disableZoom) {
-    plugins = plugins.filter((plugin) => plugin !== Zoom);
-  }
-  if (disableVideo) {
-    plugins = plugins.filter((plugin) => plugin !== Video);
-  }
-
-  return plugins;
 }
 
 // ----------------------------------------------------------------------
@@ -115,7 +77,7 @@ type DisplayTotalProps = {
   disableTotal?: boolean;
 };
 
-export function DisplayTotal({ totalItems, disableTotal }: DisplayTotalProps) {
+function DisplayTotal({ totalItems, disableTotal }: DisplayTotalProps) {
   const { currentIndex } = useLightboxState();
 
   if (disableTotal) {

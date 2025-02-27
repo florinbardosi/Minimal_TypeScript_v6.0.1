@@ -1,6 +1,8 @@
 import type { BoxProps } from '@mui/material/Box';
 
 import { useState, useCallback } from 'react';
+import { varAlpha } from 'minimal-shared/utils';
+import { useBoolean } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -10,10 +12,6 @@ import Typography from '@mui/material/Typography';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
-
-import { useBoolean } from 'src/hooks/use-boolean';
-
-import { varAlpha } from 'src/theme/styles';
 
 import { Iconify } from 'src/components/iconify';
 
@@ -27,18 +25,9 @@ const PAYMENT_OPTIONS = [
 ];
 
 const CARD_OPTIONS = [
-  {
-    value: 'visa1',
-    label: '**** **** **** 1212 - Jimmy Holland',
-  },
-  {
-    value: 'visa2',
-    label: '**** **** **** 2424 - Shawn Stokes',
-  },
-  {
-    value: 'mastercard',
-    label: '**** **** **** 4545 - Cole Armstrong',
-  },
+  { value: 'visa1', label: '**** **** **** 1212 - Jimmy Holland' },
+  { value: 'visa2', label: '**** **** **** 2424 - Shawn Stokes' },
+  { value: 'mastercard', label: '**** **** **** 4545 - Cole Armstrong' },
 ];
 
 // ----------------------------------------------------------------------
@@ -59,7 +48,7 @@ export function PaymentMethods({ sx, ...other }: BoxProps) {
           Payment method
         </Typography>
 
-        <Box gap={3} display="flex" flexDirection="column">
+        <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
           {PAYMENT_OPTIONS.map((option) => {
             const isSelected = method === option.value;
 
@@ -110,36 +99,41 @@ type OptionItemProps = BoxProps & {
 function OptionItem({ option, onOpen, selected, isCredit, sx, ...other }: OptionItemProps) {
   return (
     <Box
-      sx={{
-        borderRadius: 1.5,
-        border: (theme) => `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.24)}`,
-        transition: (theme) =>
-          theme.transitions.create(['box-shadow'], {
+      sx={[
+        (theme) => ({
+          borderRadius: 1.5,
+          border: `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.24)}`,
+          transition: theme.transitions.create(['box-shadow'], {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.shortest,
           }),
-        ...(selected && {
-          boxShadow: (theme) => `0 0 0 2px ${theme.vars.palette.text.primary}`,
+          ...(selected && { boxShadow: `0 0 0 2px ${theme.vars.palette.text.primary}` }),
         }),
-        ...sx,
-      }}
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...other}
     >
-      <Box display="flex" alignItems="center" sx={{ px: 2, gap: 2, height: 80, cursor: 'pointer' }}>
+      <Box
+        sx={{
+          px: 2,
+          gap: 2,
+          height: 80,
+          display: 'flex',
+          cursor: 'pointer',
+          alignItems: 'center',
+        }}
+      >
         <Iconify
           width={24}
           icon={selected ? 'solar:check-circle-bold' : 'carbon:radio-button'}
-          sx={{
-            color: 'text.disabled',
-            ...(selected && { color: 'primary.main' }),
-          }}
+          sx={{ color: 'text.disabled', ...(selected && { color: 'primary.main' }) }}
         />
 
         <Box component="span" sx={{ typography: 'subtitle1', flexGrow: 1 }}>
           {option.label}
         </Box>
 
-        <Box gap={1} display="flex" alignItems="center">
+        <Box sx={{ gap: 1, display: 'flex', alignItems: 'center' }}>
           {option.value === 'creditcard' ? (
             <>
               <Iconify width={24} icon="logos:mastercard" />
@@ -153,7 +147,7 @@ function OptionItem({ option, onOpen, selected, isCredit, sx, ...other }: Option
 
       {isCredit && (
         <Box sx={{ px: 3 }}>
-          <TextField select fullWidth label="Card" SelectProps={{ native: true }}>
+          <TextField select fullWidth label="Card" slotProps={{ select: { native: true } }}>
             {CARD_OPTIONS.map((card) => (
               <option key={card.value} value={card.value}>
                 {card.label}

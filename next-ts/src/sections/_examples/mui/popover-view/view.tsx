@@ -2,7 +2,8 @@
 
 import type { PopoverArrow } from 'src/components/custom-popover';
 
-import { useRef, useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
+import { usePopover, usePopoverHover } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Radio from '@mui/material/Radio';
@@ -14,14 +15,10 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
-import { paths } from 'src/routes/paths';
-
 import { Iconify } from 'src/components/iconify';
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import { CustomPopover } from 'src/components/custom-popover';
 
-import { ComponentHero } from '../../component-hero';
-import { ComponentBlock, ComponentContainer } from '../../component-block';
+import { ComponentBox, ComponentLayout } from '../../layout';
 
 // ----------------------------------------------------------------------
 
@@ -29,108 +26,109 @@ export function PopoverView() {
   const [arrow, setArrow] = useState<PopoverArrow['placement']>('top-left');
 
   const clickPopover = usePopover();
-
   const customizedPopover = usePopover();
-
-  const hoverPopoverRef = useRef<HTMLButtonElement | null>(null);
-
-  const [hoverPopoverOpen, setHoverPopoverOpen] = useState<boolean>(false);
+  const hoverPopover = usePopoverHover<HTMLButtonElement>();
 
   const handleChangePopoverArrow = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setArrow(event.target.value as PopoverArrow['placement']);
   }, []);
 
-  const handleHoverPopoverOpen = useCallback(() => {
-    setHoverPopoverOpen(true);
-  }, []);
-
-  const handleHoverPopoverClose = useCallback(() => {
-    setHoverPopoverOpen(false);
-  }, []);
-
-  return (
+  const renderClickPopover = () => (
     <>
-      <ComponentHero>
-        <CustomBreadcrumbs
-          heading="Popover"
-          links={[{ name: 'Components', href: paths.components }, { name: 'Popover' }]}
-          moreLink={['https://mui.com/components/popover']}
-        />
-      </ComponentHero>
-
-      <ComponentContainer
-        sx={{
-          rowGap: 5,
-          columnGap: 3,
-          display: 'grid',
-          gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
-        }}
+      <Button variant="contained" onClick={clickPopover.onOpen}>
+        Click popover
+      </Button>
+      <CustomPopover
+        open={clickPopover.open}
+        onClose={clickPopover.onClose}
+        anchorEl={clickPopover.anchorEl}
+        slotProps={{ arrow: { placement: 'top-center' } }}
       >
-        <ComponentBlock title="Click & hover" sx={{ gap: 3 }}>
-          <div>
-            <Button variant="contained" onClick={clickPopover.onOpen}>
-              Click popover
-            </Button>
-            <CustomPopover
-              open={clickPopover.open}
-              onClose={clickPopover.onClose}
-              anchorEl={clickPopover.anchorEl}
-              slotProps={{ arrow: { placement: 'top-center' } }}
-            >
-              <Box sx={{ p: 2, maxWidth: 280 }}>
-                <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                  Etiam feugiat lorem non metus
-                </Typography>
-                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                  Fusce vulputate eleifend sapien. Curabitur at lacus ac velit ornare lobortis.
-                </Typography>
-              </Box>
-            </CustomPopover>
-          </div>
+        <Box sx={{ p: 2, maxWidth: 280 }}>
+          <Typography variant="subtitle1" sx={{ mb: 1 }}>
+            Etiam feugiat lorem non metus
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            Fusce vulputate eleifend sapien. Curabitur at lacus ac velit ornare lobortis.
+          </Typography>
+        </Box>
+      </CustomPopover>
+    </>
+  );
 
-          <div>
-            <Button
-              ref={hoverPopoverRef}
-              variant="outlined"
-              onMouseEnter={handleHoverPopoverOpen}
-              onMouseLeave={handleHoverPopoverClose}
-            >
-              Hover popover.
-            </Button>
+  const renderHoverPopover = () => (
+    <>
+      <Button
+        ref={hoverPopover.elementRef}
+        variant="outlined"
+        onMouseEnter={hoverPopover.onOpen}
+        onMouseLeave={hoverPopover.onClose}
+      >
+        Hover popover
+      </Button>
 
-            <CustomPopover
-              open={hoverPopoverOpen}
-              anchorEl={hoverPopoverRef.current}
-              slotProps={{
-                arrow: { placement: 'bottom-center' },
-                paper: {
-                  onMouseEnter: handleHoverPopoverOpen,
-                  onMouseLeave: handleHoverPopoverClose,
-                  sx: { ...(hoverPopoverOpen && { pointerEvents: 'auto' }) },
-                },
-              }}
-              sx={{ pointerEvents: 'none' }}
-            >
-              <Box sx={{ p: 2, maxWidth: 280 }}>
-                <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                  Etiam feugiat lorem non metus
-                </Typography>
-                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                  Fusce vulputate eleifend sapien. Curabitur at lacus ac velit ornare lobortis.
-                </Typography>
-              </Box>
-            </CustomPopover>
-          </div>
-        </ComponentBlock>
+      {hoverPopover.open && (
+        <CustomPopover
+          open={hoverPopover.open}
+          anchorEl={hoverPopover.anchorEl}
+          slotProps={{
+            arrow: { placement: 'bottom-center' },
+            paper: {
+              onMouseEnter: hoverPopover.onOpen,
+              onMouseLeave: hoverPopover.onClose,
+              sx: { ...(hoverPopover.open && { pointerEvents: 'auto' }) },
+            },
+          }}
+          sx={{ pointerEvents: 'none' }}
+        >
+          <Box sx={{ p: 2, maxWidth: 280 }}>
+            <Typography variant="subtitle1" sx={{ mb: 1 }}>
+              Etiam feugiat lorem non metus
+            </Typography>
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              Fusce vulputate eleifend sapien. Curabitur at lacus ac velit ornare lobortis.
+            </Typography>
+          </Box>
+        </CustomPopover>
+      )}
+    </>
+  );
 
-        <ComponentBlock title="Customized" sx={{ gap: 5 }}>
-          <IconButton onClick={customizedPopover.onOpen} sx={{ bgcolor: 'action.hover' }}>
+  const DEMO_COMPONENTS = [
+    {
+      name: 'Click & hover',
+      component: (
+        <ComponentBox>
+          {renderClickPopover()}
+          {renderHoverPopover()}
+        </ComponentBox>
+      ),
+    },
+    {
+      name: 'Customized',
+      component: (
+        <ComponentBox sx={{ gap: 5, alignItems: 'flex-start' }}>
+          <IconButton
+            color={customizedPopover.open ? 'inherit' : 'default'}
+            onClick={customizedPopover.onOpen}
+            sx={{ bgcolor: 'action.hover' }}
+          >
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
 
           <FormControl>
-            <FormLabel sx={{ typography: 'body2' }}>Arrow</FormLabel>
-            <RadioGroup value={arrow} onChange={handleChangePopoverArrow}>
+            <FormLabel
+              component="legend"
+              id="arrow-position-radios"
+              sx={{ mb: 1, typography: 'body2' }}
+            >
+              Arrow
+            </FormLabel>
+            <RadioGroup
+              aria-labelledby="arrow-position-radios"
+              value={arrow}
+              onChange={handleChangePopoverArrow}
+            >
               {[
                 'top-left',
                 'top-center',
@@ -170,8 +168,18 @@ export function PopoverView() {
               </Typography>
             </Box>
           </CustomPopover>
-        </ComponentBlock>
-      </ComponentContainer>
-    </>
+        </ComponentBox>
+      ),
+    },
+  ];
+
+  return (
+    <ComponentLayout
+      sectionData={DEMO_COMPONENTS}
+      heroProps={{
+        heading: 'Popover',
+        moreLinks: ['https://mui.com/material-ui/react-popover/'],
+      }}
+    />
   );
 }

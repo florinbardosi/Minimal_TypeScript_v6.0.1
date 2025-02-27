@@ -9,8 +9,6 @@ import Link from '@mui/material/Link';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 
-import { varAlpha } from 'src/theme/styles';
-
 import { Image } from 'src/components/image';
 import { Carousel, useCarousel, CarouselDotButtons } from 'src/components/carousel';
 
@@ -28,12 +26,17 @@ export function EcommerceNewProducts({ list, sx, ...other }: Props) {
   const carousel = useCarousel({ loop: true }, [Autoplay({ playOnInit: true, delay: 8000 })]);
 
   return (
-    <Card sx={{ bgcolor: 'common.black', ...sx }} {...other}>
+    <Card sx={[{ bgcolor: 'common.black' }, ...(Array.isArray(sx) ? sx : [sx])]} {...other}>
       <CarouselDotButtons
         scrollSnaps={carousel.dots.scrollSnaps}
         selectedIndex={carousel.dots.selectedIndex}
         onClickDot={carousel.dots.onClickDot}
-        sx={{ right: 20, bottom: 20, position: 'absolute', color: 'primary.light' }}
+        sx={{
+          right: 20,
+          bottom: 20,
+          position: 'absolute',
+          color: 'primary.light',
+        }}
       />
 
       <Carousel carousel={carousel}>
@@ -85,14 +88,12 @@ function CarouselItem({ item, ...other }: CarouselItemProps) {
         src={item.coverUrl}
         slotProps={{
           overlay: {
-            backgroundImage: (theme) =>
-              `linear-gradient(to bottom, ${varAlpha(theme.vars.palette.common.blackChannel, 0)} 0%, ${theme.vars.palette.common.black} 75%)`,
+            sx: (theme) => ({
+              backgroundImage: `linear-gradient(to bottom, transparent 0%, ${theme.vars.palette.common.black} 75%)`,
+            }),
           },
         }}
-        sx={{
-          width: 1,
-          height: { xs: 288, xl: 320 },
-        }}
+        sx={{ width: 1, height: { xs: 288, xl: 320 } }}
       />
     </Box>
   );

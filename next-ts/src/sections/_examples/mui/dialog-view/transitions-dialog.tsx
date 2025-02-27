@@ -1,6 +1,7 @@
 import type { TransitionProps } from '@mui/material/transitions';
 
 import { forwardRef } from 'react';
+import { useBoolean } from 'minimal-shared/hooks';
 
 import Slide from '@mui/material/Slide';
 import Button from '@mui/material/Button';
@@ -9,33 +10,28 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 
-import { useBoolean } from 'src/hooks/use-boolean';
-
 // ----------------------------------------------------------------------
 
 const Transition = forwardRef(
-  (
-    props: TransitionProps & {
-      children: React.ReactElement;
-    },
-    ref: React.Ref<unknown>
-  ) => <Slide direction="up" ref={ref} {...props} />
+  (props: TransitionProps & { children: React.ReactElement }, ref: React.Ref<unknown>) => (
+    <Slide direction="up" ref={ref} {...props} />
+  )
 );
 
 export function TransitionsDialog() {
-  const dialog = useBoolean();
+  const openDialog = useBoolean();
 
   return (
     <div>
-      <Button variant="outlined" color="success" onClick={dialog.onTrue}>
+      <Button variant="outlined" color="success" onClick={openDialog.onTrue}>
         Transitions dialogs
       </Button>
 
       <Dialog
         keepMounted
-        open={dialog.value}
+        open={openDialog.value}
         TransitionComponent={Transition}
-        onClose={dialog.onFalse}
+        onClose={openDialog.onFalse}
       >
         <DialogTitle>{`Use Google's location service?`}</DialogTitle>
 
@@ -45,10 +41,10 @@ export function TransitionsDialog() {
         </DialogContent>
 
         <DialogActions>
-          <Button variant="outlined" onClick={dialog.onFalse}>
+          <Button variant="outlined" onClick={openDialog.onFalse}>
             Disagree
           </Button>
-          <Button variant="contained" onClick={dialog.onFalse} autoFocus>
+          <Button variant="contained" onClick={openDialog.onFalse} autoFocus>
             Agree
           </Button>
         </DialogActions>

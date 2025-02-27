@@ -41,7 +41,7 @@ export const ToggleButton = styled(ButtonBase)<ButtonBaseProps>(({ theme }) => (
   height: 32,
   position: 'absolute',
   borderRadius: `0 12px 12px 0`,
-  boxShadow: theme.customShadows.primary,
+  boxShadow: theme.vars.customShadows.primary,
   color: theme.vars.palette.primary.contrastText,
   backgroundColor: theme.vars.palette.primary.main,
   transition: theme.transitions.create(['all'], { duration: theme.transitions.duration.shorter }),

@@ -2,7 +2,7 @@ import type { LngLat } from 'react-map-gl';
 
 import Typography from '@mui/material/Typography';
 
-import { StyledControlPanel } from '../styles';
+import { ControlPanelRoot } from '../styles';
 
 // ----------------------------------------------------------------------
 
@@ -14,13 +14,13 @@ function round(value: number) {
 
 // ----------------------------------------------------------------------
 
-type Props = {
+type MapControlPanel = {
   events: Record<string, LngLat>;
 };
 
-export function ControlPanel({ events = {} }: Props) {
+export function MapControlPanel({ events = {} }: MapControlPanel) {
   return (
-    <StyledControlPanel>
+    <ControlPanelRoot>
       {EVENT_NAMES.map((event) => {
         const lngLat = events[event];
 
@@ -42,6 +42,6 @@ export function ControlPanel({ events = {} }: Props) {
           </div>
         );
       })}
-    </StyledControlPanel>
+    </ControlPanelRoot>
   );
 }

@@ -38,7 +38,12 @@ export function CarouselAutoplay({ data }: Props) {
           scrollSnaps={carousel.dots.scrollSnaps}
           selectedIndex={carousel.dots.selectedIndex}
           onClickDot={carousel.dots.onClickDot}
-          sx={{ top: 16, right: 16, position: 'absolute', color: 'common.white' }}
+          sx={{
+            top: 16,
+            right: 16,
+            position: 'absolute',
+            color: 'common.white',
+          }}
         />
       </Box>
     </>
@@ -61,10 +66,7 @@ function CarouselItem({ item, index }: CarouselItemProps) {
         component="img"
         alt={item.title}
         src={item.coverUrl}
-        sx={{
-          objectFit: 'cover',
-          aspectRatio: { xs: '4/3', sm: '16/10' },
-        }}
+        sx={{ objectFit: 'cover', aspectRatio: { xs: '4/3', sm: '16/10' } }}
       />
     </Box>
   );

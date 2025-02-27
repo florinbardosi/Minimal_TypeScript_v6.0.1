@@ -8,8 +8,9 @@ import Typography from '@mui/material/Typography';
 
 import { fShortenNumber } from 'src/utils/format-number';
 
+import { Iconify } from 'src/components/iconify';
+import { FlagIcon } from 'src/components/flag-icon';
 import { Scrollbar } from 'src/components/scrollbar';
-import { Iconify, FlagIcon } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
@@ -26,9 +27,9 @@ type Props = CardProps & {
   }[];
 };
 
-export function AppTopInstalledCountries({ title, subheader, list, ...other }: Props) {
+export function AppTopInstalledCountries({ title, subheader, list, sx, ...other }: Props) {
   return (
-    <Card {...other}>
+    <Card sx={sx} {...other}>
       <CardHeader title={title} subheader={subheader} />
 
       <Scrollbar sx={{ minHeight: 254 }}>
@@ -89,7 +90,10 @@ function Item({ item, sx, ...other }: CountryItemProps) {
   );
 
   return (
-    <Box sx={{ gap: 2, display: 'flex', alignItems: 'center', ...sx }} {...other}>
+    <Box
+      sx={[{ gap: 2, display: 'flex', alignItems: 'center' }, ...(Array.isArray(sx) ? sx : [sx])]}
+      {...other}
+    >
       {largeItem}
       {smallItem('ant-design:android-filled', item.android)}
       {smallItem('mingcute:windows-fill', item.windows)}

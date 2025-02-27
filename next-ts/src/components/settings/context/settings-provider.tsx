@@ -1,32 +1,32 @@
 'use client';
 
-import { useMemo, useState, useCallback, createContext } from 'react';
+import { isEqual } from 'es-toolkit';
+import { getCookie, getStorage } from 'minimal-shared/utils';
+import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useCookies, useLocalStorage } from 'minimal-shared/hooks';
 
-import { useCookies } from 'src/hooks/use-cookies';
-import { useLocalStorage } from 'src/hooks/use-local-storage';
+import { SettingsContext } from './settings-context';
+import { SETTINGS_STORAGE_KEY } from '../settings-config';
 
-import { STORAGE_KEY, defaultSettings } from '../config-settings';
-
-import type { SettingsState, SettingsContextValue, SettingsProviderProps } from '../types';
-
-// ----------------------------------------------------------------------
-
-export const SettingsContext = createContext<SettingsContextValue | undefined>(undefined);
-
-export const SettingsConsumer = SettingsContext.Consumer;
+import type { SettingsState, SettingsProviderProps } from '../types';
 
 // ----------------------------------------------------------------------
 
 export function SettingsProvider({
   children,
-  settings,
-  caches = 'localStorage',
+  cookieSettings,
+  defaultSettings,
+  storageKey = SETTINGS_STORAGE_KEY,
 }: SettingsProviderProps) {
-  const cookies = useCookies<SettingsState>(STORAGE_KEY, settings, defaultSettings);
+  const isCookieEnabled = !!cookieSettings;
+  const useStorage = isCookieEnabled ? useCookies : useLocalStorage;
+  const initialSettings = isCookieEnabled ? cookieSettings : defaultSettings;
+  const getStorageValue = isCookieEnabled ? getCookie : getStorage;
 
-  const localStorage = useLocalStorage<SettingsState>(STORAGE_KEY, settings);
-
-  const values = caches === 'cookie' ? cookies : localStorage;
+  const { state, setState, resetState, setField } = useStorage<SettingsState>(
+    storageKey,
+    initialSettings
+  );
 
   const [openDrawer, setOpenDrawer] = useState(false);
 
@@ -38,27 +38,40 @@ export function SettingsProvider({
     setOpenDrawer(false);
   }, []);
 
+  const canReset = !isEqual(state, defaultSettings);
+
+  const onReset = useCallback(() => {
+    resetState(defaultSettings);
+  }, [defaultSettings, resetState]);
+
+  // Version check and reset handling
+  useEffect(() => {
+    const storedValue = getStorageValue<SettingsState>(storageKey);
+
+    if (storedValue) {
+      try {
+        if (!storedValue.version || storedValue.version !== defaultSettings.version) {
+          onReset();
+        }
+      } catch {
+        onReset();
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const memoizedValue = useMemo(
     () => ({
-      ...values.state,
-      canReset: values.canReset,
-      onReset: values.resetState,
-      onUpdate: values.setState,
-      onUpdateField: values.setField,
+      canReset,
+      onReset,
       openDrawer,
       onCloseDrawer,
       onToggleDrawer,
+      state,
+      setState,
+      setField,
     }),
-    [
-      values.state,
-      values.setField,
-      values.setState,
-      values.canReset,
-      values.resetState,
-      openDrawer,
-      onCloseDrawer,
-      onToggleDrawer,
-    ]
+    [canReset, onReset, openDrawer, onCloseDrawer, onToggleDrawer, state, setField, setState]
   );
 
   return <SettingsContext.Provider value={memoizedValue}>{children}</SettingsContext.Provider>;

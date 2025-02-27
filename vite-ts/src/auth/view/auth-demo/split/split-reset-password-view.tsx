@@ -28,7 +28,9 @@ export const ResetPasswordSchema = zod.object({
 // ----------------------------------------------------------------------
 
 export function SplitResetPasswordView() {
-  const defaultValues = { email: '' };
+  const defaultValues: ResetPasswordSchemaType = {
+    email: '',
+  };
 
   const methods = useForm<ResetPasswordSchemaType>({
     resolver: zodResolver(ResetPasswordSchema),
@@ -49,14 +51,14 @@ export function SplitResetPasswordView() {
     }
   });
 
-  const renderForm = (
-    <Box gap={3} display="flex" flexDirection="column">
+  const renderForm = () => (
+    <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
       <Field.Text
         autoFocus
         name="email"
         label="Email address"
         placeholder="example@gmail.com"
-        InputLabelProps={{ shrink: true }}
+        slotProps={{ inputLabel: { shrink: true } }}
       />
 
       <LoadingButton
@@ -81,7 +83,7 @@ export function SplitResetPasswordView() {
       />
 
       <Form methods={methods} onSubmit={onSubmit}>
-        {renderForm}
+        {renderForm()}
       </Form>
 
       <FormReturnLink href={paths.authDemo.split.signIn} />

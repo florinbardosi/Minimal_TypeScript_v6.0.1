@@ -1,20 +1,20 @@
 'use client';
 
-import { useEffect, useCallback } from 'react';
+import { useBoolean } from 'minimal-shared/hooks';
+import { useEffect, useCallback, startTransition } from 'react';
 
+import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 import { paths } from 'src/routes/paths';
 import { useRouter, useSearchParams } from 'src/routes/hooks';
 
-import { useBoolean } from 'src/hooks/use-boolean';
-import { useResponsive } from 'src/hooks/use-responsive';
-
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useGetMail, useGetMails, useGetLabels } from 'src/actions/mail';
 
-import { Layout } from '../layout';
 import { MailNav } from '../mail-nav';
+import { MailLayout } from '../layout';
 import { MailList } from '../mail-list';
 import { MailHeader } from '../mail-header';
 import { MailCompose } from '../mail-compose';
@@ -27,25 +27,20 @@ const LABEL_INDEX = 'inbox';
 export function MailView() {
   const router = useRouter();
 
+  const theme = useTheme();
+  const mdUp = useMediaQuery(theme.breakpoints.up('md'));
+
   const searchParams = useSearchParams();
-
   const selectedLabelId = searchParams.get('label') ?? LABEL_INDEX;
-
   const selectedMailId = searchParams.get('id') ?? '';
 
-  const mdUp = useResponsive('up', 'md');
-
   const openNav = useBoolean();
-
   const openMail = useBoolean();
-
   const openCompose = useBoolean();
 
   const { labels, labelsLoading, labelsEmpty } = useGetLabels();
-
-  const { mails, mailsLoading, mailsError, mailsEmpty } = useGetMails(selectedLabelId);
-
   const { mail, mailLoading, mailError } = useGetMail(selectedMailId);
+  const { mails, mailsLoading, mailsEmpty } = useGetMails(selectedLabelId);
 
   const firstMailId = mails.allIds[0] || '';
 
@@ -62,15 +57,16 @@ export function MailView() {
         openNav.onFalse();
       }
 
-      if (labelId) {
-        const href =
-          labelId !== LABEL_INDEX
-            ? `${paths.dashboard.mail}?label=${labelId}`
-            : paths.dashboard.mail;
-        router.push(href);
+      const redirectPath =
+        labelId !== LABEL_INDEX ? `${paths.dashboard.mail}?label=${labelId}` : paths.dashboard.mail;
+
+      if (selectedLabelId !== labelId) {
+        startTransition(() => {
+          router.push(redirectPath);
+        });
       }
     },
-    [openNav, router, mdUp]
+    [mdUp, selectedLabelId, openNav, router]
   );
 
   const handleClickMail = useCallback(
@@ -79,35 +75,25 @@ export function MailView() {
         openMail.onFalse();
       }
 
-      const href =
+      const redirectPath =
         selectedLabelId !== LABEL_INDEX
           ? `${paths.dashboard.mail}?id=${mailId}&label=${selectedLabelId}`
           : `${paths.dashboard.mail}?id=${mailId}`;
 
-      router.push(href);
+      if (selectedMailId !== mailId) {
+        startTransition(() => {
+          router.push(redirectPath);
+        });
+      }
     },
-    [openMail, router, selectedLabelId, mdUp]
+    [mdUp, openMail, router, selectedLabelId, selectedMailId]
   );
-
-  useEffect(() => {
-    if (mailsError || mailError) {
-      router.push(paths.dashboard.mail);
-    }
-  }, [mailError, mailsError, router]);
 
   useEffect(() => {
     if (!selectedMailId && firstMailId) {
       handleClickMail(firstMailId);
     }
   }, [firstMailId, handleClickMail, selectedMailId]);
-
-  useEffect(() => {
-    if (openCompose.value) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-  }, [openCompose.value]);
 
   return (
     <>
@@ -119,7 +105,7 @@ export function MailView() {
           Mail
         </Typography>
 
-        <Layout
+        <MailLayout
           sx={{
             p: 1,
             borderRadius: 2,
@@ -137,20 +123,20 @@ export function MailView() {
             nav: (
               <MailNav
                 labels={labels}
-                empty={labelsEmpty}
+                isEmpty={labelsEmpty}
                 loading={labelsLoading}
                 openNav={openNav.value}
                 onCloseNav={openNav.onFalse}
                 selectedLabelId={selectedLabelId}
-                handleClickLabel={handleClickLabel}
+                onClickLabel={handleClickLabel}
                 onToggleCompose={handleToggleCompose}
               />
             ),
             list: (
               <MailList
                 mails={mails}
-                empty={mailsEmpty}
-                loading={mailsLoading || labelsLoading}
+                isEmpty={mailsEmpty}
+                loading={mailsLoading}
                 openMail={openMail.value}
                 onCloseMail={openMail.onFalse}
                 onClickMail={handleClickMail}
@@ -161,9 +147,10 @@ export function MailView() {
             details: (
               <MailDetails
                 mail={mail}
-                empty={mailsEmpty}
+                isEmpty={mailsEmpty}
+                error={mailError?.message}
                 loading={mailsLoading || mailLoading}
-                renderLabel={(id: string) => labels.filter((label) => label.id === id)[0]}
+                renderLabel={(id: string) => labels.find((label) => label.id === id)}
               />
             ),
           }}

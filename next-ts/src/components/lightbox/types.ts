@@ -12,11 +12,3 @@ export type LightBoxProps = LightboxExternalProps & {
   disableFullscreen?: boolean;
   onGetCurrentIndex?: (index: number) => void;
 };
-
-export type UseLightBoxReturn = {
-  open: boolean;
-  selected: number;
-  onClose: () => void;
-  onOpen: (slideUrl: string) => void;
-  setSelected: React.Dispatch<React.SetStateAction<number>>;
-};

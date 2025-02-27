@@ -1,16 +1,16 @@
 import { useEffect } from 'react';
 
 import Box from '@mui/material/Box';
-import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
+import Drawer from '@mui/material/Drawer';
 
 import { paths } from 'src/routes/paths';
 import { usePathname } from 'src/routes/hooks';
 
 import { Logo } from 'src/components/logo';
-import { NavUl } from 'src/components/nav-section';
 import { Scrollbar } from 'src/components/scrollbar';
 
+import { Nav, NavUl } from '../components';
 import { NavList } from './nav-mobile-list';
 import { SignInButton } from '../../../components/sign-in-button';
 
@@ -42,32 +42,51 @@ export function NavMobile({ data, open, onClose, slots, sx }: NavMobileProps) {
       open={open}
       onClose={onClose}
       PaperProps={{
-        sx: {
-          display: 'flex',
-          flexDirection: 'column',
-          width: 'var(--layout-nav-mobile-width)',
-          ...sx,
-        },
+        sx: [
+          { display: 'flex', flexDirection: 'column', width: 'var(--layout-nav-mobile-width)' },
+          ...(Array.isArray(sx) ? sx : [sx]),
+        ],
       }}
     >
       {slots?.topArea ?? (
-        <Box display="flex" sx={{ pt: 3, pb: 2, pl: 2.5 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            pt: 3,
+            pb: 2,
+            pl: 2.5,
+          }}
+        >
           <Logo />
         </Box>
       )}
 
       <Scrollbar fillContent>
-        <Box component="nav" display="flex" flexDirection="column" flex="1 1 auto" sx={{ pb: 3 }}>
+        <Nav
+          sx={{
+            pb: 3,
+            display: 'flex',
+            flex: '1 1 auto',
+            flexDirection: 'column',
+          }}
+        >
           <NavUl>
             {data.map((list) => (
               <NavList key={list.title} data={list} />
             ))}
           </NavUl>
-        </Box>
+        </Nav>
       </Scrollbar>
 
       {slots?.bottomArea ?? (
-        <Box gap={1.5} display="flex" sx={{ px: 2.5, py: 3 }}>
+        <Box
+          sx={{
+            py: 3,
+            px: 2.5,
+            gap: 1.5,
+            display: 'flex',
+          }}
+        >
           <SignInButton fullWidth />
 
           <Button

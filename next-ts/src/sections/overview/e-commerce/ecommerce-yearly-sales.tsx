@@ -30,7 +30,7 @@ type Props = CardProps & {
   };
 };
 
-export function EcommerceYearlySales({ title, subheader, chart, ...other }: Props) {
+export function EcommerceYearlySales({ title, subheader, chart, sx, ...other }: Props) {
   const theme = useTheme();
 
   const [selectedSeries, setSelectedSeries] = useState('2023');
@@ -50,7 +50,7 @@ export function EcommerceYearlySales({ title, subheader, chart, ...other }: Prop
   const currentSeries = chart.series.find((i) => i.name === selectedSeries);
 
   return (
-    <Card {...other}>
+    <Card sx={sx} {...other}>
       <CardHeader
         title={title}
         subheader={subheader}
@@ -75,9 +75,13 @@ export function EcommerceYearlySales({ title, subheader, chart, ...other }: Prop
         type="area"
         series={currentSeries?.data}
         options={chartOptions}
-        height={320}
-        loadingProps={{ sx: { p: 2.5 } }}
-        sx={{ py: 2.5, pl: 1, pr: 2.5 }}
+        slotProps={{ loading: { p: 2.5 } }}
+        sx={{
+          pl: 1,
+          py: 2.5,
+          pr: 2.5,
+          height: 320,
+        }}
       />
     </Card>
   );

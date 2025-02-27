@@ -16,11 +16,7 @@ type Props = {
 };
 
 export function CarouselScale({ data }: Props) {
-  const carousel = useCarousel({
-    loop: true,
-    slidesToShow: '70%',
-    slideSpacing: '20px',
-  });
+  const carousel = useCarousel({ loop: true, slidesToShow: '70%', slideSpacing: '20px' });
 
   return (
     <>
@@ -56,18 +52,19 @@ type CarouselItemProps = {
 function CarouselItem({ item, index, selected }: CarouselItemProps) {
   return (
     <Box
-      sx={{
-        borderRadius: 2,
-        overflow: 'hidden',
-        position: 'relative',
-        transform: 'scale(0.88)',
-        transition: (theme) =>
-          theme.transitions.create(['transform'], {
+      sx={[
+        (theme) => ({
+          borderRadius: 2,
+          overflow: 'hidden',
+          position: 'relative',
+          transform: 'scale(0.88)',
+          transition: theme.transitions.create(['transform'], {
             easing: theme.transitions.easing.easeIn,
             duration: theme.transitions.duration.complex,
           }),
-        ...(selected && { transform: 'scale(1)' }),
-      }}
+          ...(selected && { transform: 'scale(1)' }),
+        }),
+      ]}
     >
       <IndexLabel index={index + 1} />
 
@@ -75,10 +72,7 @@ function CarouselItem({ item, index, selected }: CarouselItemProps) {
         component="img"
         alt={item.title}
         src={item.coverUrl}
-        sx={{
-          objectFit: 'cover',
-          aspectRatio: { xs: '4/3', sm: '16/10' },
-        }}
+        sx={{ objectFit: 'cover', aspectRatio: { xs: '4/3', sm: '16/10' } }}
       />
     </Box>
   );

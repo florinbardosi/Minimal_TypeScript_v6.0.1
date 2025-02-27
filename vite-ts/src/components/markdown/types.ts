@@ -3,7 +3,8 @@ import type { Theme, SxProps } from '@mui/material/styles';
 
 // ----------------------------------------------------------------------
 
-export interface MarkdownProps extends Options {
-  asHtml?: boolean;
-  sx?: SxProps<Theme>;
-}
+export type MarkdownProps = Options &
+  React.ComponentProps<'div'> & {
+    asHtml?: boolean;
+    sx?: SxProps<Theme>;
+  };

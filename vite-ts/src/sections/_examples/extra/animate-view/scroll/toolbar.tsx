@@ -1,22 +1,32 @@
-import type { StackProps } from '@mui/material/Stack';
+import type { BoxProps } from '@mui/material/Box';
 
-import Stack from '@mui/material/Stack';
+import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 
 import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-type Props = StackProps & {
+type Props = BoxProps & {
   onRefresh: () => void;
 };
 
-export function Toolbar({ onRefresh, ...other }: Props) {
+export function Toolbar({ onRefresh, sx, ...other }: Props) {
   return (
-    <Stack direction="row" alignItems="center" justifyContent="flex-end" {...other}>
+    <Box
+      sx={[
+        () => ({
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-end',
+        }),
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
+      {...other}
+    >
       <IconButton onClick={onRefresh}>
         <Iconify icon="eva:refresh-fill" />
       </IconButton>
-    </Stack>
+    </Box>
   );
 }

@@ -1,4 +1,4 @@
-import { paramCase } from 'src/utils/change-case';
+import { kebabCase } from 'es-toolkit';
 
 import { _id, _postTitles } from 'src/_mock/assets';
 
@@ -42,8 +42,8 @@ export const paths = {
   },
   post: {
     root: `/post`,
-    details: (title: string) => `/post/${paramCase(title)}`,
-    demo: { details: `/post/${paramCase(MOCK_TITLE)}` },
+    details: (title: string) => `/post/${kebabCase(title)}`,
+    demo: { details: `/post/${kebabCase(MOCK_TITLE)}` },
   },
   // AUTH
   auth: {
@@ -54,19 +54,14 @@ export const paths = {
       updatePassword: `${ROOTS.AUTH}/amplify/update-password`,
       resetPassword: `${ROOTS.AUTH}/amplify/reset-password`,
     },
-    jwt: {
-      signIn: `${ROOTS.AUTH}/jwt/sign-in`,
-      signUp: `${ROOTS.AUTH}/jwt/sign-up`,
-    },
+    jwt: { signIn: `${ROOTS.AUTH}/jwt/sign-in`, signUp: `${ROOTS.AUTH}/jwt/sign-up` },
     firebase: {
       signIn: `${ROOTS.AUTH}/firebase/sign-in`,
       verify: `${ROOTS.AUTH}/firebase/verify`,
       signUp: `${ROOTS.AUTH}/firebase/sign-up`,
       resetPassword: `${ROOTS.AUTH}/firebase/reset-password`,
     },
-    auth0: {
-      signIn: `${ROOTS.AUTH}/auth0/sign-in`,
-    },
+    auth0: { signIn: `${ROOTS.AUTH}/auth0/sign-in` },
     supabase: {
       signIn: `${ROOTS.AUTH}/supabase/sign-in`,
       verify: `${ROOTS.AUTH}/supabase/verify`,
@@ -118,9 +113,7 @@ export const paths = {
       profile: `${ROOTS.DASHBOARD}/user/profile`,
       account: `${ROOTS.DASHBOARD}/user/account`,
       edit: (id: string) => `${ROOTS.DASHBOARD}/user/${id}/edit`,
-      demo: {
-        edit: `${ROOTS.DASHBOARD}/user/${MOCK_ID}/edit`,
-      },
+      demo: { edit: `${ROOTS.DASHBOARD}/user/${MOCK_ID}/edit` },
     },
     product: {
       root: `${ROOTS.DASHBOARD}/product`,
@@ -145,19 +138,17 @@ export const paths = {
     post: {
       root: `${ROOTS.DASHBOARD}/post`,
       new: `${ROOTS.DASHBOARD}/post/new`,
-      details: (title: string) => `${ROOTS.DASHBOARD}/post/${paramCase(title)}`,
-      edit: (title: string) => `${ROOTS.DASHBOARD}/post/${paramCase(title)}/edit`,
+      details: (title: string) => `${ROOTS.DASHBOARD}/post/${kebabCase(title)}`,
+      edit: (title: string) => `${ROOTS.DASHBOARD}/post/${kebabCase(title)}/edit`,
       demo: {
-        details: `${ROOTS.DASHBOARD}/post/${paramCase(MOCK_TITLE)}`,
-        edit: `${ROOTS.DASHBOARD}/post/${paramCase(MOCK_TITLE)}/edit`,
+        details: `${ROOTS.DASHBOARD}/post/${kebabCase(MOCK_TITLE)}`,
+        edit: `${ROOTS.DASHBOARD}/post/${kebabCase(MOCK_TITLE)}/edit`,
       },
     },
     order: {
       root: `${ROOTS.DASHBOARD}/order`,
       details: (id: string) => `${ROOTS.DASHBOARD}/order/${id}`,
-      demo: {
-        details: `${ROOTS.DASHBOARD}/order/${MOCK_ID}`,
-      },
+      demo: { details: `${ROOTS.DASHBOARD}/order/${MOCK_ID}` },
     },
     job: {
       root: `${ROOTS.DASHBOARD}/job`,

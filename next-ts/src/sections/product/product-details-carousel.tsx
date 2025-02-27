@@ -21,11 +21,7 @@ type Props = {
 };
 
 export function ProductDetailsCarousel({ images }: Props) {
-  const carousel = useCarousel({
-    thumbs: {
-      slidesToShow: 'auto',
-    },
-  });
+  const carousel = useCarousel({ thumbs: { slidesToShow: 'auto' } });
 
   const slides = images?.map((img) => ({ src: img })) || [];
 

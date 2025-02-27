@@ -2,10 +2,10 @@ import type { CardProps } from '@mui/material/Card';
 import type { IFolderManager } from 'src/types/file';
 
 import { useState, useCallback } from 'react';
+import { useBoolean, usePopover, useCopyToClipboard } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
-import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import Divider from '@mui/material/Divider';
@@ -16,17 +16,14 @@ import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
 import AvatarGroup, { avatarGroupClasses } from '@mui/material/AvatarGroup';
 
-import { useBoolean } from 'src/hooks/use-boolean';
-import { useCopyToClipboard } from 'src/hooks/use-copy-to-clipboard';
-
 import { fData } from 'src/utils/format-number';
 
-import { CONFIG } from 'src/config-global';
+import { CONFIG } from 'src/global-config';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
-import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import { CustomPopover } from 'src/components/custom-popover';
 
 import { FileManagerShareDialog } from './file-manager-share-dialog';
 import { FileManagerFileDetails } from './file-manager-file-details';
@@ -49,24 +46,19 @@ export function FileManagerFolderItem({
   onDelete,
   ...other
 }: Props) {
-  const { copy } = useCopyToClipboard();
-
-  const share = useBoolean();
-
-  const popover = usePopover();
-
-  const confirm = useBoolean();
-
-  const details = useBoolean();
+  const shareDialog = useBoolean();
+  const confirmDialog = useBoolean();
+  const detailsDrawer = useBoolean();
+  const editFolderDialog = useBoolean();
 
   const checkbox = useBoolean();
-
-  const editFolder = useBoolean();
-
   const favorite = useBoolean(folder.isFavorited);
 
-  const [inviteEmail, setInviteEmail] = useState('');
+  const menuActions = usePopover();
 
+  const { copy } = useCopyToClipboard();
+
+  const [inviteEmail, setInviteEmail] = useState('');
   const [folderName, setFolderName] = useState(folder.name);
 
   const handleChangeInvite = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,8 +74,16 @@ export function FileManagerFolderItem({
     copy(folder.url);
   }, [copy, folder.url]);
 
-  const renderAction = (
-    <Stack direction="row" alignItems="center" sx={{ top: 8, right: 8, position: 'absolute' }}>
+  const renderActions = () => (
+    <Box
+      sx={{
+        top: 8,
+        right: 8,
+        display: 'flex',
+        position: 'absolute',
+        alignItems: 'center',
+      }}
+    >
       <Checkbox
         color="warning"
         icon={<Iconify icon="eva:star-outline" />}
@@ -91,18 +91,18 @@ export function FileManagerFolderItem({
         checked={favorite.value}
         onChange={favorite.onToggle}
         inputProps={{
-          name: 'checkbox-favorite',
-          'aria-label': 'Checkbox favorite',
+          id: `favorite-${folder.id}-checkbox`,
+          'aria-label': `Favorite ${folder.id} checkbox`,
         }}
       />
 
-      <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
+      <IconButton color={menuActions.open ? 'inherit' : 'default'} onClick={menuActions.onOpen}>
         <Iconify icon="eva:more-vertical-fill" />
       </IconButton>
-    </Stack>
+    </Box>
   );
 
-  const renderIcon = (
+  const renderIcon = () => (
     <Box
       onMouseEnter={checkbox.onTrue}
       onMouseLeave={checkbox.onFalse}
@@ -125,9 +125,9 @@ export function FileManagerFolderItem({
       )}
     </Box>
   );
-  const renderText = (
+  const renderText = () => (
     <ListItemText
-      onClick={details.onTrue}
+      onClick={detailsDrawer.onTrue}
       primary={folder.name}
       secondary={
         <>
@@ -145,19 +145,22 @@ export function FileManagerFolderItem({
           {folder.totalFiles} files
         </>
       }
-      primaryTypographyProps={{ noWrap: true, typography: 'subtitle1' }}
-      secondaryTypographyProps={{
-        mt: 0.5,
-        component: 'span',
-        alignItems: 'center',
-        typography: 'caption',
-        color: 'text.disabled',
-        display: 'inline-flex',
+      slotProps={{
+        primary: { noWrap: true, sx: { typography: 'subtitle1' } },
+        secondary: {
+          sx: {
+            mt: 0.5,
+            alignItems: 'center',
+            typography: 'caption',
+            color: 'text.disabled',
+            display: 'inline-flex',
+          },
+        },
       }}
     />
   );
 
-  const renderAvatar = (
+  const renderAvatar = () => (
     <AvatarGroup
       max={3}
       sx={{
@@ -174,139 +177,154 @@ export function FileManagerFolderItem({
     </AvatarGroup>
   );
 
+  const renderMenuActions = () => (
+    <CustomPopover
+      open={menuActions.open}
+      anchorEl={menuActions.anchorEl}
+      onClose={menuActions.onClose}
+      slotProps={{ arrow: { placement: 'right-top' } }}
+    >
+      <MenuList>
+        <MenuItem
+          onClick={() => {
+            menuActions.onClose();
+            handleCopy();
+          }}
+        >
+          <Iconify icon="eva:link-2-fill" />
+          Copy Link
+        </MenuItem>
+
+        <MenuItem
+          onClick={() => {
+            menuActions.onClose();
+            shareDialog.onTrue();
+          }}
+        >
+          <Iconify icon="solar:share-bold" />
+          Share
+        </MenuItem>
+
+        <MenuItem
+          onClick={() => {
+            menuActions.onClose();
+            editFolderDialog.onTrue();
+          }}
+        >
+          <Iconify icon="solar:pen-bold" />
+          Edit
+        </MenuItem>
+
+        <Divider sx={{ borderStyle: 'dashed' }} />
+
+        <MenuItem
+          onClick={() => {
+            confirmDialog.onTrue();
+            menuActions.onClose();
+          }}
+          sx={{ color: 'error.main' }}
+        >
+          <Iconify icon="solar:trash-bin-trash-bold" />
+          Delete
+        </MenuItem>
+      </MenuList>
+    </CustomPopover>
+  );
+
+  const renderFileDetailsDrawer = () => (
+    <FileManagerFileDetails
+      file={folder}
+      favorited={favorite.value}
+      onFavorite={favorite.onToggle}
+      onCopyLink={handleCopy}
+      open={detailsDrawer.value}
+      onClose={detailsDrawer.onFalse}
+      onDelete={() => {
+        detailsDrawer.onFalse();
+        onDelete();
+      }}
+    />
+  );
+
+  const renderShareDialog = () => (
+    <FileManagerShareDialog
+      open={shareDialog.value}
+      shared={folder.shared}
+      inviteEmail={inviteEmail}
+      onChangeInvite={handleChangeInvite}
+      onCopyLink={handleCopy}
+      onClose={() => {
+        shareDialog.onFalse();
+        setInviteEmail('');
+      }}
+    />
+  );
+
+  const renderEditFolderDialog = () => (
+    <FileManagerNewFolderDialog
+      open={editFolderDialog.value}
+      onClose={editFolderDialog.onFalse}
+      title="Edit Folder"
+      onUpdate={() => {
+        editFolderDialog.onFalse();
+        setFolderName(folderName);
+        console.info('UPDATE FOLDER', folderName);
+      }}
+      folderName={folderName}
+      onChangeFolderName={handleChangeFolderName}
+    />
+  );
+
+  const renderConfirmDialog = () => (
+    <ConfirmDialog
+      open={confirmDialog.value}
+      onClose={confirmDialog.onFalse}
+      title="Delete"
+      content="Are you sure want to delete?"
+      action={
+        <Button variant="contained" color="error" onClick={onDelete}>
+          Delete
+        </Button>
+      }
+    />
+  );
+
   return (
     <>
       <Paper
         variant="outlined"
-        sx={{
-          gap: 1,
-          p: 2.5,
-          maxWidth: 222,
-          display: 'flex',
-          borderRadius: 2,
-          cursor: 'pointer',
-          position: 'relative',
-          bgcolor: 'transparent',
-          flexDirection: 'column',
-          alignItems: 'flex-start',
-          ...((checkbox.value || selected) && {
-            bgcolor: 'background.paper',
-            boxShadow: (theme) => theme.customShadows.z20,
+        sx={[
+          (theme) => ({
+            gap: 1,
+            p: 2.5,
+            display: 'flex',
+            borderRadius: 2,
+            cursor: 'pointer',
+            position: 'relative',
+            bgcolor: 'transparent',
+            flexDirection: 'column',
+            alignItems: 'flex-start',
+            ...((checkbox.value || selected) && {
+              bgcolor: 'background.paper',
+              boxShadow: theme.vars.customShadows.z20,
+            }),
           }),
-          ...sx,
-        }}
+          ...(Array.isArray(sx) ? sx : [sx]),
+        ]}
         {...other}
       >
-        {renderIcon}
-
-        {renderAction}
-
-        {renderText}
-
-        {!!folder?.shared?.length && renderAvatar}
+        {renderIcon()}
+        {renderActions()}
+        {renderText()}
+        {!!folder?.shared?.length && renderAvatar()}
       </Paper>
 
-      <CustomPopover
-        open={popover.open}
-        anchorEl={popover.anchorEl}
-        onClose={popover.onClose}
-        slotProps={{ arrow: { placement: 'right-top' } }}
-      >
-        <MenuList>
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-              handleCopy();
-            }}
-          >
-            <Iconify icon="eva:link-2-fill" />
-            Copy Link
-          </MenuItem>
+      {renderShareDialog()}
+      {renderEditFolderDialog()}
+      {renderFileDetailsDrawer()}
 
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-              share.onTrue();
-            }}
-          >
-            <Iconify icon="solar:share-bold" />
-            Share
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-              editFolder.onTrue();
-            }}
-          >
-            <Iconify icon="solar:pen-bold" />
-            Edit
-          </MenuItem>
-
-          <Divider sx={{ borderStyle: 'dashed' }} />
-
-          <MenuItem
-            onClick={() => {
-              confirm.onTrue();
-              popover.onClose();
-            }}
-            sx={{ color: 'error.main' }}
-          >
-            <Iconify icon="solar:trash-bin-trash-bold" />
-            Delete
-          </MenuItem>
-        </MenuList>
-      </CustomPopover>
-
-      <FileManagerFileDetails
-        item={folder}
-        favorited={favorite.value}
-        onFavorite={favorite.onToggle}
-        onCopyLink={handleCopy}
-        open={details.value}
-        onClose={details.onFalse}
-        onDelete={() => {
-          details.onFalse();
-          onDelete();
-        }}
-      />
-
-      <FileManagerShareDialog
-        open={share.value}
-        shared={folder.shared}
-        inviteEmail={inviteEmail}
-        onChangeInvite={handleChangeInvite}
-        onCopyLink={handleCopy}
-        onClose={() => {
-          share.onFalse();
-          setInviteEmail('');
-        }}
-      />
-
-      <FileManagerNewFolderDialog
-        open={editFolder.value}
-        onClose={editFolder.onFalse}
-        title="Edit Folder"
-        onUpdate={() => {
-          editFolder.onFalse();
-          setFolderName(folderName);
-          console.info('UPDATE FOLDER', folderName);
-        }}
-        folderName={folderName}
-        onChangeFolderName={handleChangeFolderName}
-      />
-
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content="Are you sure want to delete?"
-        action={
-          <Button variant="contained" color="error" onClick={onDelete}>
-            Delete
-          </Button>
-        }
-      />
+      {renderMenuActions()}
+      {renderConfirmDialog()}
     </>
   );
 }

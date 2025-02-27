@@ -2,6 +2,7 @@ import type { IFileManager } from 'src/types/file';
 import type { PaperProps } from '@mui/material/Paper';
 
 import { useState, useCallback } from 'react';
+import { useBoolean, usePopover, useCopyToClipboard } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
@@ -14,16 +15,13 @@ import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
 import AvatarGroup, { avatarGroupClasses } from '@mui/material/AvatarGroup';
 
-import { useBoolean } from 'src/hooks/use-boolean';
-import { useCopyToClipboard } from 'src/hooks/use-copy-to-clipboard';
-
 import { fData } from 'src/utils/format-number';
 import { fDateTime } from 'src/utils/format-time';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { FileThumbnail } from 'src/components/file-thumbnail';
-import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import { CustomPopover } from 'src/components/custom-popover';
 
 import { FileManagerShareDialog } from './file-manager-share-dialog';
 import { FileManagerFileDetails } from './file-manager-file-details';
@@ -38,12 +36,10 @@ type Props = PaperProps & {
 export function FileRecentItem({ file, onDelete, sx, ...other }: Props) {
   const { copy } = useCopyToClipboard();
 
-  const share = useBoolean();
+  const menuActions = usePopover();
 
-  const popover = usePopover();
-
-  const details = useBoolean();
-
+  const shareDialog = useBoolean();
+  const detailsDrawer = useBoolean();
   const favorite = useBoolean(file.isFavorited);
 
   const [inviteEmail, setInviteEmail] = useState('');
@@ -57,7 +53,7 @@ export function FileRecentItem({ file, onDelete, sx, ...other }: Props) {
     copy(file.url);
   }, [copy, file.url]);
 
-  const renderAction = (
+  const renderActions = () => (
     <Box
       sx={{
         top: 8,
@@ -73,20 +69,20 @@ export function FileRecentItem({ file, onDelete, sx, ...other }: Props) {
         checked={favorite.value}
         onChange={favorite.onToggle}
         inputProps={{
-          name: 'checkbox-favorite',
-          'aria-label': 'Checkbox favorite',
+          id: `favorite-${file.id}-checkbox`,
+          'aria-label': `Favorite ${file.id} checkbox`,
         }}
       />
 
-      <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
+      <IconButton color={menuActions.open ? 'inherit' : 'default'} onClick={menuActions.onOpen}>
         <Iconify icon="eva:more-vertical-fill" />
       </IconButton>
     </Box>
   );
 
-  const renderText = (
+  const renderText = () => (
     <ListItemText
-      onClick={details.onTrue}
+      onClick={detailsDrawer.onTrue}
       primary={file.name}
       secondary={
         <>
@@ -103,19 +99,22 @@ export function FileRecentItem({ file, onDelete, sx, ...other }: Props) {
           {fDateTime(file.modifiedAt)}
         </>
       }
-      primaryTypographyProps={{ noWrap: true, typography: 'subtitle2' }}
-      secondaryTypographyProps={{
-        mt: 0.5,
-        component: 'span',
-        alignItems: 'center',
-        typography: 'caption',
-        color: 'text.disabled',
-        display: 'inline-flex',
+      slotProps={{
+        primary: { noWrap: true },
+        secondary: {
+          sx: {
+            mt: 0.5,
+            alignItems: 'center',
+            typography: 'caption',
+            color: 'text.disabled',
+            display: 'inline-flex',
+          },
+        },
       }}
     />
   );
 
-  const renderAvatar = (
+  const renderAvatar = () => (
     <AvatarGroup
       max={3}
       sx={{
@@ -132,103 +131,110 @@ export function FileRecentItem({ file, onDelete, sx, ...other }: Props) {
     </AvatarGroup>
   );
 
+  const renderMenuActions = () => (
+    <CustomPopover
+      open={menuActions.open}
+      anchorEl={menuActions.anchorEl}
+      onClose={menuActions.onClose}
+      slotProps={{ arrow: { placement: 'right-top' } }}
+    >
+      <MenuList>
+        <MenuItem
+          onClick={() => {
+            menuActions.onClose();
+            handleCopy();
+          }}
+        >
+          <Iconify icon="eva:link-2-fill" />
+          Copy Link
+        </MenuItem>
+
+        <MenuItem
+          onClick={() => {
+            menuActions.onClose();
+            shareDialog.onTrue();
+          }}
+        >
+          <Iconify icon="solar:share-bold" />
+          Share
+        </MenuItem>
+
+        <Divider sx={{ borderStyle: 'dashed' }} />
+
+        <MenuItem
+          onClick={() => {
+            menuActions.onClose();
+            onDelete();
+          }}
+          sx={{ color: 'error.main' }}
+        >
+          <Iconify icon="solar:trash-bin-trash-bold" />
+          Delete
+        </MenuItem>
+      </MenuList>
+    </CustomPopover>
+  );
+
+  const renderFileDetailsDrawer = () => (
+    <FileManagerFileDetails
+      file={file}
+      favorited={favorite.value}
+      onFavorite={favorite.onToggle}
+      onCopyLink={handleCopy}
+      open={detailsDrawer.value}
+      onClose={detailsDrawer.onFalse}
+      onDelete={() => {
+        detailsDrawer.onFalse();
+        onDelete();
+      }}
+    />
+  );
+
+  const renderShareDialog = () => (
+    <FileManagerShareDialog
+      open={shareDialog.value}
+      shared={file.shared}
+      inviteEmail={inviteEmail}
+      onChangeInvite={handleChangeInvite}
+      onCopyLink={handleCopy}
+      onClose={() => {
+        shareDialog.onFalse();
+        setInviteEmail('');
+      }}
+    />
+  );
+
   return (
     <>
       <Paper
         variant="outlined"
-        sx={{
-          gap: 2,
-          borderRadius: 2,
-          display: 'flex',
-          cursor: 'pointer',
-          position: 'relative',
-          bgcolor: 'transparent',
-          p: { xs: 2.5, sm: 2 },
-          alignItems: { xs: 'unset', sm: 'center' },
-          flexDirection: { xs: 'column', sm: 'row' },
-          '&:hover': {
-            bgcolor: 'background.paper',
-            boxShadow: (theme) => theme.customShadows.z20,
-          },
-          ...sx,
-        }}
+        sx={[
+          (theme) => ({
+            gap: 2,
+            borderRadius: 2,
+            display: 'flex',
+            cursor: 'pointer',
+            position: 'relative',
+            bgcolor: 'transparent',
+            p: { xs: 2.5, sm: 2 },
+            alignItems: { xs: 'unset', sm: 'center' },
+            flexDirection: { xs: 'column', sm: 'row' },
+            '&:hover': { bgcolor: 'background.paper', boxShadow: theme.vars.customShadows.z20 },
+          }),
+          ...(Array.isArray(sx) ? sx : [sx]),
+        ]}
         {...other}
       >
         <FileThumbnail file={file.type} />
 
-        {renderText}
-
-        {!!file?.shared?.length && renderAvatar}
-
-        {renderAction}
+        {renderText()}
+        {!!file?.shared?.length && renderAvatar()}
+        {renderActions()}
       </Paper>
 
-      <CustomPopover
-        open={popover.open}
-        anchorEl={popover.anchorEl}
-        onClose={popover.onClose}
-        slotProps={{ arrow: { placement: 'right-top' } }}
-      >
-        <MenuList>
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-              handleCopy();
-            }}
-          >
-            <Iconify icon="eva:link-2-fill" />
-            Copy Link
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-              share.onTrue();
-            }}
-          >
-            <Iconify icon="solar:share-bold" />
-            Share
-          </MenuItem>
-
-          <Divider sx={{ borderStyle: 'dashed' }} />
-
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-              onDelete();
-            }}
-            sx={{ color: 'error.main' }}
-          >
-            <Iconify icon="solar:trash-bin-trash-bold" />
-            Delete
-          </MenuItem>
-        </MenuList>
-      </CustomPopover>
-
-      <FileManagerFileDetails
-        item={file}
-        favorited={favorite.value}
-        onFavorite={favorite.onToggle}
-        onCopyLink={handleCopy}
-        open={details.value}
-        onClose={details.onFalse}
-        onDelete={() => {
-          details.onFalse();
-          onDelete();
-        }}
-      />
-
-      <FileManagerShareDialog
-        open={share.value}
-        shared={file.shared}
-        inviteEmail={inviteEmail}
-        onChangeInvite={handleChangeInvite}
-        onCopyLink={handleCopy}
-        onClose={() => {
-          share.onFalse();
-          setInviteEmail('');
-        }}
-      />
+      {renderMenuActions()}
+      {renderFileDetailsDrawer()}
+      {renderShareDialog()}
     </>
   );
 }

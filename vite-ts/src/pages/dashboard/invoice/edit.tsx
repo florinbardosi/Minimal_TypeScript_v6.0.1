@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async';
 
 import { useParams } from 'src/routes/hooks';
 
-import { CONFIG } from 'src/config-global';
+import { CONFIG } from 'src/global-config';
 import { _invoices } from 'src/_mock/_invoice';
 
 import { InvoiceEditView } from 'src/sections/invoice/view';

@@ -1,5 +1,8 @@
 import type { IDateValue } from 'src/types/common';
 
+import { usePopover } from 'minimal-shared/hooks';
+
+import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import MenuList from '@mui/material/MenuList';
@@ -13,13 +16,13 @@ import { fDateTime } from 'src/utils/format-time';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
-import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import { CustomPopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
 type Props = {
   status?: string;
-  backLink: string;
+  backHref: string;
   orderNumber?: string;
   createdAt?: IDateValue;
   onChangeStatus: (newValue: string) => void;
@@ -28,24 +31,55 @@ type Props = {
 
 export function OrderDetailsToolbar({
   status,
-  backLink,
+  backHref,
   createdAt,
   orderNumber,
   statusOptions,
   onChangeStatus,
 }: Props) {
-  const popover = usePopover();
+  const menuActions = usePopover();
+
+  const renderMenuActions = () => (
+    <CustomPopover
+      open={menuActions.open}
+      anchorEl={menuActions.anchorEl}
+      onClose={menuActions.onClose}
+      slotProps={{ arrow: { placement: 'top-right' } }}
+    >
+      <MenuList>
+        {statusOptions.map((option) => (
+          <MenuItem
+            key={option.value}
+            selected={option.value === status}
+            onClick={() => {
+              menuActions.onClose();
+              onChangeStatus(option.value);
+            }}
+          >
+            {option.label}
+          </MenuItem>
+        ))}
+      </MenuList>
+    </CustomPopover>
+  );
 
   return (
     <>
-      <Stack spacing={3} direction={{ xs: 'column', md: 'row' }} sx={{ mb: { xs: 3, md: 5 } }}>
-        <Stack spacing={1} direction="row" alignItems="flex-start">
-          <IconButton component={RouterLink} href={backLink}>
+      <Box
+        sx={{
+          gap: 3,
+          display: 'flex',
+          mb: { xs: 3, md: 5 },
+          flexDirection: { xs: 'column', md: 'row' },
+        }}
+      >
+        <Box sx={{ gap: 1, display: 'flex', alignItems: 'flex-start' }}>
+          <IconButton component={RouterLink} href={backHref}>
             <Iconify icon="eva:arrow-ios-back-fill" />
           </IconButton>
 
           <Stack spacing={0.5}>
-            <Stack spacing={1} direction="row" alignItems="center">
+            <Box sx={{ gap: 1, display: 'flex', alignItems: 'center' }}>
               <Typography variant="h4"> Order {orderNumber} </Typography>
               <Label
                 variant="soft"
@@ -58,26 +92,28 @@ export function OrderDetailsToolbar({
               >
                 {status}
               </Label>
-            </Stack>
+            </Box>
 
             <Typography variant="body2" sx={{ color: 'text.disabled' }}>
               {fDateTime(createdAt)}
             </Typography>
           </Stack>
-        </Stack>
+        </Box>
 
-        <Stack
-          flexGrow={1}
-          spacing={1.5}
-          direction="row"
-          alignItems="center"
-          justifyContent="flex-end"
+        <Box
+          sx={{
+            gap: 1.5,
+            flexGrow: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+          }}
         >
           <Button
             color="inherit"
             variant="outlined"
             endIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
-            onClick={popover.onOpen}
+            onClick={menuActions.onOpen}
             sx={{ textTransform: 'capitalize' }}
           >
             {status}
@@ -94,30 +130,10 @@ export function OrderDetailsToolbar({
           <Button color="inherit" variant="contained" startIcon={<Iconify icon="solar:pen-bold" />}>
             Edit
           </Button>
-        </Stack>
-      </Stack>
+        </Box>
+      </Box>
 
-      <CustomPopover
-        open={popover.open}
-        anchorEl={popover.anchorEl}
-        onClose={popover.onClose}
-        slotProps={{ arrow: { placement: 'top-right' } }}
-      >
-        <MenuList>
-          {statusOptions.map((option) => (
-            <MenuItem
-              key={option.value}
-              selected={option.value === status}
-              onClick={() => {
-                popover.onClose();
-                onChangeStatus(option.value);
-              }}
-            >
-              {option.label}
-            </MenuItem>
-          ))}
-        </MenuList>
-      </CustomPopover>
+      {renderMenuActions()}
     </>
   );
 }

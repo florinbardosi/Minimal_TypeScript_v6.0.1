@@ -1,6 +1,8 @@
 import type { CardProps } from '@mui/material/Card';
-import type { ColorType } from 'src/theme/core/palette';
+import type { PaletteColorKey } from 'src/theme/core';
 import type { ChartOptions } from 'src/components/chart';
+
+import { varAlpha } from 'minimal-shared/utils';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -8,8 +10,7 @@ import { useTheme } from '@mui/material/styles';
 
 import { fNumber, fPercent, fShortenNumber } from 'src/utils/format-number';
 
-import { CONFIG } from 'src/config-global';
-import { varAlpha, bgGradient } from 'src/theme/styles';
+import { CONFIG } from 'src/global-config';
 
 import { Iconify } from 'src/components/iconify';
 import { SvgColor } from 'src/components/svg-color';
@@ -21,7 +22,7 @@ type Props = CardProps & {
   title: string;
   total: number;
   percent: number;
-  color?: ColorType;
+  color?: PaletteColorKey;
   icon: React.ReactNode;
   chart: {
     series: number[];
@@ -31,13 +32,13 @@ type Props = CardProps & {
 };
 
 export function AnalyticsWidgetSummary({
+  sx,
   icon,
   title,
   total,
   chart,
   percent,
   color = 'primary',
-  sx,
   ...other
 }: Props) {
   const theme = useTheme();
@@ -59,10 +60,13 @@ export function AnalyticsWidgetSummary({
     tooltip: {
       y: { formatter: (value: number) => fNumber(value), title: { formatter: () => '' } },
     },
+    markers: {
+      strokeWidth: 0,
+    },
     ...chart.options,
   });
 
-  const renderTrending = (
+  const renderTrending = () => (
     <Box
       sx={{
         top: 16,
@@ -83,22 +87,22 @@ export function AnalyticsWidgetSummary({
 
   return (
     <Card
-      sx={{
-        ...bgGradient({
-          color: `135deg, ${varAlpha(theme.vars.palette[color].lighterChannel, 0.48)}, ${varAlpha(theme.vars.palette[color].lightChannel, 0.48)}`,
+      sx={[
+        () => ({
+          p: 3,
+          boxShadow: 'none',
+          position: 'relative',
+          color: `${color}.darker`,
+          backgroundColor: 'common.white',
+          backgroundImage: `linear-gradient(135deg, ${varAlpha(theme.vars.palette[color].lighterChannel, 0.48)}, ${varAlpha(theme.vars.palette[color].lightChannel, 0.48)})`,
         }),
-        p: 3,
-        boxShadow: 'none',
-        position: 'relative',
-        color: `${color}.darker`,
-        backgroundColor: 'common.white',
-        ...sx,
-      }}
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...other}
     >
       <Box sx={{ width: 48, height: 48, mb: 3 }}>{icon}</Box>
 
-      {renderTrending}
+      {renderTrending()}
 
       <Box
         sx={{
@@ -110,6 +114,7 @@ export function AnalyticsWidgetSummary({
       >
         <Box sx={{ flexGrow: 1, minWidth: 112 }}>
           <Box sx={{ mb: 1, typography: 'subtitle2' }}>{title}</Box>
+
           <Box sx={{ typography: 'h4' }}>{fShortenNumber(total)}</Box>
         </Box>
 
@@ -117,8 +122,7 @@ export function AnalyticsWidgetSummary({
           type="line"
           series={[{ data: chart.series }]}
           options={chartOptions}
-          width={84}
-          height={56}
+          sx={{ width: 84, height: 56 }}
         />
       </Box>
 

@@ -1,11 +1,13 @@
+import type { Metadata } from 'next';
+
 import { _orders } from 'src/_mock/_order';
-import { CONFIG } from 'src/config-global';
+import { CONFIG } from 'src/global-config';
 
 import { OrderDetailsView } from 'src/sections/order/view';
 
 // ----------------------------------------------------------------------
 
-export const metadata = { title: `Order details | Dashboard - ${CONFIG.appName}` };
+export const metadata: Metadata = { title: `Order details | Dashboard - ${CONFIG.appName}` };
 
 type Props = {
   params: { id: string };
@@ -24,9 +26,9 @@ export default function Page({ params }: Props) {
 /**
  * [1] Default
  * Remove [1] and [2] if not using [2]
+ * Will remove in Next.js v15
  */
 const dynamic = CONFIG.isStaticExport ? 'auto' : 'force-dynamic';
-
 export { dynamic };
 
 /**

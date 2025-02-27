@@ -1,18 +1,16 @@
 import type { IInvoice } from 'src/types/invoice';
 
 import { z as zod } from 'zod';
-import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
+import { useBoolean } from 'minimal-shared/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
 
+import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import Stack from '@mui/material/Stack';
 import LoadingButton from '@mui/lab/LoadingButton';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
-
-import { useBoolean } from 'src/hooks/use-boolean';
 
 import { today, fIsAfter } from 'src/utils/format-time';
 
@@ -20,9 +18,9 @@ import { _addressBooks } from 'src/_mock';
 
 import { Form, schemaHelper } from 'src/components/hook-form';
 
-import { InvoiceNewEditDetails } from './invoice-new-edit-details';
 import { InvoiceNewEditAddress } from './invoice-new-edit-address';
 import { InvoiceNewEditStatusDate } from './invoice-new-edit-status-date';
+import { defaultItem, InvoiceNewEditDetails } from './invoice-new-edit-details';
 
 // ----------------------------------------------------------------------
 
@@ -30,16 +28,16 @@ export type NewInvoiceSchemaType = zod.infer<typeof NewInvoiceSchema>;
 
 export const NewInvoiceSchema = zod
   .object({
-    invoiceTo: schemaHelper.objectOrNull<IInvoice['invoiceTo'] | null>({
-      message: { required_error: 'Invoice to is required!' },
+    invoiceTo: schemaHelper.nullableInput(zod.custom<IInvoice['invoiceTo']>(), {
+      message: 'Invoice to is required!',
     }),
-    createDate: schemaHelper.date({ message: { required_error: 'Create date is required!' } }),
-    dueDate: schemaHelper.date({ message: { required_error: 'Due date is required!' } }),
+    createDate: schemaHelper.date({ message: { required: 'Create date is required!' } }),
+    dueDate: schemaHelper.date({ message: { required: 'Due date is required!' } }),
     items: zod.array(
       zod.object({
         title: zod.string().min(1, { message: 'Title is required!' }),
         service: zod.string().min(1, { message: 'Service is required!' }),
-        quantity: zod.number().min(1, { message: 'Quantity must be more than 0' }),
+        quantity: zod.number().int().positive().min(1, { message: 'Quantity must be more than 0' }),
         // Not required
         price: zod.number(),
         total: zod.number(),
@@ -51,6 +49,7 @@ export const NewInvoiceSchema = zod
     status: zod.string(),
     discount: zod.number(),
     shipping: zod.number(),
+    subtotal: zod.number(),
     totalAmount: zod.number(),
     invoiceNumber: zod.string(),
     invoiceFrom: zod.custom<IInvoice['invoiceFrom']>().nullable(),
@@ -70,39 +69,28 @@ export function InvoiceNewEditForm({ currentInvoice }: Props) {
   const router = useRouter();
 
   const loadingSave = useBoolean();
-
   const loadingSend = useBoolean();
 
-  const defaultValues = useMemo(
-    () => ({
-      invoiceNumber: currentInvoice?.invoiceNumber || 'INV-1990',
-      createDate: currentInvoice?.createDate || today(),
-      dueDate: currentInvoice?.dueDate || null,
-      taxes: currentInvoice?.taxes || 0,
-      shipping: currentInvoice?.shipping || 0,
-      status: currentInvoice?.status || 'draft',
-      discount: currentInvoice?.discount || 0,
-      invoiceFrom: currentInvoice?.invoiceFrom || _addressBooks[0],
-      invoiceTo: currentInvoice?.invoiceTo || null,
-      totalAmount: currentInvoice?.totalAmount || 0,
-      items: currentInvoice?.items || [
-        {
-          title: '',
-          description: '',
-          service: '',
-          quantity: 1,
-          price: 0,
-          total: 0,
-        },
-      ],
-    }),
-    [currentInvoice]
-  );
+  const defaultValues: NewInvoiceSchemaType = {
+    invoiceNumber: 'INV-1990',
+    createDate: today(),
+    dueDate: null,
+    taxes: 0,
+    shipping: 0,
+    status: 'draft',
+    discount: 0,
+    invoiceFrom: _addressBooks[0],
+    invoiceTo: null,
+    subtotal: 0,
+    totalAmount: 0,
+    items: [defaultItem],
+  };
 
   const methods = useForm<NewInvoiceSchemaType>({
     mode: 'all',
     resolver: zodResolver(NewInvoiceSchema),
     defaultValues,
+    values: currentInvoice,
   });
 
   const {
@@ -151,7 +139,14 @@ export function InvoiceNewEditForm({ currentInvoice }: Props) {
         <InvoiceNewEditDetails />
       </Card>
 
-      <Stack justifyContent="flex-end" direction="row" spacing={2} sx={{ mt: 3 }}>
+      <Box
+        sx={{
+          mt: 3,
+          gap: 2,
+          display: 'flex',
+          justifyContent: 'flex-end',
+        }}
+      >
         <LoadingButton
           color="inherit"
           size="large"
@@ -170,7 +165,7 @@ export function InvoiceNewEditForm({ currentInvoice }: Props) {
         >
           {currentInvoice ? 'Update' : 'Create'} & send
         </LoadingButton>
-      </Stack>
+      </Box>
     </Form>
   );
 }

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { varAlpha } from 'minimal-shared/utils';
 
 import Box from '@mui/material/Box';
 import Step from '@mui/material/Step';
@@ -8,8 +9,6 @@ import Stepper from '@mui/material/Stepper';
 import StepLabel from '@mui/material/StepLabel';
 import Typography from '@mui/material/Typography';
 import StepContent from '@mui/material/StepContent';
-
-import { varAlpha } from 'src/theme/styles';
 
 // ----------------------------------------------------------------------
 
@@ -77,11 +76,13 @@ export function VerticalLinearStepper() {
 
       {activeStep === steps.length && (
         <Paper
-          sx={{
-            p: 3,
-            mt: 3,
-            bgcolor: (theme) => varAlpha(theme.vars.palette.grey['500Channel'], 0.12),
-          }}
+          sx={[
+            (theme) => ({
+              p: 3,
+              mt: 3,
+              bgcolor: varAlpha(theme.vars.palette.grey['500Channel'], 0.12),
+            }),
+          ]}
         >
           <Typography sx={{ mb: 2 }}>All steps completed - you&apos;re finished</Typography>
           <Button onClick={handleReset}>Reset</Button>

@@ -1,44 +1,46 @@
 import { useState } from 'react';
 
+import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import Stack from '@mui/material/Stack';
 
 import { Toolbar } from './toolbar';
 import { ContainerView } from './container';
 import { ControlPanel } from '../control-panel';
 
+import type { ControlPanelProps } from '../control-panel';
+
 // ----------------------------------------------------------------------
 
-export function AnimateBackground() {
+export function AnimateBackground({ options }: Pick<ControlPanelProps, 'options'>) {
   const [count, setCount] = useState(0);
 
-  const [selectVariant, setSelectVariant] = useState('kenburnsTop');
+  const [selectedVariant, setSelectedVariant] = useState<string>('kenburnsTop');
 
   const handleChangeVariant = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCount(count + 1);
-    setSelectVariant(event.target.value);
+    setSelectedVariant(event.target.value);
   };
 
   return (
     <Card sx={{ height: 640, display: 'flex' }}>
-      <Stack spacing={2.5} sx={{ p: 2.5, display: 'flex', flex: '1 1 auto' }}>
+      <Box
+        sx={{
+          p: 2.5,
+          gap: 2.5,
+          display: 'flex',
+          flex: '1 1 auto',
+          flexDirection: 'column',
+        }}
+      >
         <Toolbar onRefresh={() => setCount(count + 1)} />
-        <ContainerView key={count} selectVariant={selectVariant} />
-      </Stack>
+        <ContainerView key={count} selectedVariant={selectedVariant} />
+      </Box>
 
       <ControlPanel
-        variantKey={VARIANT_KEYS}
-        selectVariant={selectVariant}
+        options={options}
+        selectedVariant={selectedVariant}
         onChangeVariant={handleChangeVariant}
       />
     </Card>
   );
 }
-
-// ----------------------------------------------------------------------
-
-const VARIANT_KEYS = [
-  { type: 'kenburns', values: ['kenburnsTop', 'kenburnsBottom', 'kenburnsLeft', 'kenburnsRight'] },
-  { type: 'pan', values: ['panTop', 'panBottom', 'panLeft', 'panRight'] },
-  { type: 'color change', values: ['color2x', 'color3x', 'color4x', 'color5x'] },
-];

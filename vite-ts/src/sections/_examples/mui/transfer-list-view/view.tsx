@@ -1,46 +1,38 @@
-import { paths } from 'src/routes/paths';
-
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-
-import { ComponentHero } from '../../component-hero';
-import { ComponentBlock } from '../../component-block';
 import { SimpleTransferList } from './simple-transfer-list';
-import { ScrollToViewTemplate } from '../../component-template';
+import { ComponentBox, ComponentLayout } from '../../layout';
 import { EnhancedTransferList } from './enhanced-transfer-list';
 
 // ----------------------------------------------------------------------
 
+const DEMO_COMPONENTS = [
+  {
+    name: 'Simple',
+    component: (
+      <ComponentBox>
+        <SimpleTransferList />
+      </ComponentBox>
+    ),
+  },
+  {
+    name: 'Enhanced',
+    component: (
+      <ComponentBox>
+        <EnhancedTransferList />
+      </ComponentBox>
+    ),
+  },
+];
+
+// ----------------------------------------------------------------------
+
 export function TransferListView() {
-  const DEMO = [
-    {
-      name: 'Simple',
-      component: (
-        <ComponentBlock>
-          <SimpleTransferList />
-        </ComponentBlock>
-      ),
-    },
-    {
-      name: 'Enhanced',
-      component: (
-        <ComponentBlock>
-          <EnhancedTransferList />
-        </ComponentBlock>
-      ),
-    },
-  ];
-
   return (
-    <>
-      <ComponentHero>
-        <CustomBreadcrumbs
-          heading="Transfer List"
-          links={[{ name: 'Components', href: paths.components }, { name: 'Transfer List' }]}
-          moreLink={['https://mui.com/components/transfer-list']}
-        />
-      </ComponentHero>
-
-      <ScrollToViewTemplate data={DEMO} />
-    </>
+    <ComponentLayout
+      sectionData={DEMO_COMPONENTS}
+      heroProps={{
+        heading: 'Transfer List',
+        moreLinks: ['https://mui.com/material-ui/react-transfer-list/'],
+      }}
+    />
   );
 }

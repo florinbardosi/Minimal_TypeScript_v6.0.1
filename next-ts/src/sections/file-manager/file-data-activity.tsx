@@ -30,7 +30,7 @@ type Props = CardProps & {
   };
 };
 
-export function FileDataActivity({ title, subheader, chart, ...other }: Props) {
+export function FileDataActivity({ title, subheader, chart, sx, ...other }: Props) {
   const theme = useTheme();
 
   const [selectedSeries, setSelectedSeries] = useState('Yearly');
@@ -45,22 +45,12 @@ export function FileDataActivity({ title, subheader, chart, ...other }: Props) {
   ];
 
   const chartOptions = useChart({
-    chart: {
-      stacked: true,
-    },
+    chart: { stacked: true },
     colors: chartColors,
-    stroke: {
-      width: 0,
-    },
-    legend: {
-      show: true,
-    },
-    xaxis: {
-      categories: currentSeries?.categories,
-    },
-    tooltip: {
-      y: { formatter: (value: number) => fData(value) },
-    },
+    stroke: { width: 0 },
+    legend: { show: true },
+    xaxis: { categories: currentSeries?.categories },
+    tooltip: { y: { formatter: (value: number) => fData(value) } },
     ...chart.options,
   });
 
@@ -69,7 +59,7 @@ export function FileDataActivity({ title, subheader, chart, ...other }: Props) {
   }, []);
 
   return (
-    <Card {...other}>
+    <Card sx={sx} {...other}>
       <CardHeader
         title={title}
         subheader={subheader}
@@ -86,9 +76,13 @@ export function FileDataActivity({ title, subheader, chart, ...other }: Props) {
         type="bar"
         series={currentSeries?.data}
         options={chartOptions}
-        height={370}
-        loadingProps={{ sx: { p: 2.5 } }}
-        sx={{ py: 2.5, pl: 1, pr: 2.5 }}
+        slotProps={{ loading: { p: 2.5 } }}
+        sx={{
+          pl: 1,
+          py: 2.5,
+          pr: 2.5,
+          height: 370,
+        }}
       />
     </Card>
   );

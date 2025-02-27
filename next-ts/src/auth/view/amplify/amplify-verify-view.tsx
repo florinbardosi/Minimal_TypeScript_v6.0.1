@@ -4,14 +4,13 @@ import { z as zod } from 'zod';
 import { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useCountdownSeconds } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import LoadingButton from '@mui/lab/LoadingButton';
 
 import { paths } from 'src/routes/paths';
 import { useRouter, useSearchParams } from 'src/routes/hooks';
-
-import { useCountdownSeconds } from 'src/hooks/use-countdown';
 
 import { EmailInboxIcon } from 'src/assets/icons';
 
@@ -48,7 +47,10 @@ export function AmplifyVerifyView() {
 
   const countdown = useCountdownSeconds(5);
 
-  const defaultValues = { code: '', email: email || '' };
+  const defaultValues: VerifySchemaType = {
+    code: '',
+    email: email || '',
+  };
 
   const methods = useForm<VerifySchemaType>({
     resolver: zodResolver(VerifySchema),
@@ -85,13 +87,13 @@ export function AmplifyVerifyView() {
     }
   }, [countdown, values.email]);
 
-  const renderForm = (
-    <Box gap={3} display="flex" flexDirection="column">
+  const renderForm = () => (
+    <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
       <Field.Text
         name="email"
         label="Email address"
         placeholder="example@gmail.com"
-        InputLabelProps={{ shrink: true }}
+        slotProps={{ inputLabel: { shrink: true } }}
         disabled
       />
 
@@ -119,7 +121,7 @@ export function AmplifyVerifyView() {
       />
 
       <Form methods={methods} onSubmit={onSubmit}>
-        {renderForm}
+        {renderForm()}
       </Form>
 
       <FormResendCode

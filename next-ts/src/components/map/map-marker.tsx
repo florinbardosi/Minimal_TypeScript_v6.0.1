@@ -2,7 +2,7 @@ import type { MarkerProps } from 'react-map-gl';
 
 import { Marker } from 'react-map-gl';
 
-import Box from '@mui/material/Box';
+import SvgIcon from '@mui/material/SvgIcon';
 
 // ----------------------------------------------------------------------
 
@@ -17,19 +17,19 @@ const ICON = `M20.2,15.7L20.2,15.7c1.1-1.6,1.8-3.6,1.8-5.7c0-5.6-4.5-10-10-10S2,
 export function MapMarker({ ...other }: MarkerProps) {
   return (
     <Marker {...other}>
-      <Box
-        component="svg"
-        viewBox="0 0 24 24"
-        sx={{
-          height: SIZE,
-          stroke: 'none',
-          cursor: 'pointer',
-          fill: (theme) => theme.vars.palette.error.main,
-          transform: `translate(${-SIZE / 2}px, ${-SIZE}px)`,
-        }}
+      <SvgIcon
+        sx={[
+          (theme) => ({
+            height: SIZE,
+            stroke: 'none',
+            cursor: 'pointer',
+            fill: theme.vars.palette.error.main,
+            transform: `translate(${-SIZE / 2}px, ${-SIZE}px)`,
+          }),
+        ]}
       >
         <path d={ICON} />
-      </Box>
+      </SvgIcon>
     </Marker>
   );
 }

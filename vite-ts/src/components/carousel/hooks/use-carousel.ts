@@ -3,6 +3,8 @@ import type { EmblaPluginType } from 'embla-carousel';
 import { useMemo } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 
+import { useTheme } from '@mui/material/styles';
+
 import { useThumbs } from './use-thumbs';
 import { useCarouselDots } from './use-carousel-dots';
 import { useParallax } from './use-carousel-parallax';
@@ -19,7 +21,9 @@ export const useCarousel = (
   options?: CarouselOptions,
   plugins?: EmblaPluginType[]
 ): UseCarouselReturn => {
-  const [mainRef, mainApi] = useEmblaCarousel(options, plugins);
+  const theme = useTheme();
+
+  const [mainRef, mainApi] = useEmblaCarousel({ ...options, direction: theme.direction }, plugins);
 
   const { disablePrev, disableNext, onClickPrev, onClickNext } = useCarouselArrows(mainApi);
 
@@ -50,17 +54,13 @@ export const useCarousel = (
         onClickNext: () => _autoScroll.onClickAutoplay(onClickNext),
       };
     }
-    return {
-      onClickPrev,
-      onClickNext,
-    };
+    return { onClickPrev, onClickNext };
   }, [_autoScroll, _autoplay, onClickNext, onClickPrev, pluginNames]);
 
+  const mergedOptions = { ...options, ...mainApi?.internalEngine().options };
+
   return {
-    options: {
-      ...options,
-      ...mainApi?.internalEngine().options,
-    },
+    options: mergedOptions,
     pluginNames,
     mainRef,
     mainApi,

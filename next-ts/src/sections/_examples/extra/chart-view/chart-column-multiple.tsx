@@ -27,13 +27,9 @@ export function ChartColumnMultiple({ chart }: Props) {
     colors: chartColors,
     legend: { show: true },
     xaxis: { categories: chart.categories },
-    stroke: {
-      show: true,
-      width: 2,
-      colors: ['transparent'],
-    },
+    stroke: { show: true, width: 2, colors: ['transparent'] },
     tooltip: { y: { formatter: (value: number) => `$ ${value} thousands` } },
   });
 
-  return <Chart type="bar" series={chart.series} options={chartOptions} height={320} />;
+  return <Chart type="bar" series={chart.series} options={chartOptions} sx={{ height: 320 }} />;
 }

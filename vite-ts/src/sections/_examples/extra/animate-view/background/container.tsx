@@ -1,9 +1,8 @@
-import type { StackProps } from '@mui/material/Stack';
+import type { BoxProps } from '@mui/material/Box';
 
 import { m } from 'framer-motion';
 
 import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
 
 import { _mock } from 'src/_mock';
 
@@ -11,33 +10,35 @@ import { getVariant } from '../get-variant';
 
 // ----------------------------------------------------------------------
 
-type Props = StackProps & {
-  selectVariant: string;
+type Props = BoxProps & {
+  selectedVariant: string;
 };
 
-export function ContainerView({ selectVariant, sx, ...other }: Props) {
-  const isKenburns = selectVariant.includes('kenburns');
+export function ContainerView({ selectedVariant, sx, ...other }: Props) {
+  const isKenburns = selectedVariant.includes('kenburns');
 
   return (
-    <Stack
-      sx={{
-        flex: '1 1 auto',
-        overflow: 'hidden',
-        borderRadius: 2,
-        ...sx,
-      }}
+    <Box
+      sx={[
+        () => ({
+          borderRadius: 2,
+          flex: '1 1 auto',
+          overflow: 'hidden',
+        }),
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...other}
     >
       {isKenburns ? (
         <Box
           component={m.img}
           src={_mock.image.cover(7)}
-          {...getVariant(selectVariant)}
+          {...getVariant(selectedVariant)}
           sx={{ width: 1, height: 1, objectFit: 'cover' }}
         />
       ) : (
-        <Box component={m.div} {...getVariant(selectVariant)} sx={{ height: 1, width: 1 }} />
+        <Box component={m.div} {...getVariant(selectedVariant)} sx={{ height: 1, width: 1 }} />
       )}
-    </Stack>
+    </Box>
   );
 }

@@ -1,5 +1,6 @@
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
+import { useBoolean } from 'minimal-shared/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Box from '@mui/material/Box';
@@ -8,8 +9,6 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import InputAdornment from '@mui/material/InputAdornment';
 
 import { paths } from 'src/routes/paths';
-
-import { useBoolean } from 'src/hooks/use-boolean';
 
 import { SentIcon } from 'src/assets/icons';
 
@@ -48,9 +47,9 @@ export const UpdatePasswordSchema = zod
 // ----------------------------------------------------------------------
 
 export function SplitUpdatePasswordView() {
-  const password = useBoolean();
+  const showPassword = useBoolean();
 
-  const defaultValues = {
+  const defaultValues: UpdatePasswordSchemaType = {
     code: '',
     email: '',
     password: '',
@@ -76,13 +75,13 @@ export function SplitUpdatePasswordView() {
     }
   });
 
-  const renderForm = (
-    <Box gap={3} display="flex" flexDirection="column">
+  const renderForm = () => (
+    <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
       <Field.Text
         name="email"
         label="Email address"
         placeholder="example@gmail.com"
-        InputLabelProps={{ shrink: true }}
+        slotProps={{ inputLabel: { shrink: true } }}
       />
 
       <Field.Code name="code" />
@@ -91,32 +90,36 @@ export function SplitUpdatePasswordView() {
         name="password"
         label="Password"
         placeholder="6+ characters"
-        type={password.value ? 'text' : 'password'}
-        InputLabelProps={{ shrink: true }}
-        InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              <IconButton onClick={password.onToggle} edge="end">
-                <Iconify icon={password.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
-              </IconButton>
-            </InputAdornment>
-          ),
+        type={showPassword.value ? 'text' : 'password'}
+        slotProps={{
+          inputLabel: { shrink: true },
+          input: {
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton onClick={showPassword.onToggle} edge="end">
+                  <Iconify icon={showPassword.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
+                </IconButton>
+              </InputAdornment>
+            ),
+          },
         }}
       />
 
       <Field.Text
         name="confirmPassword"
         label="Confirm new password"
-        type={password.value ? 'text' : 'password'}
-        InputLabelProps={{ shrink: true }}
-        InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              <IconButton onClick={password.onToggle} edge="end">
-                <Iconify icon={password.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
-              </IconButton>
-            </InputAdornment>
-          ),
+        type={showPassword.value ? 'text' : 'password'}
+        slotProps={{
+          inputLabel: { shrink: true },
+          input: {
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton onClick={showPassword.onToggle} edge="end">
+                  <Iconify icon={showPassword.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
+                </IconButton>
+              </InputAdornment>
+            ),
+          },
         }}
       />
 
@@ -142,7 +145,7 @@ export function SplitUpdatePasswordView() {
       />
 
       <Form methods={methods} onSubmit={onSubmit}>
-        {renderForm}
+        {renderForm()}
       </Form>
 
       <FormResendCode onResendCode={() => {}} value={0} disabled={false} />

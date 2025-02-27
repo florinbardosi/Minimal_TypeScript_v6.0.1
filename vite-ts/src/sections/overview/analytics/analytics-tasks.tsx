@@ -2,6 +2,7 @@ import type { BoxProps } from '@mui/material/Box';
 import type { CardProps } from '@mui/material/Card';
 
 import { useState } from 'react';
+import { usePopover } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -16,7 +17,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import { CustomPopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
@@ -29,7 +30,7 @@ type Props = CardProps & {
   }[];
 };
 
-export function AnalyticsTasks({ title, subheader, list, ...other }: Props) {
+export function AnalyticsTasks({ title, subheader, list, sx, ...other }: Props) {
   const [selected, setSelected] = useState(['2']);
 
   const handleClickComplete = (taskId: string) => {
@@ -41,16 +42,16 @@ export function AnalyticsTasks({ title, subheader, list, ...other }: Props) {
   };
 
   return (
-    <Card {...other}>
+    <Card sx={sx} {...other}>
       <CardHeader title={title} subheader={subheader} sx={{ mb: 1 }} />
 
       <Scrollbar sx={{ minHeight: 304 }}>
         <Stack divider={<Divider sx={{ borderStyle: 'dashed' }} />} sx={{ minWidth: 560 }}>
           {list.map((item) => (
-            <Item
+            <TaskItem
               key={item.id}
               item={item}
-              checked={selected.includes(item.id)}
+              selected={selected.includes(item.id)}
               onChange={() => handleClickComplete(item.id)}
             />
           ))}
@@ -62,79 +63,81 @@ export function AnalyticsTasks({ title, subheader, list, ...other }: Props) {
 
 // ----------------------------------------------------------------------
 
-type ItemProps = BoxProps & {
+type TaskItemProps = BoxProps & {
+  selected: boolean;
   item: Props['list'][number];
-  checked: boolean;
   onChange: (id: string) => void;
 };
 
-function Item({ item, checked, onChange, sx, ...other }: ItemProps) {
-  const popover = usePopover();
+function TaskItem({ item, selected, onChange, sx, ...other }: TaskItemProps) {
+  const menuActions = usePopover();
 
   const handleMarkComplete = () => {
-    popover.onClose();
+    menuActions.onClose();
     console.info('MARK COMPLETE', item.id);
   };
 
   const handleShare = () => {
-    popover.onClose();
+    menuActions.onClose();
     console.info('SHARE', item.id);
   };
 
   const handleEdit = () => {
-    popover.onClose();
+    menuActions.onClose();
     console.info('EDIT', item.id);
   };
 
   const handleDelete = () => {
-    popover.onClose();
+    menuActions.onClose();
     console.info('DELETE', item.id);
   };
 
   return (
     <>
       <Box
-        sx={{
-          pl: 2,
-          pr: 1,
-          py: 1.5,
-          display: 'flex',
-          ...(checked && { color: 'text.disabled', textDecoration: 'line-through' }),
-          ...sx,
-        }}
+        sx={[
+          () => ({
+            pl: 2,
+            pr: 1,
+            py: 1.5,
+            display: 'flex',
+            ...(selected && {
+              color: 'text.disabled',
+              textDecoration: 'line-through',
+            }),
+          }),
+          ...(Array.isArray(sx) ? sx : [sx]),
+        ]}
         {...other}
       >
         <FormControlLabel
+          label={item.name}
           control={
             <Checkbox
               disableRipple
-              checked={checked}
+              checked={selected}
               onChange={onChange}
-              inputProps={{
-                name: item.name,
-                'aria-label': 'Checkbox demo',
-              }}
+              inputProps={{ id: `${item.name}-checkbox` }}
             />
           }
-          label={item.name}
           sx={{ flexGrow: 1, m: 0 }}
         />
 
-        <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
+        <IconButton color={menuActions.open ? 'inherit' : 'default'} onClick={menuActions.onOpen}>
           <Iconify icon="eva:more-vertical-fill" />
         </IconButton>
       </Box>
 
       <CustomPopover
-        open={popover.open}
-        anchorEl={popover.anchorEl}
-        onClose={popover.onClose}
+        open={menuActions.open}
+        anchorEl={menuActions.anchorEl}
+        onClose={menuActions.onClose}
         slotProps={{ arrow: { placement: 'right-top' } }}
       >
         <MenuList>
           <MenuItem onClick={handleMarkComplete}>
             <Iconify icon="eva:checkmark-circle-2-fill" />
-            Mark Complete
+            Mark complete
           </MenuItem>
 
           <MenuItem onClick={handleEdit}>

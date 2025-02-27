@@ -30,12 +30,13 @@ export function EcommerceCurrentBalance({
       <Box component="span" sx={{ color: 'text.secondary' }}>
         {label}
       </Box>
+
       <Box component="span">{fCurrency(value)}</Box>
     </Box>
   );
 
   return (
-    <Card sx={{ p: 3, ...sx }} {...other}>
+    <Card sx={[{ p: 3 }, ...(Array.isArray(sx) ? sx : [sx])]} {...other}>
       <Box sx={{ mb: 1, typography: 'subtitle2' }}>{title}</Box>
 
       <Box sx={{ gap: 2, display: 'flex', flexDirection: 'column' }}>

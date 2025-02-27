@@ -4,8 +4,6 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 
-import { varAlpha, bgGradient } from 'src/theme/styles';
-
 import { varFade, MotionContainer } from 'src/components/animate';
 import { Carousel, useCarousel, CarouselArrowNumberButtons } from 'src/components/carousel';
 
@@ -59,28 +57,23 @@ type CarouselItemProps = {
 
 function CarouselItem({ item, index, selected }: CarouselItemProps) {
   return (
-    <Box sx={{ position: 'relative' }}>
+    <Box sx={{ position: 'relative', height: 400 }}>
       <IndexLabel index={index + 1} />
 
       <Box
         component="img"
         alt={item.title}
         src={item.coverUrl}
-        sx={{
-          objectFit: 'cover',
-          aspectRatio: { xs: '4/3', sm: '16/10' },
-        }}
+        sx={{ objectFit: 'cover', aspectRatio: { xs: '4/3', sm: '16/10' } }}
       />
 
       <Box
         sx={(theme) => ({
-          ...bgGradient({
-            color: `to top, ${theme.vars.palette.grey[900]}, ${varAlpha(theme.vars.palette.grey['900Channel'], 0)}`,
-          }),
           top: 0,
           width: 1,
           height: 1,
           position: 'absolute',
+          backgroundImage: `linear-gradient(to top, ${theme.vars.palette.grey[900]}, transparent)`,
         })}
       />
 
@@ -97,25 +90,19 @@ function CarouselItem({ item, index, selected }: CarouselItemProps) {
           color: 'common.white',
         }}
       >
-        <m.div variants={varFade().inRight}>
-          <Typography
-            noWrap
-            sx={{
-              mb: 1,
-              typography: { xs: 'subtitle1', md: 'h3' },
-            }}
-          >
+        <m.div variants={varFade('inRight')}>
+          <Typography noWrap sx={{ mb: 1, typography: { xs: 'subtitle1', md: 'h3' } }}>
             {item.title}
           </Typography>
         </m.div>
 
-        <m.div variants={varFade().inRight}>
+        <m.div variants={varFade('inRight')}>
           <Typography noWrap variant="body2">
             {item.description}
           </Typography>
         </m.div>
 
-        <m.div variants={varFade().inRight}>
+        <m.div variants={varFade('inRight')}>
           <Button
             color="primary"
             variant="contained"

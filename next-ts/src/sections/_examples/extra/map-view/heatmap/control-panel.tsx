@@ -1,15 +1,15 @@
-import Box from '@mui/material/Box';
 import Slider from '@mui/material/Slider';
 import Switch from '@mui/material/Switch';
 import Typography from '@mui/material/Typography';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { fDate } from 'src/utils/format-time';
 
-import { StyledControlPanel } from '../styles';
+import { ControlPanelRoot } from '../styles';
 
 // ----------------------------------------------------------------------
 
-type Props = {
+type MapControlPanel = {
   startTime: number;
   endTime: number;
   allDays: boolean;
@@ -18,50 +18,46 @@ type Props = {
   onChangeAllDays: (value: boolean) => void;
 };
 
-export function ControlPanel({
+export function MapControlPanel({
   startTime,
   endTime,
   allDays,
   selectedTime,
   onChangeTime,
   onChangeAllDays,
-}: Props) {
+}: MapControlPanel) {
   const day = 24 * 60 * 60 * 1000;
-
   const days = Math.round((endTime - startTime) / day);
-
   const selectedDay = Math.round((selectedTime - startTime) / day);
 
   const handleChangeDays = (value: number) => {
     const daysToAdd = value;
-
     const newTime = startTime + daysToAdd * day;
 
     onChangeTime(newTime);
   };
 
   return (
-    <StyledControlPanel>
-      <Box
+    <ControlPanelRoot>
+      <FormControlLabel
+        label="All days"
+        labelPlacement="start"
+        control={
+          <Switch
+            size="small"
+            checked={allDays}
+            onChange={(event) => onChangeAllDays(event.target.checked)}
+            inputProps={{ id: 'all-days-switch' }}
+          />
+        }
         sx={{
-          width: '100%',
-          display: 'flex',
-          alignItems: 'center',
+          mb: 2,
+          mx: 0,
+          width: 1,
+          color: 'common.white',
           justifyContent: 'space-between',
         }}
-      >
-        <Typography variant="subtitle2" sx={{ color: 'common.white' }}>
-          All days
-        </Typography>
-
-        <Switch
-          size="small"
-          checked={allDays}
-          onChange={(event) => onChangeAllDays(event.target.checked)}
-        />
-      </Box>
-
-      <br />
+      />
 
       <Typography variant="body2" sx={{ mb: 1, color: allDays ? 'text.disabled' : 'common.white' }}>
         Each day: {fDate(selectedTime)}
@@ -77,6 +73,6 @@ export function ControlPanel({
           if (typeof newValue === 'number') handleChangeDays(newValue);
         }}
       />
-    </StyledControlPanel>
+    </ControlPanelRoot>
   );
 }

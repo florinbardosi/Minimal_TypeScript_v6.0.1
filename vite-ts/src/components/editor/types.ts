@@ -1,5 +1,7 @@
+import type { BoxProps } from '@mui/material/Box';
 import type { Theme, SxProps } from '@mui/material/styles';
-import type { Editor, Extension, EditorOptions } from '@tiptap/react';
+import type { Editor, EditorOptions } from '@tiptap/react';
+import type { ButtonBaseProps } from '@mui/material/ButtonBase';
 
 // ----------------------------------------------------------------------
 
@@ -14,7 +16,7 @@ export type EditorProps = Partial<EditorOptions> & {
   helperText?: React.ReactNode;
   onChange?: (value: string) => void;
   slotProps?: {
-    wrap: SxProps<Theme>;
+    wrapper?: BoxProps;
   };
 };
 
@@ -25,19 +27,9 @@ export type EditorToolbarProps = {
   fullItem?: EditorProps['fullItem'];
 };
 
-export type EditorToolbarItemProps = {
-  icon?: React.ReactNode;
+export type EditorToolbarItemProps = ButtonBaseProps & {
   label?: string;
   active?: boolean;
   disabled?: boolean;
-};
-
-export type EditorCodeHighlightBlockProps = {
-  extension: Extension;
-  updateAttributes: (attributes: Record<string, any>) => void;
-  node: {
-    attrs: {
-      language: string;
-    };
-  };
+  icon?: React.ReactNode;
 };

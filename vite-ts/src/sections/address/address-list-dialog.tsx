@@ -55,7 +55,7 @@ export function AddressListDialog({
     [onClose, onSelect]
   );
 
-  const renderList = (
+  const renderList = () => (
     <Scrollbar sx={{ p: 0.5, maxHeight: 480 }}>
       {dataFiltered.map((address) => (
         <ButtonBase
@@ -71,16 +71,14 @@ export function AddressListDialog({
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'flex-start',
-            ...(selected(`${address.id}`) && {
-              bgcolor: 'action.selected',
-            }),
+            ...(selected(`${address.id}`) && { bgcolor: 'action.selected' }),
           }}
         >
-          <Stack direction="row" alignItems="center" spacing={1}>
+          <Box sx={{ gap: 1, display: 'flex', alignItems: 'center' }}>
             <Typography variant="subtitle2">{address.name}</Typography>
 
             {address.primary && <Label color="info">Default</Label>}
-          </Stack>
+          </Box>
 
           {address.company && (
             <Box sx={{ color: 'primary.main', typography: 'caption' }}>{address.company}</Box>
@@ -102,28 +100,33 @@ export function AddressListDialog({
 
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
-      <Stack
-        direction="row"
-        alignItems="center"
-        justifyContent="space-between"
-        sx={{ p: 3, pr: 1.5 }}
+      <Box
+        sx={{
+          p: 3,
+          pr: 1.5,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
       >
         <Typography variant="h6"> {title} </Typography>
 
         {action && action}
-      </Stack>
+      </Box>
 
       <Stack sx={{ p: 2, pt: 0 }}>
         <TextField
           value={searchAddress}
           onChange={handleSearchAddress}
           placeholder="Search..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                </InputAdornment>
+              ),
+            },
           }}
         />
       </Stack>
@@ -131,7 +134,7 @@ export function AddressListDialog({
       {notFound ? (
         <SearchNotFound query={searchAddress} sx={{ px: 3, pt: 5, pb: 10 }} />
       ) : (
-        renderList
+        renderList()
       )}
     </Dialog>
   );
@@ -145,14 +148,13 @@ type ApplyFilterProps = {
 };
 
 function applyFilter({ inputData, query }: ApplyFilterProps) {
-  if (query) {
-    return inputData.filter(
-      (address) =>
-        address.name.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        address.fullAddress.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        `${address.company}`.toLowerCase().indexOf(query.toLowerCase()) !== -1
-    );
+  if (!query) {
+    return inputData;
   }
 
-  return inputData;
+  return inputData.filter(({ name, company, fullAddress, phoneNumber }) =>
+    [name, company, fullAddress, phoneNumber].some((field) =>
+      field?.toLowerCase().includes(query.toLowerCase())
+    )
+  );
 }

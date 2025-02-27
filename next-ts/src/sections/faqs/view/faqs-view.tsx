@@ -15,8 +15,7 @@ export function FaqsView() {
   return (
     <>
       <FaqsHero />
-
-      <Container component="section" sx={{ pb: 10, pt: { xs: 10, md: 15 }, position: 'relative' }}>
+      <Container component="section" sx={{ pb: 10, position: 'relative', pt: { xs: 10, md: 15 } }}>
         <FaqsCategory />
 
         <Typography variant="h3" sx={{ my: { xs: 5, md: 10 } }}>
@@ -24,9 +23,11 @@ export function FaqsView() {
         </Typography>
 
         <Box
-          gap={10}
-          display="grid"
-          gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
+          sx={{
+            gap: 10,
+            display: 'grid',
+            gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
+          }}
         >
           <FaqsList />
           <FaqsForm />

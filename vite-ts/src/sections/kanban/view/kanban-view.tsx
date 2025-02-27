@@ -21,18 +21,18 @@ import {
   TouchSensor,
   closestCenter,
   pointerWithin,
+  closestCorners,
   KeyboardSensor,
-  rectIntersection,
   getFirstCollision,
   MeasuringStrategy,
 } from '@dnd-kit/core';
 
+import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import Typography from '@mui/material/Typography';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
-import { hideScrollY } from 'src/theme/styles';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { moveTask, moveColumn, useGetBoard } from 'src/actions/kanban';
 
@@ -59,24 +59,30 @@ const cssVars = {
   '--column-padding': '20px 16px 16px 16px',
 };
 
+// ----------------------------------------------------------------------
+
 export function KanbanView() {
   const { board, boardLoading, boardEmpty } = useGetBoard();
 
-  const [columnFixed, setColumnFixed] = useState(true);
-
   const recentlyMovedToNewContainer = useRef(false);
-
   const lastOverId = useRef<UniqueIdentifier | null>(null);
 
+  const [columnFixed, setColumnFixed] = useState(true);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
 
   const columnIds = board.columns.map((column) => column.id);
 
-  const isSortingContainer = activeId ? columnIds.includes(activeId) : false;
+  const isSortingContainer = activeId != null ? columnIds.includes(activeId) : false;
 
   const sensors = useSensors(
-    useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(TouchSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(MouseSensor, {
+      // Require the mouse to move by 3px pixels before activating
+      activationConstraint: { distance: 3 },
+    }),
+    useSensor(TouchSensor, {
+      // Press delay of 250ms, with tolerance of 5px of movement
+      activationConstraint: { delay: 250, tolerance: 5 },
+    }),
     useSensor(KeyboardSensor, { coordinateGetter })
   );
 
@@ -93,12 +99,19 @@ export function KanbanView() {
 
       // Start by finding any intersecting droppable
       const pointerIntersections = pointerWithin(args);
+      const cornersCollisions = closestCorners(args);
+      const centerCollisions = closestCenter(args);
 
+      // OLD
+      // const intersections = pointerIntersections.length > 0 ? pointerIntersections : rectIntersection(args);
+
+      // NEW
+      // https://github.com/clauderic/dnd-kit/issues/900#issuecomment-2068314434
       const intersections =
-        pointerIntersections.length > 0
-          ? // If there are droppables intersecting with the pointer, return those
-            pointerIntersections
-          : rectIntersection(args);
+        !!pointerIntersections.length && !!centerCollisions.length && !!cornersCollisions.length
+          ? pointerIntersections
+          : null;
+
       let overId = getFirstCollision(intersections, 'id');
 
       if (overId != null) {
@@ -170,7 +183,6 @@ export function KanbanView() {
     }
 
     const overColumn = findColumn(overId);
-
     const activeColumn = findColumn(active.id);
 
     if (!overColumn || !activeColumn) {
@@ -221,7 +233,6 @@ export function KanbanView() {
     if (active.id in board.tasks && over?.id) {
       const activeIndex = columnIds.indexOf(active.id);
       const overIndex = columnIds.indexOf(over.id);
-
       const updateColumns = arrayMove(board.columns, activeIndex, overIndex);
 
       moveColumn(updateColumns);
@@ -263,15 +274,15 @@ export function KanbanView() {
     setActiveId(null);
   };
 
-  const renderLoading = (
-    <Stack direction="row" alignItems="flex-start" sx={{ gap: 'var(--column-gap)' }}>
+  const renderLoading = () => (
+    <Box sx={{ gap: 'var(--column-gap)', display: 'flex', alignItems: 'flex-start' }}>
       <KanbanColumnSkeleton />
-    </Stack>
+    </Box>
   );
 
-  const renderEmpty = <EmptyContent filled sx={{ py: 10, maxHeight: { md: 480 } }} />;
+  const renderEmpty = () => <EmptyContent filled sx={{ py: 10, maxHeight: { md: 480 } }} />;
 
-  const renderList = (
+  const renderList = () => (
     <DndContext
       id="dnd-kanban"
       sensors={sensors}
@@ -289,16 +300,21 @@ export function KanbanView() {
             ...(columnFixed && { minHeight: 0, display: 'flex', flex: '1 1 auto' }),
           }}
         >
-          <Stack
-            direction="row"
-            sx={{
-              gap: 'var(--column-gap)',
-              ...(columnFixed && {
-                minHeight: 0,
-                flex: '1 1 auto',
-                [`& .${kanbanClasses.columnList}`]: { ...hideScrollY, flex: '1 1 auto' },
+          <Box
+            sx={[
+              (theme) => ({
+                display: 'flex',
+                gap: 'var(--column-gap)',
+                ...(columnFixed && {
+                  minHeight: 0,
+                  flex: '1 1 auto',
+                  [`& .${kanbanClasses.columnList}`]: {
+                    ...theme.mixins.hideScrollY,
+                    flex: '1 1 auto',
+                  },
+                }),
               }),
-            }}
+            ]}
           >
             <SortableContext
               items={[...columnIds, PLACEHOLDER_ID]}
@@ -312,8 +328,8 @@ export function KanbanView() {
                   >
                     {board.tasks[column.id].map((task) => (
                       <KanbanTaskItem
-                        task={task}
                         key={task.id}
+                        task={task}
                         columnId={column.id}
                         disabled={isSortingContainer}
                       />
@@ -324,7 +340,7 @@ export function KanbanView() {
 
               <KanbanColumnAdd id={PLACEHOLDER_ID} />
             </SortableContext>
-          </Stack>
+          </Box>
         </Stack>
       </Stack>
 
@@ -351,16 +367,19 @@ export function KanbanView() {
         flexDirection: 'column',
       }}
     >
-      <Stack
-        direction="row"
-        alignItems="center"
-        justifyContent="space-between"
-        sx={{ pr: { sm: 3 }, mb: { xs: 3, md: 5 } }}
+      <Box
+        sx={{
+          pr: { sm: 3 },
+          mb: { xs: 3, md: 5 },
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
       >
         <Typography variant="h4">Kanban</Typography>
 
         <FormControlLabel
-          label="Column fixed"
+          label="Fixed column"
           labelPlacement="start"
           control={
             <Switch
@@ -368,13 +387,13 @@ export function KanbanView() {
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                 setColumnFixed(event.target.checked);
               }}
-              inputProps={{ id: 'column-fixed-switch' }}
+              inputProps={{ id: 'fixed-column-switch' }}
             />
           }
         />
-      </Stack>
+      </Box>
 
-      {boardLoading ? renderLoading : <>{boardEmpty ? renderEmpty : renderList}</>}
+      {boardLoading ? renderLoading() : <>{boardEmpty ? renderEmpty() : renderList()}</>}
     </DashboardContent>
   );
 }

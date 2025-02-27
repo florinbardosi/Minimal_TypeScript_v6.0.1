@@ -1,16 +1,14 @@
 import type { IChatParticipant } from 'src/types/chat';
 
 import { useState, useCallback } from 'react';
+import { varAlpha } from 'minimal-shared/utils';
 
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
-import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Autocomplete from '@mui/material/Autocomplete';
-
-import { varAlpha } from 'src/theme/styles';
 
 import { Iconify } from 'src/components/iconify';
 import { SearchNotFound } from 'src/components/search-not-found';
@@ -67,27 +65,29 @@ export function ChatHeaderCompose({ contacts, onAddRecipients }: Props) {
               }}
             >
               <Avatar alt={recipient.name} src={recipient.avatarUrl} sx={{ width: 1, height: 1 }} />
-              <Stack
-                alignItems="center"
-                justifyContent="center"
-                sx={{
-                  top: 0,
-                  left: 0,
-                  width: 1,
-                  height: 1,
-                  opacity: 0,
-                  position: 'absolute',
-                  bgcolor: (theme) => varAlpha(theme.vars.palette.grey['900Channel'], 0.8),
-                  transition: (theme) =>
-                    theme.transitions.create(['opacity'], {
+              <Box
+                sx={[
+                  (theme) => ({
+                    top: 0,
+                    left: 0,
+                    width: 1,
+                    height: 1,
+                    opacity: 0,
+                    display: 'flex',
+                    position: 'absolute',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    bgcolor: varAlpha(theme.vars.palette.grey['900Channel'], 0.8),
+                    transition: theme.transitions.create(['opacity'], {
                       easing: theme.transitions.easing.easeInOut,
                       duration: theme.transitions.duration.shorter,
                     }),
-                  ...(selected && { opacity: 1, color: 'primary.main' }),
-                }}
+                    ...(selected && { opacity: 1, color: 'primary.main' }),
+                  }),
+                ]}
               >
                 <Iconify icon="eva:checkmark-fill" />
-              </Stack>
+              </Box>
             </Box>
 
             {recipient.name}

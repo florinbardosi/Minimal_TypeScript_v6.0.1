@@ -1,5 +1,5 @@
 import type { CardProps } from '@mui/material/Card';
-import type { TableHeadCustomProps } from 'src/components/table';
+import type { TableHeadCellProps } from 'src/components/table';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -13,7 +13,7 @@ import CardHeader from '@mui/material/CardHeader';
 import { fCurrency } from 'src/utils/format-number';
 
 import { Label } from 'src/components/label';
-import { FlagIcon } from 'src/components/iconify';
+import { FlagIcon } from 'src/components/flag-icon';
 import { Scrollbar } from 'src/components/scrollbar';
 import { TableHeadCustom } from 'src/components/table';
 
@@ -22,7 +22,7 @@ import { TableHeadCustom } from 'src/components/table';
 type Props = CardProps & {
   title?: string;
   subheader?: string;
-  headLabel: TableHeadCustomProps['headLabel'];
+  headCells: TableHeadCellProps[];
   tableData: {
     id: string;
     name: string;
@@ -35,14 +35,21 @@ type Props = CardProps & {
   }[];
 };
 
-export function EcommerceBestSalesman({ title, subheader, tableData, headLabel, ...other }: Props) {
+export function EcommerceBestSalesman({
+  title,
+  subheader,
+  tableData,
+  headCells,
+  sx,
+  ...other
+}: Props) {
   return (
-    <Card {...other}>
+    <Card sx={sx} {...other}>
       <CardHeader title={title} subheader={subheader} sx={{ mb: 3 }} />
 
       <Scrollbar sx={{ minHeight: 422 }}>
         <Table sx={{ minWidth: 640 }}>
-          <TableHeadCustom headLabel={headLabel} />
+          <TableHeadCustom headCells={headCells} />
 
           <TableBody>
             {tableData.map((row) => (

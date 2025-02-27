@@ -4,9 +4,31 @@ import { useState, useCallback } from 'react';
 
 import { fIsAfter, fDateRangeShortLabel } from 'src/utils/format-time';
 
-import type { UseDateRangePickerReturn } from './types';
-
 // ----------------------------------------------------------------------
+
+export type UseDateRangePickerReturn = {
+  startDate: IDatePickerControl;
+  endDate: IDatePickerControl;
+  onChangeStartDate: (newValue: IDatePickerControl) => void;
+  onChangeEndDate: (newValue: IDatePickerControl) => void;
+  /********/
+  open: boolean;
+  onOpen?: () => void;
+  onClose: () => void;
+  onReset?: () => void;
+  /********/
+  selected?: boolean;
+  error?: boolean;
+  /********/
+  label?: string;
+  shortLabel?: string;
+  /********/
+  title?: string;
+  variant?: 'calendar' | 'input';
+  /********/
+  setStartDate?: React.Dispatch<React.SetStateAction<IDatePickerControl>>;
+  setEndDate?: React.Dispatch<React.SetStateAction<IDatePickerControl>>;
+};
 
 export function useDateRangePicker(
   start: IDatePickerControl,
@@ -15,7 +37,6 @@ export function useDateRangePicker(
   const [open, setOpen] = useState(false);
 
   const [endDate, setEndDate] = useState(end as IDatePickerControl);
-
   const [startDate, setStartDate] = useState(start as IDatePickerControl);
 
   const error = fIsAfter(startDate, endDate);
@@ -52,18 +73,18 @@ export function useDateRangePicker(
     endDate: endDate as IDatePickerControl,
     onChangeStartDate,
     onChangeEndDate,
-    //
+    /********/
     open,
     onOpen,
     onClose,
     onReset,
-    //
-    selected: !!startDate && !!endDate,
+    /********/
     error,
-    //
+    selected: !!startDate && !!endDate,
+    /********/
     label: fDateRangeShortLabel(startDate, endDate, true),
     shortLabel: fDateRangeShortLabel(startDate, endDate),
-    //
+    /********/
     setStartDate,
     setEndDate,
   };

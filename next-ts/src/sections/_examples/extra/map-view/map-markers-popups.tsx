@@ -1,13 +1,12 @@
-import type { MapProps } from 'react-map-gl';
+import type { MapProps } from 'src/components/map';
 
 import { useState } from 'react';
 
 import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
 
 import { Image } from 'src/components/image';
-import { FlagIcon } from 'src/components/iconify';
-import { Map, MapPopup, MapMarker, MapControl } from 'src/components/map';
+import { FlagIcon } from 'src/components/flag-icon';
+import { Map, MapPopup, MapMarker, MapControls } from 'src/components/map';
 
 // ----------------------------------------------------------------------
 
@@ -24,12 +23,12 @@ type Props = MapProps & {
   data: CountryProps[];
 };
 
-export function MapMarkersPopups({ data, ...other }: Props) {
+export function MapMarkersPopups({ data, sx, ...other }: Props) {
   const [popupInfo, setPopupInfo] = useState<CountryProps | null>(null);
 
   return (
-    <Map initialViewState={{ zoom: 2 }} {...other}>
-      <MapControl />
+    <Map initialViewState={{ zoom: 2 }} sx={sx} {...other}>
+      <MapControls />
 
       {data.map((city, index) => (
         <MapMarker
@@ -49,30 +48,39 @@ export function MapMarkersPopups({ data, ...other }: Props) {
           longitude={popupInfo.latlng[1]}
           onClose={() => setPopupInfo(null)}
         >
-          <Box gap={0.75} display="flex" alignItems="center" sx={{ mb: 1 }}>
-            <FlagIcon code={popupInfo.country_code} />
+          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            <Box
+              sx={{
+                mb: 1,
+                gap: 0.75,
+                display: 'flex',
+                alignItems: 'center',
+                typography: 'subtitle2',
+              }}
+            >
+              <FlagIcon code={popupInfo.country_code} />
+              {popupInfo.name}
+            </Box>
 
-            <Typography variant="subtitle2">{popupInfo.name}</Typography>
+            <Box component="span" sx={{ typography: 'caption' }}>
+              Timezones: {popupInfo.timezones}
+            </Box>
+
+            <Box component="span" sx={{ typography: 'caption' }}>
+              Lat: {popupInfo.latlng[0]}
+            </Box>
+
+            <Box component="span" sx={{ typography: 'caption' }}>
+              Long: {popupInfo.latlng[1]}
+            </Box>
+
+            <Image
+              alt={popupInfo.name}
+              src={popupInfo.photoUrl}
+              ratio="4/3"
+              sx={{ mt: 1, borderRadius: 1 }}
+            />
           </Box>
-
-          <Typography component="div" variant="caption">
-            Timezones: {popupInfo.timezones}
-          </Typography>
-
-          <Typography component="div" variant="caption">
-            Lat: {popupInfo.latlng[0]}
-          </Typography>
-
-          <Typography component="div" variant="caption">
-            Long: {popupInfo.latlng[1]}
-          </Typography>
-
-          <Image
-            alt={popupInfo.name}
-            src={popupInfo.photoUrl}
-            ratio="4/3"
-            sx={{ mt: 1, borderRadius: 1 }}
-          />
         </MapPopup>
       )}
     </Map>

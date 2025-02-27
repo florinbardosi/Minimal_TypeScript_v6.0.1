@@ -1,51 +1,59 @@
-import type { StackProps } from '@mui/material/Stack';
+import type { BoxProps } from '@mui/material/Box';
 
+import { varAlpha } from 'minimal-shared/utils';
+
+import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Skeleton from '@mui/material/Skeleton';
 
-import { varAlpha } from 'src/theme/styles';
-
 // ----------------------------------------------------------------------
 
-export function MailNavItemSkeleton({
-  amount = 6,
-  sx,
-  ...other
-}: StackProps & {
-  amount?: number;
-}) {
-  return [...Array(amount)].map((_, index) => (
-    <Stack
+type MailNavItemSkeletonProps = BoxProps & {
+  itemCount?: number;
+};
+
+export function MailNavItemSkeleton({ itemCount = 6, sx, ...other }: MailNavItemSkeletonProps) {
+  return Array.from({ length: itemCount }, (_, index) => (
+    <Box
       key={index}
-      spacing={2}
-      direction="row"
-      alignItems="center"
-      sx={{ py: 1, color: (theme) => varAlpha(theme.vars.palette.grey['500Channel'], 0.24), ...sx }}
+      sx={[
+        (theme) => ({
+          py: 1,
+          gap: 2,
+          display: 'flex',
+          alignItems: 'center',
+          color: varAlpha(theme.vars.palette.grey['500Channel'], 0.24),
+        }),
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...other}
     >
       <Skeleton variant="circular" sx={{ width: 32, height: 32, bgcolor: 'currentColor' }} />
 
       <Skeleton sx={{ width: 0.5, height: 10, bgcolor: 'currentColor' }} />
-    </Stack>
+    </Box>
   ));
 }
 
 // ----------------------------------------------------------------------
 
-export function MailItemSkeleton({
-  amount = 6,
-  sx,
-  ...other
-}: StackProps & {
-  amount?: number;
-}) {
-  return [...Array(amount)].map((_, index) => (
-    <Stack
+type MailItemSkeletonProps = BoxProps & {
+  itemCount?: number;
+};
+
+export function MailItemSkeleton({ sx, itemCount = 6, ...other }: MailItemSkeletonProps) {
+  return Array.from({ length: itemCount }, (_, index) => (
+    <Box
       key={index}
-      spacing={2}
-      direction="row"
-      alignItems="center"
-      sx={{ py: 1, ...sx }}
+      sx={[
+        {
+          py: 1,
+          gap: 2,
+          display: 'flex',
+          alignItems: 'center',
+        },
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...other}
     >
       <Skeleton variant="circular" sx={{ width: 40, height: 40 }} />
@@ -54,6 +62,6 @@ export function MailItemSkeleton({
         <Skeleton sx={{ width: 0.75, height: 10 }} />
         <Skeleton sx={{ width: 0.5, height: 10 }} />
       </Stack>
-    </Stack>
+    </Box>
   ));
 }

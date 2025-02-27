@@ -8,8 +8,6 @@ import ListItemText from '@mui/material/ListItemText';
 
 import { fDate } from 'src/utils/format-time';
 
-import { varAlpha } from 'src/theme/styles';
-
 import { Image } from 'src/components/image';
 import { Iconify } from 'src/components/iconify';
 import { Lightbox, useLightBox } from 'src/components/lightbox';
@@ -22,7 +20,6 @@ type Props = {
 
 export function ProfileGallery({ gallery }: Props) {
   const slides = gallery.map((slide) => ({ src: slide.imageUrl }));
-
   const lightbox = useLightBox(slides);
 
   return (
@@ -32,54 +29,51 @@ export function ProfileGallery({ gallery }: Props) {
       </Typography>
 
       <Box
-        gap={3}
-        display="grid"
-        gridTemplateColumns={{ xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }}
+        sx={{
+          gap: 3,
+          display: 'grid',
+          gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
+        }}
       >
         {gallery.map((image) => (
           <Card key={image.id} sx={{ cursor: 'pointer', color: 'common.white' }}>
             <IconButton
               color="inherit"
               sx={{
-                position: 'absolute',
                 top: 8,
                 right: 8,
                 zIndex: 9,
+                position: 'absolute',
               }}
             >
               <Iconify icon="eva:more-vertical-fill" />
             </IconButton>
 
             <ListItemText
-              sx={{
-                p: 3,
-                left: 0,
-                width: 1,
-                bottom: 0,
-                zIndex: 9,
-                position: 'absolute',
-              }}
+              sx={{ p: 3, left: 0, width: 1, bottom: 0, zIndex: 9, position: 'absolute' }}
               primary={image.title}
               secondary={fDate(image.postedAt)}
-              primaryTypographyProps={{ noWrap: true, typography: 'subtitle1' }}
-              secondaryTypographyProps={{
-                mt: 0.5,
-                color: 'inherit',
-                component: 'span',
-                typography: 'body2',
-                sx: { opacity: 0.48 },
+              slotProps={{
+                primary: {
+                  noWrap: true,
+                  sx: { typography: 'subtitle1' },
+                },
+                secondary: {
+                  sx: { mt: 0.5, opacity: 0.48, color: 'inherit' },
+                },
               }}
             />
 
             <Image
-              alt="gallery"
+              alt="Gallery"
               ratio="1/1"
               src={image.imageUrl}
               onClick={() => lightbox.onOpen(image.imageUrl)}
               slotProps={{
                 overlay: {
-                  backgroundImage: (theme) =>
-                    `linear-gradient(to bottom, ${varAlpha(theme.vars.palette.common.blackChannel, 0)} 0%, ${theme.vars.palette.common.black} 75%)`,
+                  sx: (theme) => ({
+                    backgroundImage: `linear-gradient(to bottom, transparent 0%, ${theme.vars.palette.common.black} 75%)`,
+                  }),
                 },
               }}
             />

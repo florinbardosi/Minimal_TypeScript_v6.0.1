@@ -10,16 +10,23 @@ export type IPostHero = {
   title: string;
   coverUrl: string;
   createdAt?: IDateValue;
-  author?: { name: string; avatarUrl: string };
+  author?: {
+    name: string;
+    avatarUrl: string;
+  };
 };
 
 export type IPostComment = {
   id: string;
   name: string;
-  avatarUrl: string;
   message: string;
+  avatarUrl: string;
   postedAt: IDateValue;
-  users: { id: string; name: string; avatarUrl: string }[];
+  users: {
+    id: string;
+    name: string;
+    avatarUrl: string;
+  }[];
   replyComment: {
     id: string;
     userId: string;
@@ -41,11 +48,17 @@ export type IPostItem = {
   totalShares: number;
   description: string;
   totalComments: number;
+  createdAt: IDateValue;
   totalFavorites: number;
   metaKeywords: string[];
   metaDescription: string;
   comments: IPostComment[];
-  createdAt: IDateValue;
-  favoritePerson: { name: string; avatarUrl: string }[];
-  author: { name: string; avatarUrl: string };
+  author: {
+    name: string;
+    avatarUrl: string;
+  };
+  favoritePerson: {
+    name: string;
+    avatarUrl: string;
+  }[];
 };

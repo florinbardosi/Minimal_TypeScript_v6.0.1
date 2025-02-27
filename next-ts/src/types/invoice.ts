@@ -29,10 +29,10 @@ export type IInvoice = {
   discount: number;
   shipping: number;
   totalAmount: number;
+  dueDate: IDateValue;
   invoiceNumber: string;
   items: IInvoiceItem[];
+  createDate: IDateValue;
   invoiceTo: IAddressItem;
   invoiceFrom: IAddressItem;
-  createDate: IDateValue;
-  dueDate: IDateValue;
 };

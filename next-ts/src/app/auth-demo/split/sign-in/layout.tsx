@@ -7,5 +7,13 @@ type Props = {
 };
 
 export default function Layout({ children }: Props) {
-  return <AuthSplitLayout section={{ title: 'Hi, Welcome back' }}>{children}</AuthSplitLayout>;
+  return (
+    <AuthSplitLayout
+      slotProps={{
+        section: { title: 'Hi, Welcome back' },
+      }}
+    >
+      {children}
+    </AuthSplitLayout>
+  );
 }

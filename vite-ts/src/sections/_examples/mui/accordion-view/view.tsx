@@ -5,20 +5,15 @@ import Typography from '@mui/material/Typography';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 
-import { paths } from 'src/routes/paths';
-
 import { _mock } from 'src/_mock';
 
 import { Iconify } from 'src/components/iconify';
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { ComponentHero } from '../../component-hero';
-import { ComponentBlock } from '../../component-block';
-import { ScrollToViewTemplate } from '../../component-template';
+import { ComponentBox, ComponentLayout } from '../../layout';
 
 // ----------------------------------------------------------------------
 
-const _accordions = [...Array(4)].map((_, index) => ({
+const _accordions = Array.from({ length: 4 }, (_, index) => ({
   id: _mock.id(index),
   value: `panel${index + 1}`,
   heading: `Accordion ${index + 1}`,
@@ -36,14 +31,14 @@ export function AccordionView() {
       setControlled(isExpanded ? panel : false);
     };
 
-  const DEMO = [
+  const DEMO_COMPONENTS = [
     {
       name: 'Simple',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <div>
             {_accordions.map((accordion, index) => (
-              <Accordion key={accordion.value} disabled={index === 3}>
+              <Accordion key={accordion.value} disabled={index === 2}>
                 <AccordionSummary expandIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}>
                   <Typography variant="subtitle1">{accordion.heading}</Typography>
                 </AccordionSummary>
@@ -53,13 +48,13 @@ export function AccordionView() {
               </Accordion>
             ))}
           </div>
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Controlled',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <div>
             {_accordions.map((item, index) => (
               <Accordion
@@ -80,22 +75,18 @@ export function AccordionView() {
               </Accordion>
             ))}
           </div>
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
   ];
 
   return (
-    <>
-      <ComponentHero>
-        <CustomBreadcrumbs
-          heading="Accordion"
-          links={[{ name: 'Components', href: paths.components }, { name: 'Accordion' }]}
-          moreLink={['https://mui.com/components/accordion']}
-        />
-      </ComponentHero>
-
-      <ScrollToViewTemplate data={DEMO} />
-    </>
+    <ComponentLayout
+      sectionData={DEMO_COMPONENTS}
+      heroProps={{
+        heading: 'Accordion',
+        moreLinks: ['https://mui.com/material-ui/react-accordion/'],
+      }}
+    />
   );
 }

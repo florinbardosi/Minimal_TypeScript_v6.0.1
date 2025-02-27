@@ -3,13 +3,12 @@
 import type { IJobItem } from 'src/types/job';
 
 import { useState, useCallback } from 'react';
+import { useTabs } from 'minimal-shared/hooks';
 
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 
 import { paths } from 'src/routes/paths';
-
-import { useTabs } from 'src/hooks/use-tabs';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { JOB_DETAILS_TABS, JOB_PUBLISH_OPTIONS } from 'src/_mock';
@@ -35,7 +34,18 @@ export function JobDetailsView({ job }: Props) {
     setPublish(newValue);
   }, []);
 
-  const renderTabs = (
+  const renderToolbar = () => (
+    <JobDetailsToolbar
+      backHref={paths.dashboard.job.root}
+      editHref={paths.dashboard.job.edit(`${job?.id}`)}
+      liveHref="#"
+      publish={publish || ''}
+      onChangePublish={handleChangePublish}
+      publishOptions={JOB_PUBLISH_OPTIONS}
+    />
+  );
+
+  const renderTabs = () => (
     <Tabs value={tabs.value} onChange={tabs.onChange} sx={{ mb: { xs: 3, md: 5 } }}>
       {JOB_DETAILS_TABS.map((tab) => (
         <Tab
@@ -57,18 +67,10 @@ export function JobDetailsView({ job }: Props) {
 
   return (
     <DashboardContent>
-      <JobDetailsToolbar
-        backLink={paths.dashboard.job.root}
-        editLink={paths.dashboard.job.edit(`${job?.id}`)}
-        liveLink="#"
-        publish={publish || ''}
-        onChangePublish={handleChangePublish}
-        publishOptions={JOB_PUBLISH_OPTIONS}
-      />
-      {renderTabs}
+      {renderToolbar()}
 
+      {renderTabs()}
       {tabs.value === 'content' && <JobDetailsContent job={job} />}
-
       {tabs.value === 'candidates' && <JobDetailsCandidates candidates={job?.candidates ?? []} />}
     </DashboardContent>
   );

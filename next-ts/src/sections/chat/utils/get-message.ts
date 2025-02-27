@@ -15,10 +15,7 @@ export function getMessage({ message, participants, currentUserId }: Props) {
 
   const senderDetails = isCurrentUser
     ? { type: 'me' }
-    : {
-        avatarUrl: sender?.avatarUrl,
-        firstName: sender?.name?.split(' ')[0] ?? 'Unknown',
-      };
+    : { avatarUrl: sender?.avatarUrl, firstName: sender?.name?.split(' ')[0] ?? 'Unknown' };
 
   const hasImage = message.contentType === 'image';
 

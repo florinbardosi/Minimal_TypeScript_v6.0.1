@@ -1,8 +1,9 @@
 import type { IDatePickerControl } from 'src/types/common';
-import type { UseSetStateReturn } from 'src/hooks/use-set-state';
+import type { UseSetStateReturn } from 'minimal-shared/hooks';
 import type { ICalendarEvent, ICalendarFilters } from 'src/types/calendar';
 
 import { useCallback } from 'react';
+import { orderBy } from 'es-toolkit';
 
 import Box from '@mui/material/Box';
 import Badge from '@mui/material/Badge';
@@ -15,7 +16,6 @@ import ListItemText from '@mui/material/ListItemText';
 import ListItemButton from '@mui/material/ListItemButton';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
-import { orderBy } from 'src/utils/helper';
 import { fDate, fDateTime } from 'src/utils/format-time';
 
 import { Iconify } from 'src/components/iconify';
@@ -45,36 +45,46 @@ export function CalendarFilters({
   colorOptions,
   onClickEvent,
 }: Props) {
+  const { state: currentFilters, setState: updateFilters, resetState: resetFilters } = filters;
+
   const handleFilterColors = useCallback(
     (newValue: string | string[]) => {
-      filters.setState({ colors: newValue as string[] });
+      updateFilters({ colors: newValue as string[] });
     },
-    [filters]
+    [updateFilters]
   );
 
   const handleFilterStartDate = useCallback(
     (newValue: IDatePickerControl) => {
-      filters.setState({ startDate: newValue });
+      updateFilters({ startDate: newValue });
     },
-    [filters]
+    [updateFilters]
   );
 
   const handleFilterEndDate = useCallback(
     (newValue: IDatePickerControl) => {
-      filters.setState({ endDate: newValue });
+      updateFilters({ endDate: newValue });
     },
-    [filters]
+    [updateFilters]
   );
 
-  const renderHead = (
+  const renderHead = () => (
     <>
-      <Box display="flex" alignItems="center" sx={{ py: 2, pr: 1, pl: 2.5 }}>
+      <Box
+        sx={{
+          py: 2,
+          pr: 1,
+          pl: 2.5,
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
           Filters
         </Typography>
 
         <Tooltip title="Reset">
-          <IconButton onClick={filters.onResetState}>
+          <IconButton onClick={() => resetFilters()}>
             <Badge color="error" variant="dot" invisible={!canReset}>
               <Iconify icon="solar:restart-bold" />
             </Badge>
@@ -90,35 +100,49 @@ export function CalendarFilters({
     </>
   );
 
-  const renderColors = (
-    <Box display="flex" flexDirection="column" sx={{ my: 3, px: 2.5 }}>
+  const renderColors = () => (
+    <Box
+      sx={{
+        my: 3,
+        px: 2.5,
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       <Typography variant="subtitle2" sx={{ mb: 1 }}>
         Colors
       </Typography>
       <ColorPicker
-        colors={colorOptions}
-        selected={filters.state.colors}
-        onSelectColor={handleFilterColors}
+        options={colorOptions}
+        value={currentFilters.colors}
+        onChange={handleFilterColors}
       />
     </Box>
   );
 
-  const renderDateRange = (
-    <Box display="flex" flexDirection="column" sx={{ mb: 3, px: 2.5 }}>
+  const renderDateRange = () => (
+    <Box
+      sx={{
+        mb: 3,
+        px: 2.5,
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       <Typography variant="subtitle2" sx={{ mb: 1.5 }}>
         Range
       </Typography>
 
       <DatePicker
         label="Start date"
-        value={filters.state.startDate}
+        value={currentFilters.startDate}
         onChange={handleFilterStartDate}
         sx={{ mb: 2.5 }}
       />
 
       <DatePicker
         label="End date"
-        value={filters.state.endDate}
+        value={currentFilters.endDate}
         onChange={handleFilterEndDate}
         slotProps={{
           textField: {
@@ -130,7 +154,7 @@ export function CalendarFilters({
     </Box>
   );
 
-  const renderEvents = (
+  const renderEvents = () => (
     <>
       <Typography variant="subtitle2" sx={{ px: 2.5, mb: 1 }}>
         Events ({events.length})
@@ -138,10 +162,12 @@ export function CalendarFilters({
 
       <Box component="ul">
         {orderBy(events, ['end'], ['desc']).map((event) => (
-          <Box component="li" key={event.id}>
+          <li key={event.id}>
             <ListItemButton
               onClick={() => onClickEvent(`${event.id}`)}
-              sx={{ py: 1.5, borderBottom: (theme) => `dashed 1px ${theme.vars.palette.divider}` }}
+              sx={[
+                (theme) => ({ py: 1.5, borderBottom: `dashed 1px ${theme.vars.palette.divider}` }),
+              ]}
             >
               <Box
                 sx={{
@@ -156,27 +182,23 @@ export function CalendarFilters({
               />
 
               <ListItemText
-                disableTypography
                 primary={
-                  <Typography variant="subtitle2" sx={{ fontSize: 13, mt: 0.5 }}>
-                    {event.title}
-                  </Typography>
+                  event.allDay
+                    ? fDate(event.start)
+                    : `${fDateTime(event.start)} - ${fDateTime(event.end)}`
                 }
-                secondary={
-                  <Typography
-                    variant="caption"
-                    component="div"
-                    sx={{ fontSize: 11, color: 'text.disabled' }}
-                  >
-                    {event.allDay
-                      ? fDate(event.start)
-                      : `${fDateTime(event.start)} - ${fDateTime(event.end)}`}
-                  </Typography>
-                }
-                sx={{ display: 'flex', flexDirection: 'column-reverse' }}
+                secondary={event.title}
+                slotProps={{
+                  primary: {
+                    sx: { typography: 'caption', color: 'text.disabled' },
+                  },
+                  secondary: {
+                    sx: { mt: 0.5, color: 'text.primary', typography: 'subtitle2' },
+                  },
+                }}
               />
             </ListItemButton>
-          </Box>
+          </li>
         ))}
       </Box>
     </>
@@ -190,12 +212,12 @@ export function CalendarFilters({
       slotProps={{ backdrop: { invisible: true } }}
       PaperProps={{ sx: { width: 320 } }}
     >
-      {renderHead}
+      {renderHead()}
 
       <Scrollbar>
-        {renderColors}
-        {renderDateRange}
-        {renderEvents}
+        {renderColors()}
+        {renderDateRange()}
+        {renderEvents()}
       </Scrollbar>
     </Drawer>
   );

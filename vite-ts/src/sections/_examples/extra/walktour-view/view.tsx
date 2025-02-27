@@ -1,15 +1,13 @@
 import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid2';
 import Stack from '@mui/material/Stack';
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
 import Switch from '@mui/material/Switch';
 import { useTheme } from '@mui/material/styles';
-import Container from '@mui/material/Container';
-import Grid from '@mui/material/Unstable_Grid2';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
-import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
 import { MotivationIllustration } from 'src/assets/illustrations';
@@ -23,7 +21,6 @@ import {
 
 import { Iconify } from 'src/components/iconify';
 import { Walktour, useWalktour } from 'src/components/walktour';
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
 import { EcommerceWelcome } from 'src/sections/overview/e-commerce/ecommerce-welcome';
 import { EcommerceNewProducts } from 'src/sections/overview/e-commerce/ecommerce-new-products';
@@ -35,7 +32,7 @@ import { EcommerceWidgetSummary } from 'src/sections/overview/e-commerce/ecommer
 import { EcommerceLatestProducts } from 'src/sections/overview/e-commerce/ecommerce-latest-products';
 import { EcommerceCurrentBalance } from 'src/sections/overview/e-commerce/ecommerce-current-balance';
 
-import { ComponentHero } from '../../component-hero';
+import { ComponentLayout } from '../../layout';
 
 // ----------------------------------------------------------------------
 
@@ -71,9 +68,14 @@ export function WalktourView() {
             </Typography>
             <Box
               component="img"
-              alt="cover"
+              alt="Cover"
               src={_mock.image.cover(3)}
-              sx={{ width: 400, borderRadius: 2, aspectRatio: '5/3', objectFit: 'cover' }}
+              sx={{
+                width: 400,
+                borderRadius: 2,
+                aspectRatio: '5/3',
+                objectFit: 'cover',
+              }}
             />
           </>
         ),
@@ -92,13 +94,15 @@ export function WalktourView() {
               fullWidth
               label="Email"
               placeholder="example@gmail.com"
-              InputLabelProps={{ shrink: true }}
-              InputProps={{
-                endAdornment: (
-                  <Button color="inherit" variant="soft" sx={{ mr: -0.5 }}>
-                    Send
-                  </Button>
-                ),
+              slotProps={{
+                inputLabel: { shrink: true },
+                input: {
+                  endAdornment: (
+                    <Button color="inherit" variant="soft" sx={{ mr: -0.5 }}>
+                      Send
+                    </Button>
+                  ),
+                },
               }}
             />
           </>
@@ -128,23 +132,25 @@ export function WalktourView() {
                 <Box
                   component="li"
                   key={option.label}
-                  sx={{ py: 1, px: 2, display: 'flex', alignItems: 'center' }}
+                  sx={{
+                    py: 1,
+                    px: 2,
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
                 >
                   <Iconify width={26} icon={option.icon} sx={{ color: 'text.secondary', mr: 2 }} />
-                  <Box
-                    component="span"
-                    id={`switch-list-label-${option.label}`}
-                    sx={{ typography: 'subtitle2', flexGrow: 1 }}
-                  >
+                  <Box component="span" sx={{ typography: 'subtitle2', flexGrow: 1 }}>
                     {option.label}
                   </Box>
+
                   <Switch
+                    edge="end"
                     color="default"
                     defaultChecked={option.defaultChecked}
-                    edge="end"
                     inputProps={{
-                      name: option.label,
-                      'aria-labelledby': `switch-list-label-${option.label}`,
+                      id: `${option.label}-switch`,
+                      'aria-label': `${option.label} switch`,
                     }}
                   />
                 </Box>
@@ -160,9 +166,11 @@ export function WalktourView() {
         styles: { options: { arrowColor: theme.vars.palette.grey[800] } },
         slotProps: {
           root: {
-            width: 480,
-            bgcolor: theme.vars.palette.grey[800],
-            color: theme.vars.palette.common.white,
+            sx: {
+              width: 480,
+              bgcolor: theme.vars.palette.grey[800],
+              color: theme.vars.palette.common.white,
+            },
           },
         },
         content: (
@@ -179,11 +187,11 @@ export function WalktourView() {
                 gridTemplateColumns: 'repeat(3, 1fr)',
               }}
             >
-              {[...Array(6)].map((_, index) => (
+              {Array.from({ length: 6 }, (_, index) => (
                 <Box
                   key={index}
                   component="img"
-                  alt="cover"
+                  alt="Cover"
                   src={_mock.image.cover(index)}
                   sx={{ borderRadius: 1 }}
                 />
@@ -204,16 +212,14 @@ export function WalktourView() {
         getHelpers={walktour.setHelpers}
       />
 
-      <ComponentHero>
-        <CustomBreadcrumbs
-          heading="Walktour"
-          links={[{ name: 'Components', href: paths.components }, { name: 'Walktour' }]}
-          moreLink={['https://docs.react-joyride.com/']}
-        />
-      </ComponentHero>
-
-      <Container sx={{ my: 10 }}>
-        <Stack alignItems="flex-end" sx={{ mb: 5 }}>
+      <ComponentLayout
+        heroProps={{
+          heading: 'Walktour',
+          moreLinks: ['https://docs.react-joyride.com/'],
+        }}
+        containerProps={{ maxWidth: 'lg' }}
+      >
+        <Box sx={{ mb: 5, display: 'flex', justifyContent: 'flex-end' }}>
           <Button
             size="large"
             variant="outlined"
@@ -222,10 +228,10 @@ export function WalktourView() {
           >
             Reload
           </Button>
-        </Stack>
+        </Box>
 
         <Grid container spacing={3}>
-          <Grid xs={12} md={8}>
+          <Grid size={{ xs: 12, md: 8 }}>
             <EcommerceWelcome
               id="demo__1"
               title={`Congratulations 🎉  \n Jaydon Frankie`}
@@ -239,11 +245,11 @@ export function WalktourView() {
             />
           </Grid>
 
-          <Grid xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <EcommerceNewProducts id="demo__2" list={_ecommerceNewProducts} />
           </Grid>
 
-          <Grid xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <EcommerceWidgetSummary
               title="Product sold"
               percent={2.6}
@@ -255,34 +261,34 @@ export function WalktourView() {
             />
           </Grid>
 
-          <Grid xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <EcommerceWidgetSummary
               id="demo__3"
               title="Total balance"
               percent={-0.1}
               total={18765}
               chart={{
-                colors: [theme.vars.palette.warning.light, theme.vars.palette.warning.main],
+                colors: [theme.palette.warning.light, theme.palette.warning.main],
                 categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
                 series: [56, 47, 40, 62, 73, 30, 23, 54],
               }}
             />
           </Grid>
 
-          <Grid xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <EcommerceWidgetSummary
               title="Sales profit"
               percent={0.6}
               total={4876}
               chart={{
-                colors: [theme.vars.palette.error.light, theme.vars.palette.error.main],
+                colors: [theme.palette.error.light, theme.palette.error.main],
                 categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
                 series: [40, 70, 75, 70, 50, 28, 7, 64],
               }}
             />
           </Grid>
 
-          <Grid xs={12} md={6} lg={4}>
+          <Grid size={{ xs: 12, md: 6, lg: 4 }}>
             <EcommerceSaleByGender
               title="Sale by gender"
               total={2324}
@@ -296,7 +302,7 @@ export function WalktourView() {
             />
           </Grid>
 
-          <Grid xs={12} md={6} lg={8}>
+          <Grid size={{ xs: 12, md: 6, lg: 8 }}>
             <EcommerceYearlySales
               id="demo__4"
               title="Yearly sales"
@@ -348,11 +354,11 @@ export function WalktourView() {
             />
           </Grid>
 
-          <Grid xs={12} md={6} lg={8}>
+          <Grid size={{ xs: 12, md: 6, lg: 8 }}>
             <EcommerceSalesOverview title="Sales overview" data={_ecommerceSalesOverview} />
           </Grid>
 
-          <Grid xs={12} md={6} lg={4}>
+          <Grid size={{ xs: 12, md: 6, lg: 4 }}>
             <EcommerceCurrentBalance
               title="Current balance"
               earning={25500}
@@ -362,11 +368,11 @@ export function WalktourView() {
             />
           </Grid>
 
-          <Grid xs={12} md={6} lg={8}>
+          <Grid size={{ xs: 12, md: 6, lg: 8 }}>
             <EcommerceBestSalesman
               title="Best salesman"
               tableData={_ecommerceBestSalesman}
-              headLabel={[
+              headCells={[
                 { id: 'name', label: 'Seller' },
                 { id: 'category', label: 'Product' },
                 { id: 'country', label: 'Country', align: 'center' },
@@ -376,7 +382,7 @@ export function WalktourView() {
             />
           </Grid>
 
-          <Grid xs={12} md={6} lg={4}>
+          <Grid size={{ xs: 12, md: 6, lg: 4 }}>
             <EcommerceLatestProducts
               id="demo__5"
               title="Latest products"
@@ -384,7 +390,7 @@ export function WalktourView() {
             />
           </Grid>
         </Grid>
-      </Container>
+      </ComponentLayout>
     </>
   );
 }

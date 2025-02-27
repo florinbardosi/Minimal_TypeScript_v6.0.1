@@ -1,5 +1,6 @@
 import type { IUserProfilePost } from 'src/types/user';
 
+import { varAlpha } from 'minimal-shared/utils';
 import { useRef, useState, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
@@ -19,8 +20,6 @@ import AvatarGroup, { avatarGroupClasses } from '@mui/material/AvatarGroup';
 
 import { fDate } from 'src/utils/format-time';
 import { fShortenNumber } from 'src/utils/format-number';
-
-import { varAlpha } from 'src/theme/styles';
 
 import { Image } from 'src/components/image';
 import { Iconify } from 'src/components/iconify';
@@ -58,7 +57,7 @@ export function ProfilePostItem({ post }: Props) {
     }
   }, []);
 
-  const renderHead = (
+  const renderHead = () => (
     <CardHeader
       disableTypography
       avatar={
@@ -84,39 +83,46 @@ export function ProfilePostItem({ post }: Props) {
     />
   );
 
-  const renderCommentList = (
+  const renderCommentList = () => (
     <Stack spacing={1.5} sx={{ px: 3, pb: 2 }}>
       {post.comments.map((comment) => (
-        <Stack key={comment.id} direction="row" spacing={2}>
+        <Box key={comment.id} sx={{ gap: 2, display: 'flex' }}>
           <Avatar alt={comment.author.name} src={comment.author.avatarUrl} />
 
           <Paper sx={{ p: 1.5, flexGrow: 1, bgcolor: 'background.neutral' }}>
-            <Stack
-              sx={{ mb: 0.5 }}
-              alignItems={{ sm: 'center' }}
-              justifyContent="space-between"
-              direction={{ xs: 'column', sm: 'row' }}
+            <Box
+              sx={{
+                mb: 0.5,
+                display: 'flex',
+                alignItems: { sm: 'center' },
+                justifyContent: 'space-between',
+                flexDirection: { xs: 'column', sm: 'row' },
+              }}
             >
               <Box sx={{ typography: 'subtitle2' }}>{comment.author.name}</Box>
 
               <Box sx={{ typography: 'caption', color: 'text.disabled' }}>
                 {fDate(comment.createdAt)}
               </Box>
-            </Stack>
+            </Box>
 
             <Box sx={{ typography: 'body2', color: 'text.secondary' }}>{comment.message}</Box>
           </Paper>
-        </Stack>
+        </Box>
       ))}
     </Stack>
   );
 
-  const renderInput = (
-    <Stack
-      spacing={2}
-      direction="row"
-      alignItems="center"
-      sx={{ p: (theme) => theme.spacing(0, 3, 3, 3) }}
+  const renderInput = () => (
+    <Box
+      sx={[
+        (theme) => ({
+          gap: 2,
+          display: 'flex',
+          alignItems: 'center',
+          p: theme.spacing(0, 3, 3, 3),
+        }),
+      ]}
     >
       <Avatar src={user?.photoURL} alt={user?.displayName}>
         {user?.displayName?.charAt(0).toUpperCase()}
@@ -139,21 +145,25 @@ export function ProfilePostItem({ post }: Props) {
             </IconButton>
           </InputAdornment>
         }
-        inputProps={{ id: `comment-input-${post.id}`, 'aria-label': 'Write a comment' }}
-        sx={{
-          pl: 1.5,
-          height: 40,
-          borderRadius: 1,
-          border: (theme) => `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.32)}`,
-        }}
+        inputProps={{ id: `comment-${post.id}-input`, 'aria-label': `Comment ${post.id} input` }}
+        sx={[
+          (theme) => ({
+            pl: 1.5,
+            height: 40,
+            borderRadius: 1,
+            border: `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.32)}`,
+          }),
+        ]}
       />
 
       <input type="file" ref={fileRef} style={{ display: 'none' }} />
-    </Stack>
+    </Box>
   );
 
-  const renderActions = (
-    <Stack direction="row" alignItems="center" sx={{ p: (theme) => theme.spacing(2, 3, 3, 3) }}>
+  const renderActions = () => (
+    <Box
+      sx={[(theme) => ({ display: 'flex', alignItems: 'center', p: theme.spacing(2, 3, 3, 3) })]}
+    >
       <FormControlLabel
         control={
           <Checkbox
@@ -161,7 +171,10 @@ export function ProfilePostItem({ post }: Props) {
             color="error"
             icon={<Iconify icon="solar:heart-bold" />}
             checkedIcon={<Iconify icon="solar:heart-bold" />}
-            inputProps={{ id: `favorite-checkbox-${post.id}` }}
+            inputProps={{
+              id: `favorite-${post.id}-checkbox`,
+              'aria-label': `Favorite ${post.id} checkbox`,
+            }}
           />
         }
         label={fShortenNumber(post.personLikes.length)}
@@ -185,14 +198,14 @@ export function ProfilePostItem({ post }: Props) {
       <IconButton>
         <Iconify icon="solar:share-bold" />
       </IconButton>
-    </Stack>
+    </Box>
   );
 
   return (
     <Card>
-      {renderHead}
+      {renderHead()}
 
-      <Typography variant="body2" sx={{ p: (theme) => theme.spacing(3, 3, 2, 3) }}>
+      <Typography variant="body2" sx={[(theme) => ({ p: theme.spacing(3, 3, 2, 3) })]}>
         {post.message}
       </Typography>
 
@@ -200,11 +213,9 @@ export function ProfilePostItem({ post }: Props) {
         <Image alt={post.media} src={post.media} ratio="16/9" sx={{ borderRadius: 1.5 }} />
       </Box>
 
-      {renderActions}
-
-      {!!post.comments.length && renderCommentList}
-
-      {renderInput}
+      {renderActions()}
+      {!!post.comments.length && renderCommentList()}
+      {renderInput()}
     </Card>
   );
 }

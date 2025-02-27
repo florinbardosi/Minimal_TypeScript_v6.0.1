@@ -26,7 +26,12 @@ const MuiListItemText: Components<Theme>['MuiListItemText'] = {
   /** **************************************
    * DEFAULT PROPS
    *************************************** */
-  defaultProps: { primaryTypographyProps: { typography: 'subtitle2' } },
+  defaultProps: {
+    slotProps: {
+      primary: { typography: 'subtitle2' },
+      secondary: { component: 'span' },
+    },
+  },
 
   /** **************************************
    * STYLE
@@ -36,8 +41,4 @@ const MuiListItemText: Components<Theme>['MuiListItemText'] = {
 
 // ----------------------------------------------------------------------
 
-export const list = {
-  MuiListItemIcon,
-  MuiListItemAvatar,
-  MuiListItemText,
-};
+export const list = { MuiListItemIcon, MuiListItemAvatar, MuiListItemText };

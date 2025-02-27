@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 
-import { CONFIG } from 'src/config-global';
+import { CONFIG } from 'src/global-config';
 
 import { AlertView } from 'src/sections/_examples/mui/alert-view';
 

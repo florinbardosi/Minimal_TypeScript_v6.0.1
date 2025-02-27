@@ -67,23 +67,23 @@ const CONTENT = `
 <p>Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint. Velit officia consequat duis enim velit mollit. Exercitation veniam consequat sunt nostrud amet.</p>
 `;
 
-const BOOKER = [...Array(12)].map((_, index) => ({
+const BOOKER = Array.from({ length: 12 }, (_, index) => ({
   id: _mock.id(index),
   guests: index + 10,
   name: _mock.fullName(index),
   avatarUrl: _mock.image.avatar(index),
 }));
 
-export const _tourGuides = [...Array(12)].map((_, index) => ({
+export const _tourGuides = Array.from({ length: 12 }, (_, index) => ({
   id: _mock.id(index),
   name: _mock.fullName(index),
   avatarUrl: _mock.image.avatar(index),
   phoneNumber: _mock.phoneNumber(index),
 }));
 
-export const TRAVEL_IMAGES = [...Array(16)].map((_, index) => _mock.image.travel(index));
+export const TRAVEL_IMAGES = Array.from({ length: 16 }, (_, index) => _mock.image.travel(index));
 
-export const _tours = [...Array(12)].map((_, index) => {
+export const _tours = Array.from({ length: 12 }, (_, index) => {
   const available = { startDate: _mock.time(index + 1), endDate: _mock.time(index) };
 
   const publish = index % 3 ? 'published' : 'draft';

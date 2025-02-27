@@ -1,13 +1,15 @@
+import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
+import Grid from '@mui/material/Grid2';
 import Button from '@mui/material/Button';
-import Grid from '@mui/material/Unstable_Grid2';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
+import LinearProgress from '@mui/material/LinearProgress';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { CONFIG } from 'src/config-global';
+import { CONFIG } from 'src/global-config';
 
 import { Iconify } from 'src/components/iconify';
 import { EmptyContent } from 'src/components/empty-content';
@@ -19,41 +21,69 @@ import { CheckoutCartProductList } from './checkout-cart-product-list';
 // ----------------------------------------------------------------------
 
 export function CheckoutCart() {
-  const checkout = useCheckoutContext();
+  const {
+    loading,
+    onChangeStep,
+    onApplyDiscount,
+    onDeleteCartItem,
+    state: checkoutState,
+    onChangeItemQuantity,
+  } = useCheckoutContext();
 
-  const empty = !checkout.items.length;
+  const isCartEmpty = !checkoutState.items.length;
+
+  const renderLoading = () => (
+    <Box
+      sx={{
+        height: 340,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <LinearProgress color="inherit" sx={{ width: 1, maxWidth: 320 }} />
+    </Box>
+  );
+
+  const renderEmpty = () => (
+    <EmptyContent
+      title="Cart is empty!"
+      description="Look like you have no items in your shopping cart."
+      imgUrl={`${CONFIG.assetsDir}/assets/icons/empty/ic-cart.svg`}
+      sx={{ height: 340 }}
+    />
+  );
 
   return (
     <Grid container spacing={3}>
-      <Grid xs={12} md={8}>
+      <Grid size={{ xs: 12, md: 8 }}>
         <Card sx={{ mb: 3 }}>
           <CardHeader
             title={
               <Typography variant="h6">
-                Cart
+                {`Cart `}
                 <Typography component="span" sx={{ color: 'text.secondary' }}>
-                  &nbsp;(
-                  {checkout.totalItems} item)
+                  ({checkoutState.totalItems} items)
                 </Typography>
               </Typography>
             }
             sx={{ mb: 3 }}
           />
 
-          {empty ? (
-            <EmptyContent
-              title="Cart is empty!"
-              description="Look like you have no items in your shopping cart."
-              imgUrl={`${CONFIG.assetsDir}/assets/icons/empty/ic-cart.svg`}
-              sx={{ pt: 5, pb: 10 }}
-            />
+          {loading ? (
+            renderLoading()
           ) : (
-            <CheckoutCartProductList
-              products={checkout.items}
-              onDelete={checkout.onDeleteCart}
-              onIncreaseQuantity={checkout.onIncreaseQuantity}
-              onDecreaseQuantity={checkout.onDecreaseQuantity}
-            />
+            <>
+              {isCartEmpty ? (
+                renderEmpty()
+              ) : (
+                <CheckoutCartProductList
+                  checkoutState={checkoutState}
+                  onDeleteCartItem={onDeleteCartItem}
+                  onChangeItemQuantity={onChangeItemQuantity}
+                />
+              )}
+            </>
           )}
         </Card>
 
@@ -67,21 +97,16 @@ export function CheckoutCart() {
         </Button>
       </Grid>
 
-      <Grid xs={12} md={4}>
-        <CheckoutSummary
-          total={checkout.total}
-          discount={checkout.discount}
-          subtotal={checkout.subtotal}
-          onApplyDiscount={checkout.onApplyDiscount}
-        />
+      <Grid size={{ xs: 12, md: 4 }}>
+        <CheckoutSummary checkoutState={checkoutState} onApplyDiscount={onApplyDiscount} />
 
         <Button
           fullWidth
           size="large"
           type="submit"
           variant="contained"
-          disabled={empty}
-          onClick={checkout.onNextStep}
+          disabled={isCartEmpty}
+          onClick={() => onChangeStep('next')}
         >
           Check out
         </Button>

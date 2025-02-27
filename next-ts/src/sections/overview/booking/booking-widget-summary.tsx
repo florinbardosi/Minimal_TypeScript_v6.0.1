@@ -5,8 +5,9 @@ import Card from '@mui/material/Card';
 
 import { fPercent, fShortenNumber } from 'src/utils/format-number';
 
-// ----------------------------------------------------------------------
 import { Iconify } from 'src/components/iconify';
+
+// ----------------------------------------------------------------------
 
 type Props = CardProps & {
   title: string;
@@ -16,8 +17,15 @@ type Props = CardProps & {
 };
 
 export function BookingWidgetSummary({ title, percent, total, icon, sx, ...other }: Props) {
-  const renderTrending = (
-    <Box gap={0.5} display="flex" alignItems="center" sx={{ typography: 'subtitle2' }}>
+  const renderTrending = () => (
+    <Box
+      sx={{
+        gap: 0.5,
+        display: 'flex',
+        alignItems: 'center',
+        typography: 'subtitle2',
+      }}
+    >
       <Iconify
         width={24}
         icon={
@@ -25,11 +33,7 @@ export function BookingWidgetSummary({ title, percent, total, icon, sx, ...other
             ? 'solar:double-alt-arrow-down-bold-duotone'
             : 'solar:double-alt-arrow-up-bold-duotone'
         }
-        sx={{
-          flexShrink: 0,
-          color: 'success.main',
-          ...(percent < 0 && { color: 'error.main' }),
-        }}
+        sx={{ flexShrink: 0, color: 'success.main', ...(percent < 0 && { color: 'error.main' }) }}
       />
       <span>
         {percent > 0 && '+'}
@@ -40,19 +44,23 @@ export function BookingWidgetSummary({ title, percent, total, icon, sx, ...other
 
   return (
     <Card
-      sx={{
-        p: 2,
-        pl: 3,
-        display: 'flex',
-        alignItems: 'center',
-        ...sx,
-      }}
+      sx={[
+        () => ({
+          p: 2,
+          pl: 3,
+          display: 'flex',
+          alignItems: 'center',
+        }),
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...other}
     >
       <Box sx={{ flexGrow: 1 }}>
         <Box sx={{ color: 'text.secondary', typography: 'subtitle2' }}>{title}</Box>
+
         <Box sx={{ my: 1.5, typography: 'h3' }}>{fShortenNumber(total)}</Box>
-        {renderTrending}
+
+        {renderTrending()}
       </Box>
 
       <Box

@@ -1,20 +1,24 @@
+import type { BoxProps } from '@mui/material/Box';
+
 import { Controller, useFormContext } from 'react-hook-form';
 
-import FormHelperText from '@mui/material/FormHelperText';
+import Box from '@mui/material/Box';
 
+import { HelperText } from './help-text';
 import { Upload, UploadBox, UploadAvatar } from '../upload';
 
 import type { UploadProps } from '../upload';
 
 // ----------------------------------------------------------------------
 
-type Props = UploadProps & {
+export type RHFUploadProps = UploadProps & {
   name: string;
+  slotProps?: {
+    wrapper?: BoxProps;
+  };
 };
 
-// ----------------------------------------------------------------------
-
-export function RHFUploadAvatar({ name, ...other }: Props) {
+export function RHFUploadAvatar({ name, slotProps, ...other }: RHFUploadProps) {
   const { control, setValue } = useFormContext();
 
   return (
@@ -29,15 +33,11 @@ export function RHFUploadAvatar({ name, ...other }: Props) {
         };
 
         return (
-          <div>
+          <Box {...slotProps?.wrapper}>
             <UploadAvatar value={field.value} error={!!error} onDrop={onDrop} {...other} />
 
-            {!!error && (
-              <FormHelperText error sx={{ px: 2, textAlign: 'center' }}>
-                {error.message}
-              </FormHelperText>
-            )}
-          </div>
+            <HelperText errorMessage={error?.message} sx={{ textAlign: 'center' }} />
+          </Box>
         );
       }}
     />
@@ -46,7 +46,7 @@ export function RHFUploadAvatar({ name, ...other }: Props) {
 
 // ----------------------------------------------------------------------
 
-export function RHFUploadBox({ name, ...other }: Props) {
+export function RHFUploadBox({ name, ...other }: RHFUploadProps) {
   const { control } = useFormContext();
 
   return (
@@ -62,7 +62,7 @@ export function RHFUploadBox({ name, ...other }: Props) {
 
 // ----------------------------------------------------------------------
 
-export function RHFUpload({ name, multiple, helperText, ...other }: Props) {
+export function RHFUpload({ name, multiple, helperText, ...other }: RHFUploadProps) {
   const { control, setValue } = useFormContext();
 
   return (

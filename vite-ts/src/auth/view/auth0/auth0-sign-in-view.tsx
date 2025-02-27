@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography';
 
 import { useSearchParams } from 'src/routes/hooks';
 
-import { CONFIG } from 'src/config-global';
+import { CONFIG } from 'src/global-config';
 
 // ----------------------------------------------------------------------
 
@@ -55,7 +55,7 @@ export function Auth0SignInView() {
   }, [loginWithRedirect, returnTo]);
 
   return (
-    <Box gap={3} display="flex" flexDirection="column">
+    <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
       <Typography variant="h5" sx={{ textAlign: 'center' }}>
         Sign in to your account
       </Typography>
@@ -91,7 +91,6 @@ export function Auth0SignInView() {
       >
         Sign in with Popup
       </Button>
-
       <Button fullWidth color="inherit" size="large" variant="soft" onClick={handleSignUpWithPopup}>
         Sign up with Popup
       </Button>

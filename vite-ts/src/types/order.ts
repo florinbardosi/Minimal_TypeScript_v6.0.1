@@ -5,8 +5,8 @@ import type { IDateValue, IDatePickerControl } from './common';
 export type IOrderTableFilters = {
   name: string;
   status: string;
-  startDate: IDatePickerControl;
   endDate: IDatePickerControl;
+  startDate: IDatePickerControl;
 };
 
 export type IOrderHistory = {

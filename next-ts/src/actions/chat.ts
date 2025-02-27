@@ -1,10 +1,11 @@
+import type { SWRConfiguration } from 'swr';
 import type { IChatMessage, IChatParticipant, IChatConversation } from 'src/types/chat';
 
 import { useMemo } from 'react';
+import { keyBy } from 'es-toolkit';
 import useSWR, { mutate } from 'swr';
 
-import { keyBy } from 'src/utils/helper';
-import axios, { fetcher, endpoints } from 'src/utils/axios';
+import axios, { fetcher, endpoints } from 'src/lib/axios';
 
 // ----------------------------------------------------------------------
 
@@ -12,7 +13,7 @@ const enableServer = false;
 
 const CHART_ENDPOINT = endpoints.chat;
 
-const swrOptions = {
+const swrOptions: SWRConfiguration = {
   revalidateIfStale: enableServer,
   revalidateOnFocus: enableServer,
   revalidateOnReconnect: enableServer,
@@ -35,7 +36,7 @@ export function useGetContacts() {
       contactsLoading: isLoading,
       contactsError: error,
       contactsValidating: isValidating,
-      contactsEmpty: !isLoading && !data?.contacts.length,
+      contactsEmpty: !isLoading && !isValidating && !data?.contacts.length,
     }),
     [data?.contacts, error, isLoading, isValidating]
   );
@@ -59,7 +60,7 @@ export function useGetConversations() {
   );
 
   const memoizedValue = useMemo(() => {
-    const byId = data?.conversations.length ? keyBy(data.conversations, 'id') : {};
+    const byId = data?.conversations.length ? keyBy(data.conversations, (option) => option.id) : {};
     const allIds = Object.keys(byId);
 
     return {
@@ -67,7 +68,7 @@ export function useGetConversations() {
       conversationsLoading: isLoading,
       conversationsError: error,
       conversationsValidating: isValidating,
-      conversationsEmpty: !isLoading && !allIds.length,
+      conversationsEmpty: !isLoading && !isValidating && !allIds.length,
     };
   }, [data?.conversations, error, isLoading, isValidating]);
 
@@ -97,6 +98,7 @@ export function useGetConversation(conversationId: string) {
       conversationLoading: isLoading,
       conversationError: error,
       conversationValidating: isValidating,
+      conversationEmpty: !isLoading && !isValidating && !data?.conversation,
     }),
     [data?.conversation, error, isLoading, isValidating]
   );
@@ -172,6 +174,7 @@ export async function createConversation(conversationData: IChatConversation) {
   /**
    * Work in local
    */
+
   mutate(
     url,
     (currentData) => {
@@ -200,6 +203,7 @@ export async function clickConversation(conversationId: string) {
   /**
    * Work in local
    */
+
   mutate(
     [CHART_ENDPOINT, { params: { endpoint: 'conversations' } }],
     (currentData) => {

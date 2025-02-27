@@ -34,7 +34,7 @@ const URLS = [
   'https://www.cloud.com/s/c218bo6kjuqyv66/xl_david-blaine_component_tanzania_books.pdf',
 ];
 
-const SHARED_PERSONS = [...Array(20)].map((_, index) => ({
+const SHARED_PERSONS = Array.from({ length: 20 }, (_, index) => ({
   id: _mock.id(index),
   name: _mock.fullName(index),
   email: _mock.email(index),

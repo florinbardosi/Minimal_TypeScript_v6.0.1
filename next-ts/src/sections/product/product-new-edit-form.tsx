@@ -2,8 +2,8 @@ import type { IProductItem } from 'src/types/product';
 
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
+import { useState, useCallback } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
@@ -37,21 +37,36 @@ export type NewProductSchemaType = zod.infer<typeof NewProductSchema>;
 
 export const NewProductSchema = zod.object({
   name: zod.string().min(1, { message: 'Name is required!' }),
-  description: schemaHelper.editor({ message: { required_error: 'Description is required!' } }),
-  images: schemaHelper.files({ message: { required_error: 'Images is required!' } }),
+  description: schemaHelper
+    .editor({ message: 'Description is required!' })
+    .min(100, { message: 'Description must be at least 100 characters' })
+    .max(500, { message: 'Description must be less than 500 characters' }),
+  images: schemaHelper.files({ message: 'Images is required!' }),
   code: zod.string().min(1, { message: 'Product code is required!' }),
   sku: zod.string().min(1, { message: 'Product sku is required!' }),
-  quantity: zod.number().min(1, { message: 'Quantity is required!' }),
-  colors: zod.string().array().nonempty({ message: 'Choose at least one option!' }),
-  sizes: zod.string().array().nonempty({ message: 'Choose at least one option!' }),
+  quantity: schemaHelper.nullableInput(
+    zod.number({ coerce: true }).min(1, { message: 'Quantity is required!' }),
+    {
+      // message for null value
+      message: 'Quantity is required!',
+    }
+  ),
+  colors: zod.string().array().min(1, { message: 'Choose at least one option!' }),
+  sizes: zod.string().array().min(1, { message: 'Choose at least one option!' }),
   tags: zod.string().array().min(2, { message: 'Must have at least 2 items!' }),
-  gender: zod.string().array().nonempty({ message: 'Choose at least one option!' }),
-  price: zod.number().min(1, { message: 'Price should not be $0.00' }),
+  gender: zod.array(zod.string()).min(1, { message: 'Choose at least one option!' }),
+  price: schemaHelper.nullableInput(
+    zod.number({ coerce: true }).min(1, { message: 'Price is required!' }),
+    {
+      // message for null value
+      message: 'Price is required!',
+    }
+  ),
   // Not required
   category: zod.string(),
-  priceSale: zod.number(),
   subDescription: zod.string(),
-  taxes: zod.number(),
+  taxes: zod.number({ coerce: true }).nullable(),
+  priceSale: zod.number({ coerce: true }).nullable(),
   saleLabel: zod.object({ enabled: zod.boolean(), content: zod.string() }),
   newLabel: zod.object({ enabled: zod.boolean(), content: zod.string() }),
 });
@@ -67,33 +82,31 @@ export function ProductNewEditForm({ currentProduct }: Props) {
 
   const [includeTaxes, setIncludeTaxes] = useState(false);
 
-  const defaultValues = useMemo(
-    () => ({
-      name: currentProduct?.name || '',
-      description: currentProduct?.description || '',
-      subDescription: currentProduct?.subDescription || '',
-      images: currentProduct?.images || [],
-      //
-      code: currentProduct?.code || '',
-      sku: currentProduct?.sku || '',
-      price: currentProduct?.price || 0,
-      quantity: currentProduct?.quantity || 0,
-      priceSale: currentProduct?.priceSale || 0,
-      tags: currentProduct?.tags || [],
-      taxes: currentProduct?.taxes || 0,
-      gender: currentProduct?.gender || [],
-      category: currentProduct?.category || PRODUCT_CATEGORY_GROUP_OPTIONS[0].classify[1],
-      colors: currentProduct?.colors || [],
-      sizes: currentProduct?.sizes || [],
-      newLabel: currentProduct?.newLabel || { enabled: false, content: '' },
-      saleLabel: currentProduct?.saleLabel || { enabled: false, content: '' },
-    }),
-    [currentProduct]
-  );
+  const defaultValues: NewProductSchemaType = {
+    name: '',
+    description: '',
+    subDescription: '',
+    images: [],
+    /********/
+    code: '',
+    sku: '',
+    price: null,
+    taxes: null,
+    priceSale: null,
+    quantity: null,
+    tags: [],
+    gender: [],
+    category: PRODUCT_CATEGORY_GROUP_OPTIONS[0].classify[1],
+    colors: [],
+    sizes: [],
+    newLabel: { enabled: false, content: '' },
+    saleLabel: { enabled: false, content: '' },
+  };
 
   const methods = useForm<NewProductSchemaType>({
     resolver: zodResolver(NewProductSchema),
     defaultValues,
+    values: currentProduct,
   });
 
   const {
@@ -106,27 +119,18 @@ export function ProductNewEditForm({ currentProduct }: Props) {
 
   const values = watch();
 
-  useEffect(() => {
-    if (currentProduct) {
-      reset(defaultValues);
-    }
-  }, [currentProduct, defaultValues, reset]);
-
-  useEffect(() => {
-    if (includeTaxes) {
-      setValue('taxes', 0);
-    } else {
-      setValue('taxes', currentProduct?.taxes || 0);
-    }
-  }, [currentProduct?.taxes, includeTaxes, setValue]);
-
   const onSubmit = handleSubmit(async (data) => {
+    const updatedData = {
+      ...data,
+      taxes: includeTaxes ? defaultValues.taxes : data.taxes,
+    };
+
     try {
       await new Promise((resolve) => setTimeout(resolve, 500));
       reset();
       toast.success(currentProduct ? 'Update success!' : 'Create success!');
       router.push(paths.dashboard.product.root);
-      console.info('DATA', data);
+      console.info('DATA', updatedData);
     } catch (error) {
       console.error(error);
     }
@@ -148,7 +152,7 @@ export function ProductNewEditForm({ currentProduct }: Props) {
     setIncludeTaxes(event.target.checked);
   }, []);
 
-  const renderDetails = (
+  const renderDetails = () => (
     <Card>
       <CardHeader title="Details" subheader="Title, short description, image..." sx={{ mb: 3 }} />
 
@@ -180,7 +184,7 @@ export function ProductNewEditForm({ currentProduct }: Props) {
     </Card>
   );
 
-  const renderProperties = (
+  const renderProperties = () => (
     <Card>
       <CardHeader
         title="Properties"
@@ -192,10 +196,12 @@ export function ProductNewEditForm({ currentProduct }: Props) {
 
       <Stack spacing={3} sx={{ p: 3 }}>
         <Box
-          columnGap={2}
-          rowGap={3}
-          display="grid"
-          gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
+          sx={{
+            rowGap: 3,
+            columnGap: 2,
+            display: 'grid',
+            gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
+          }}
         >
           <Field.Text name="code" label="Product code" />
 
@@ -206,10 +212,17 @@ export function ProductNewEditForm({ currentProduct }: Props) {
             label="Quantity"
             placeholder="0"
             type="number"
-            InputLabelProps={{ shrink: true }}
+            slotProps={{ inputLabel: { shrink: true } }}
           />
 
-          <Field.Select native name="category" label="Category" InputLabelProps={{ shrink: true }}>
+          <Field.Select
+            name="category"
+            label="Category"
+            slotProps={{
+              select: { native: true },
+              inputLabel: { shrink: true },
+            }}
+          >
             {PRODUCT_CATEGORY_GROUP_OPTIONS.map((category) => (
               <optgroup key={category.group} label={category.group}>
                 {category.classify.map((classify) => (
@@ -266,7 +279,7 @@ export function ProductNewEditForm({ currentProduct }: Props) {
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 
-        <Stack direction="row" alignItems="center" spacing={3}>
+        <Box sx={{ gap: 3, display: 'flex', alignItems: 'center' }}>
           <Field.Switch name="saleLabel.enabled" label={null} sx={{ m: 0 }} />
           <Field.Text
             name="saleLabel.content"
@@ -274,9 +287,9 @@ export function ProductNewEditForm({ currentProduct }: Props) {
             fullWidth
             disabled={!values.saleLabel.enabled}
           />
-        </Stack>
+        </Box>
 
-        <Stack direction="row" alignItems="center" spacing={3}>
+        <Box sx={{ gap: 3, display: 'flex', alignItems: 'center' }}>
           <Field.Switch name="newLabel.enabled" label={null} sx={{ m: 0 }} />
           <Field.Text
             name="newLabel.content"
@@ -284,12 +297,12 @@ export function ProductNewEditForm({ currentProduct }: Props) {
             fullWidth
             disabled={!values.newLabel.enabled}
           />
-        </Stack>
+        </Box>
       </Stack>
     </Card>
   );
 
-  const renderPricing = (
+  const renderPricing = () => (
     <Card>
       <CardHeader title="Pricing" subheader="Price related inputs" sx={{ mb: 3 }} />
 
@@ -301,15 +314,17 @@ export function ProductNewEditForm({ currentProduct }: Props) {
           label="Regular price"
           placeholder="0.00"
           type="number"
-          InputLabelProps={{ shrink: true }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Box component="span" sx={{ color: 'text.disabled' }}>
-                  $
-                </Box>
-              </InputAdornment>
-            ),
+          slotProps={{
+            inputLabel: { shrink: true },
+            input: {
+              startAdornment: (
+                <InputAdornment position="start" sx={{ mr: 0.75 }}>
+                  <Box component="span" sx={{ color: 'text.disabled' }}>
+                    $
+                  </Box>
+                </InputAdornment>
+              ),
+            },
           }}
         />
 
@@ -318,15 +333,17 @@ export function ProductNewEditForm({ currentProduct }: Props) {
           label="Sale price"
           placeholder="0.00"
           type="number"
-          InputLabelProps={{ shrink: true }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Box component="span" sx={{ color: 'text.disabled' }}>
-                  $
-                </Box>
-              </InputAdornment>
-            ),
+          slotProps={{
+            inputLabel: { shrink: true },
+            input: {
+              startAdornment: (
+                <InputAdornment position="start" sx={{ mr: 0.75 }}>
+                  <Box component="span" sx={{ color: 'text.disabled' }}>
+                    $
+                  </Box>
+                </InputAdornment>
+              ),
+            },
           }}
         />
 
@@ -343,15 +360,17 @@ export function ProductNewEditForm({ currentProduct }: Props) {
             label="Tax (%)"
             placeholder="0.00"
             type="number"
-            InputLabelProps={{ shrink: true }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Box component="span" sx={{ color: 'text.disabled' }}>
-                    %
-                  </Box>
-                </InputAdornment>
-              ),
+            slotProps={{
+              inputLabel: { shrink: true },
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start" sx={{ mr: 0.75 }}>
+                    <Box component="span" sx={{ color: 'text.disabled' }}>
+                      %
+                    </Box>
+                  </InputAdornment>
+                ),
+              },
             }}
           />
         )}
@@ -359,30 +378,34 @@ export function ProductNewEditForm({ currentProduct }: Props) {
     </Card>
   );
 
-  const renderActions = (
-    <Stack spacing={3} direction="row" alignItems="center" flexWrap="wrap">
+  const renderActions = () => (
+    <Box
+      sx={{
+        gap: 3,
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+      }}
+    >
       <FormControlLabel
-        control={<Switch defaultChecked inputProps={{ id: 'publish-switch' }} />}
         label="Publish"
+        control={<Switch defaultChecked inputProps={{ id: 'publish-switch' }} />}
         sx={{ pl: 3, flexGrow: 1 }}
       />
 
       <LoadingButton type="submit" variant="contained" size="large" loading={isSubmitting}>
         {!currentProduct ? 'Create product' : 'Save changes'}
       </LoadingButton>
-    </Stack>
+    </Box>
   );
 
   return (
     <Form methods={methods} onSubmit={onSubmit}>
       <Stack spacing={{ xs: 3, md: 5 }} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
-        {renderDetails}
-
-        {renderProperties}
-
-        {renderPricing}
-
-        {renderActions}
+        {renderDetails()}
+        {renderProperties()}
+        {renderPricing()}
+        {renderActions()}
       </Stack>
     </Form>
   );

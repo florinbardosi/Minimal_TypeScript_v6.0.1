@@ -2,7 +2,7 @@ import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
-import { StyledControlPanel } from '../styles';
+import { ControlPanelRoot } from '../styles';
 
 // ----------------------------------------------------------------------
 
@@ -15,15 +15,15 @@ export type CityProps = {
   longitude: number;
 };
 
-type Props = {
+type MapControlPanel = {
   data: CityProps[];
   selectedCity: string;
   onSelectCity: (event: React.ChangeEvent<HTMLInputElement>, city: CityProps) => void;
 };
 
-export function ControlPanel({ data, selectedCity, onSelectCity }: Props) {
+export function MapControlPanel({ data, selectedCity, onSelectCity }: MapControlPanel) {
   return (
-    <StyledControlPanel>
+    <ControlPanelRoot>
       {data.map((city) => (
         <RadioGroup
           key={city.city}
@@ -38,6 +38,6 @@ export function ControlPanel({ data, selectedCity, onSelectCity }: Props) {
           />
         </RadioGroup>
       ))}
-    </StyledControlPanel>
+    </ControlPanelRoot>
   );
 }

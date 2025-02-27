@@ -1,6 +1,7 @@
 import { z as zod } from 'zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useBoolean } from 'minimal-shared/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Box from '@mui/material/Box';
@@ -14,12 +15,11 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
-import { useBoolean } from 'src/hooks/use-boolean';
-
 import { Iconify } from 'src/components/iconify';
 import { Form, Field } from 'src/components/hook-form';
 
 import { useAuthContext } from '../../hooks';
+import { getErrorMessage } from '../../utils';
 import { FormHead } from '../../components/form-head';
 import { signInWithPassword } from '../../context/jwt';
 
@@ -43,15 +43,15 @@ export const SignInSchema = zod.object({
 export function JwtSignInView() {
   const router = useRouter();
 
+  const showPassword = useBoolean();
+
   const { checkUserSession } = useAuthContext();
 
-  const [errorMsg, setErrorMsg] = useState('');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const password = useBoolean();
-
-  const defaultValues = {
+  const defaultValues: SignInSchemaType = {
     email: 'demo@minimals.cc',
-    password: '@demo1',
+    password: '@2Minimal',
   };
 
   const methods = useForm<SignInSchemaType>({
@@ -72,15 +72,16 @@ export function JwtSignInView() {
       router.refresh();
     } catch (error) {
       console.error(error);
-      setErrorMsg(typeof error === 'string' ? error : error.message);
+      const feedbackMessage = getErrorMessage(error);
+      setErrorMessage(feedbackMessage);
     }
   });
 
-  const renderForm = (
-    <Box gap={3} display="flex" flexDirection="column">
-      <Field.Text name="email" label="Email address" InputLabelProps={{ shrink: true }} />
+  const renderForm = () => (
+    <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
+      <Field.Text name="email" label="Email address" slotProps={{ inputLabel: { shrink: true } }} />
 
-      <Box gap={1.5} display="flex" flexDirection="column">
+      <Box sx={{ gap: 1.5, display: 'flex', flexDirection: 'column' }}>
         <Link
           component={RouterLink}
           href="#"
@@ -95,16 +96,20 @@ export function JwtSignInView() {
           name="password"
           label="Password"
           placeholder="6+ characters"
-          type={password.value ? 'text' : 'password'}
-          InputLabelProps={{ shrink: true }}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton onClick={password.onToggle} edge="end">
-                  <Iconify icon={password.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
-                </IconButton>
-              </InputAdornment>
-            ),
+          type={showPassword.value ? 'text' : 'password'}
+          slotProps={{
+            inputLabel: { shrink: true },
+            input: {
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={showPassword.onToggle} edge="end">
+                    <Iconify
+                      icon={showPassword.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'}
+                    />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            },
           }}
         />
       </Box>
@@ -144,14 +149,14 @@ export function JwtSignInView() {
         <strong>{defaultValues.password}</strong>
       </Alert>
 
-      {!!errorMsg && (
+      {!!errorMessage && (
         <Alert severity="error" sx={{ mb: 3 }}>
-          {errorMsg}
+          {errorMessage}
         </Alert>
       )}
 
       <Form methods={methods} onSubmit={onSubmit}>
-        {renderForm}
+        {renderForm()}
       </Form>
     </>
   );

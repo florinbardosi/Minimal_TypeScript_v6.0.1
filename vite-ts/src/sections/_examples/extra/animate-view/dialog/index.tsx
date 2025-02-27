@@ -1,55 +1,49 @@
 import { useState, useCallback } from 'react';
+import { useBoolean } from 'minimal-shared/hooks';
 
+import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import Stack from '@mui/material/Stack';
-
-import { useBoolean } from 'src/hooks/use-boolean';
 
 import { ContainerView } from './container';
 import { ControlPanel } from '../control-panel';
 
+import type { ControlPanelProps } from '../control-panel';
+
 // ----------------------------------------------------------------------
 
-export function AnimateDialog() {
-  const view = useBoolean();
+export function AnimateDialog({ options }: Pick<ControlPanelProps, 'options'>) {
+  const openDialog = useBoolean();
 
-  const [selectVariant, setSelectVariant] = useState('slideInUp');
+  const [selectedVariant, setSelectedVariant] = useState('slideInUp');
 
   const handleChangeVariant = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectVariant(event.target.value);
+    setSelectedVariant(event.target.value);
   }, []);
 
   return (
     <Card sx={{ height: 640, display: 'flex' }}>
-      <Stack spacing={2.5} sx={{ p: 2.5, display: 'flex', flex: '1 1 auto' }}>
+      <Box
+        sx={{
+          p: 2.5,
+          gap: 2.5,
+          display: 'flex',
+          flex: '1 1 auto',
+          flexDirection: 'column',
+        }}
+      >
         <ContainerView
-          open={view.value}
-          onOpen={view.onTrue}
-          onClose={view.onFalse}
-          selectVariant={selectVariant}
+          open={openDialog.value}
+          onOpen={openDialog.onTrue}
+          onClose={openDialog.onFalse}
+          selectedVariant={selectedVariant}
         />
-      </Stack>
+      </Box>
 
       <ControlPanel
-        variantKey={variantKey}
-        selectVariant={selectVariant}
+        options={options}
+        selectedVariant={selectedVariant}
         onChangeVariant={handleChangeVariant}
       />
     </Card>
   );
 }
-
-// ----------------------------------------------------------------------
-
-const variantKey = [
-  { type: 'slide', values: ['slideInUp', 'slideInDown', 'slideInLeft', 'slideInRight'] },
-  { type: 'fade', values: ['fadeIn', 'fadeInUp', 'fadeInDown', 'fadeInLeft', 'fadeInRight'] },
-  { type: 'zoom', values: ['zoomIn', 'zoomInUp', 'zoomInDown', 'zoomInLeft', 'zoomInRight'] },
-  {
-    type: 'bounce',
-    values: ['bounceIn', 'bounceInUp', 'bounceInDown', 'bounceInLeft', 'bounceInRight'],
-  },
-  { type: 'flip', values: ['flipInX', 'flipInY'] },
-  { type: 'scale', values: ['scaleInX', 'scaleInY'] },
-  { type: 'rotate', values: ['rotateIn'] },
-];

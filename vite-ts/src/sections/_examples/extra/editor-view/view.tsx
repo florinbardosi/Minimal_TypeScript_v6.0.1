@@ -1,24 +1,18 @@
 import { useState } from 'react';
 
-import Card from '@mui/material/Card';
-import Stack from '@mui/material/Stack';
+import Box from '@mui/material/Box';
 import Switch from '@mui/material/Switch';
 import Typography from '@mui/material/Typography';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
-import { paths } from 'src/routes/paths';
-
 import { Editor } from 'src/components/editor';
 import { Markdown } from 'src/components/markdown';
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { ComponentHero } from '../../component-hero';
-import { ComponentContainer } from '../../component-block';
+import { ComponentLayout } from '../../layout';
 
 // ----------------------------------------------------------------------
 
 const defaultValue = `
-
 <h4>This is Heading 4</h4>
 <code>This is code</code>
 
@@ -34,6 +28,8 @@ const defaultValue = `
   }</code></pre>
 `;
 
+// ----------------------------------------------------------------------
+
 export function EditorView() {
   const [checked, setChecked] = useState(true);
 
@@ -44,49 +40,36 @@ export function EditorView() {
   };
 
   return (
-    <>
-      <ComponentHero>
-        <CustomBreadcrumbs
-          heading="Editor"
-          links={[{ name: 'Components', href: paths.components }, { name: 'Editor' }]}
-          moreLink={['https://tiptap.dev/docs/editor/introduction']}
-        />
-      </ComponentHero>
+    <ComponentLayout
+      heroProps={{
+        heading: 'Editor',
+        moreLinks: ['https://tiptap.dev/docs/editor/introduction'],
+      }}
+      containerProps={{ maxWidth: false }}
+    >
+      <FormControlLabel
+        control={<Switch name="fullItem" checked={checked} onChange={handleChange} />}
+        label="Full item"
+        sx={{ mb: 3 }}
+      />
 
-      <ComponentContainer
-        maxWidth={false}
+      <Box
         sx={{
           rowGap: 5,
           columnGap: 3,
           display: 'grid',
-          gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
+          alignItems: 'flex-start',
+          gridTemplateColumns: { xs: 'repeat(1, 1fr)', lg: 'repeat(2, 1fr)' },
         }}
       >
-        <Card
-          sx={{
-            p: 3,
-            gap: 2,
-            flexShrink: 0,
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          <FormControlLabel
-            control={<Switch name="fullItem" checked={checked} onChange={handleChange} />}
-            label="Full item"
-            labelPlacement="start"
-            sx={{ ml: 'auto' }}
-          />
-          <Editor
-            fullItem={checked}
-            value={content}
-            onChange={(value) => setContent(value)}
-            sx={{ maxHeight: 720 }}
-          />
-        </Card>
+        <Editor
+          fullItem={checked}
+          value={content}
+          onChange={(value) => setContent(value)}
+          sx={{ maxHeight: 720 }}
+        />
 
-        <Stack
-          spacing={1}
+        <Box
           sx={{
             p: 3,
             borderRadius: 2,
@@ -96,8 +79,8 @@ export function EditorView() {
         >
           <Typography variant="h6">Preview</Typography>
           <Markdown children={content} />
-        </Stack>
-      </ComponentContainer>
-    </>
+        </Box>
+      </Box>
+    </ComponentLayout>
   );
 }

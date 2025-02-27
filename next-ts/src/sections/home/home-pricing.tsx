@@ -1,7 +1,8 @@
 import type { BoxProps } from '@mui/material/Box';
-import type { StackProps } from '@mui/material/Stack';
 
 import { m } from 'framer-motion';
+import { useTabs } from 'minimal-shared/hooks';
+import { varAlpha } from 'minimal-shared/utils';
 
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
@@ -14,10 +15,7 @@ import Typography from '@mui/material/Typography';
 
 import { paths } from 'src/routes/paths';
 
-import { useTabs } from 'src/hooks/use-tabs';
-
-import { CONFIG } from 'src/config-global';
-import { varAlpha } from 'src/theme/styles';
+import { CONFIG } from 'src/global-config';
 
 import { Iconify } from 'src/components/iconify';
 import { varFade, varScale, MotionViewport } from 'src/components/animate';
@@ -30,7 +28,7 @@ import { FloatLine, FloatXIcon } from './components/svg-elements';
 export function HomePricing({ sx, ...other }: BoxProps) {
   const tabs = useTabs('Standard');
 
-  const renderDescription = (
+  const renderDescription = () => (
     <SectionTitle
       caption="plans"
       title="Transparent"
@@ -40,7 +38,7 @@ export function HomePricing({ sx, ...other }: BoxProps) {
     />
   );
 
-  const renderContentDesktop = (
+  const renderContentDesktop = () => (
     <Box gridTemplateColumns="repeat(3, 1fr)" sx={{ display: { xs: 'none', md: 'grid' } }}>
       {PLANS.map((plan) => (
         <PlanCard
@@ -59,15 +57,16 @@ export function HomePricing({ sx, ...other }: BoxProps) {
     </Box>
   );
 
-  const renderContentMobile = (
+  const renderContentMobile = () => (
     <Stack spacing={5} alignItems="center" sx={{ display: { md: 'none' } }}>
       <Tabs
         value={tabs.value}
         onChange={tabs.onChange}
-        sx={{
-          boxShadow: (theme) =>
-            `0px -2px 0px 0px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)} inset`,
-        }}
+        sx={[
+          (theme) => ({
+            boxShadow: `0px -2px 0px 0px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)} inset`,
+          }),
+        ]}
       >
         {PLANS.map((tab) => (
           <Tab key={tab.license} value={tab.license} label={tab.license} />
@@ -75,11 +74,13 @@ export function HomePricing({ sx, ...other }: BoxProps) {
       </Tabs>
 
       <Box
-        sx={{
-          width: 1,
-          borderRadius: 2,
-          border: (theme) => `dashed 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.2)}`,
-        }}
+        sx={[
+          (theme) => ({
+            width: 1,
+            borderRadius: 2,
+            border: `dashed 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.2)}`,
+          }),
+        ]}
       >
         {PLANS.map(
           (tab) => tab.license === tabs.value && <PlanCard key={tab.license} plan={tab} />
@@ -89,11 +90,15 @@ export function HomePricing({ sx, ...other }: BoxProps) {
   );
 
   return (
-    <Box component="section" sx={{ py: 10, position: 'relative', ...sx }} {...other}>
+    <Box
+      component="section"
+      sx={[{ py: 10, position: 'relative' }, ...(Array.isArray(sx) ? sx : [sx])]}
+      {...other}
+    >
       <MotionViewport>
         <FloatLine vertical sx={{ top: 0, left: 80 }} />
 
-        <Container>{renderDescription}</Container>
+        <Container>{renderDescription()}</Container>
 
         <Box
           sx={(theme) => ({
@@ -102,19 +107,17 @@ export function HomePricing({ sx, ...other }: BoxProps) {
               width: 64,
               height: 64,
               content: "''",
-              [theme.breakpoints.up(1440)]: {
-                display: 'block',
-              },
+              [theme.breakpoints.up(1440)]: { display: 'block' },
             },
           })}
         >
-          <Container>{renderContentDesktop}</Container>
+          <Container>{renderContentDesktop()}</Container>
 
           <FloatLine sx={{ top: 64, left: 0 }} />
           <FloatLine sx={{ bottom: 64, left: 0 }} />
         </Box>
 
-        <Container>{renderContentMobile}</Container>
+        <Container>{renderContentMobile()}</Container>
       </MotionViewport>
     </Box>
   );
@@ -122,7 +125,7 @@ export function HomePricing({ sx, ...other }: BoxProps) {
 
 // ----------------------------------------------------------------------
 
-type PlanCardProps = StackProps & {
+type PlanCardProps = BoxProps & {
   plan: {
     license: string;
     price: number;
@@ -132,152 +135,163 @@ type PlanCardProps = StackProps & {
   };
 };
 
+const renderLines = () => (
+  <>
+    <FloatLine vertical sx={{ top: -64, left: 0, height: 'calc(100% + (64px * 2))' }} />
+    <FloatLine vertical sx={{ top: -64, right: 0, height: 'calc(100% + (64px * 2))' }} />
+    <FloatXIcon sx={{ top: -8, left: -8 }} />
+    <FloatXIcon sx={{ top: -8, right: -8 }} />
+    <FloatXIcon sx={{ bottom: -8, left: -8 }} />
+    <FloatXIcon sx={{ bottom: -8, right: -8 }} />
+  </>
+);
+
 function PlanCard({ plan, sx, ...other }: PlanCardProps) {
   const standardLicense = plan.license === 'Standard';
 
   const plusLicense = plan.license === 'Plus';
 
-  const renderLines = (
-    <>
-      <FloatLine vertical sx={{ top: -64, left: 0, height: 'calc(100% + (64px * 2))' }} />
-      <FloatLine vertical sx={{ top: -64, right: 0, height: 'calc(100% + (64px * 2))' }} />
-      <FloatXIcon sx={{ top: -8, left: -8 }} />
-      <FloatXIcon sx={{ top: -8, right: -8 }} />
-      <FloatXIcon sx={{ bottom: -8, left: -8 }} />
-      <FloatXIcon sx={{ bottom: -8, right: -8 }} />
-    </>
-  );
-
   return (
-    <Stack
-      spacing={5}
-      component={MotionViewport}
-      sx={{
-        px: 6,
-        py: 8,
-        position: 'relative',
-        ...sx,
-      }}
-      {...other}
-    >
-      {plusLicense && renderLines}
+    <MotionViewport>
+      <Box
+        sx={[
+          () => ({
+            px: 6,
+            py: 8,
+            gap: 5,
+            display: 'flex',
+            position: 'relative',
+            flexDirection: 'column',
+          }),
+          ...(Array.isArray(sx) ? sx : [sx]),
+        ]}
+        {...other}
+      >
+        {plusLicense && renderLines()}
 
-      <Stack direction="row" alignItems="center">
-        <Stack flexGrow={1}>
-          <m.div variants={varFade({ distance: 24 }).inLeft}>
-            <Typography variant="h4" component="h6">
-              {plan.license}
-            </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Stack flexGrow={1}>
+            <m.div variants={varFade('inLeft', { distance: 24 })}>
+              <Typography variant="h4" component="h6">
+                {plan.license}
+              </Typography>
+            </m.div>
+
+            <m.div variants={varScale('inX')}>
+              <Box
+                sx={{
+                  width: 32,
+                  height: 6,
+                  opacity: 0.24,
+                  borderRadius: 1,
+                  bgcolor: 'error.main',
+                  ...(standardLicense && { bgcolor: 'primary.main' }),
+                  ...(plusLicense && { bgcolor: 'secondary.main' }),
+                }}
+              />
+            </m.div>
+          </Stack>
+
+          <m.div variants={varFade('inLeft', { distance: 24 })}>
+            <Box component="span" sx={{ typography: 'h3' }}>
+              ${plan.price}
+            </Box>
           </m.div>
+        </Box>
 
-          <m.div variants={varScale({ distance: 24 }).inX}>
+        <Box sx={{ gap: 2, display: 'flex' }}>
+          {plan.icons.map((icon, index) => (
             <Box
+              component={m.img}
+              variants={varFade('in')}
+              key={icon}
+              alt={icon}
+              src={icon}
               sx={{
-                width: 32,
-                height: 6,
-                opacity: 0.24,
-                borderRadius: 1,
-                bgcolor: 'error.main',
-                ...(standardLicense && { bgcolor: 'primary.main' }),
-                ...(plusLicense && { bgcolor: 'secondary.main' }),
+                width: 24,
+                height: 24,
+                ...(standardLicense && [1, 2].includes(index) && { display: 'none' }),
               }}
             />
-          </m.div>
-        </Stack>
+          ))}
+          {standardLicense && (
+            <Box component={m.span} variants={varFade('in')} sx={{ ml: -1 }}>
+              (only)
+            </Box>
+          )}
+        </Box>
 
-        <m.div variants={varFade({ distance: 24 }).inLeft}>
-          <Box component="span" sx={{ typography: 'h3' }}>
-            ${plan.price}
-          </Box>
-        </m.div>
-      </Stack>
-
-      <Stack direction="row" spacing={2}>
-        {plan.icons.map((icon, index) => (
-          <Box
-            component={m.img}
-            variants={varFade().in}
-            key={icon}
-            alt={icon}
-            src={icon}
-            sx={{
-              width: 24,
-              height: 24,
-              ...(standardLicense && [1, 2].includes(index) && { display: 'none' }),
-            }}
-          />
-        ))}
-        {standardLicense && (
-          <Box component={m.span} variants={varFade().in} sx={{ ml: -1 }}>
-            (only)
-          </Box>
-        )}
-      </Stack>
-
-      <Stack spacing={2.5}>
-        {plan.commons.map((option) => (
-          <Stack
-            key={option}
-            component={m.div}
-            variants={varFade().in}
-            spacing={1.5}
-            direction="row"
-            alignItems="center"
-            sx={{ typography: 'body2' }}
-          >
-            <Iconify width={16} icon="eva:checkmark-fill" />
-            {option}
-          </Stack>
-        ))}
-
-        <m.div variants={varFade({ distance: 24 }).inLeft}>
-          <Divider sx={{ borderStyle: 'dashed' }} />
-        </m.div>
-
-        {plan.options.map((option, index) => {
-          const disabled =
-            (standardLicense && [1, 2, 3].includes(index)) || (plusLicense && [3].includes(index));
-
-          return (
-            <Stack
+        <Stack spacing={2.5}>
+          {plan.commons.map((option) => (
+            <Box
               key={option}
               component={m.div}
-              variants={varFade().in}
-              spacing={1.5}
-              direction="row"
-              alignItems="center"
+              variants={varFade('in')}
               sx={{
+                gap: 1.5,
+                display: 'flex',
                 typography: 'body2',
-                ...(disabled && { color: 'text.disabled', textDecoration: 'line-through' }),
+                alignItems: 'center',
               }}
             >
-              <Iconify width={18} icon={disabled ? 'mingcute:close-line' : 'eva:checkmark-fill'} />
+              <Iconify width={16} icon="eva:checkmark-fill" />
               {option}
-            </Stack>
-          );
-        })}
-      </Stack>
+            </Box>
+          ))}
 
-      <m.div variants={varFade({ distance: 24 }).inUp}>
-        <Button
-          fullWidth
-          variant={plusLicense ? 'contained' : 'outlined'}
-          color="inherit"
-          size="large"
-          target="_blank"
-          rel="noopener"
-          href={paths.minimalStore}
-        >
-          Get started
-        </Button>
-      </m.div>
-    </Stack>
+          <m.div variants={varFade('inLeft', { distance: 24 })}>
+            <Divider sx={{ borderStyle: 'dashed' }} />
+          </m.div>
+
+          {plan.options.map((option, index) => {
+            const disabled =
+              (standardLicense && [1, 2, 3].includes(index)) ||
+              (plusLicense && [3].includes(index));
+
+            return (
+              <Box
+                key={option}
+                component={m.div}
+                variants={varFade('in')}
+                sx={{
+                  gap: 1.5,
+                  display: 'flex',
+                  typography: 'body2',
+                  alignItems: 'center',
+                  ...(disabled && { color: 'text.disabled', textDecoration: 'line-through' }),
+                }}
+              >
+                <Iconify
+                  width={18}
+                  icon={disabled ? 'mingcute:close-line' : 'eva:checkmark-fill'}
+                />
+                {option}
+              </Box>
+            );
+          })}
+        </Stack>
+
+        <m.div variants={varFade('inUp', { distance: 24 })}>
+          <Button
+            fullWidth
+            variant={plusLicense ? 'contained' : 'outlined'}
+            color="inherit"
+            size="large"
+            target="_blank"
+            rel="noopener"
+            href={paths.minimalStore}
+          >
+            Get started
+          </Button>
+        </m.div>
+      </Box>
+    </MotionViewport>
   );
 }
 
 // ----------------------------------------------------------------------
 
-const PLANS = [...Array(3)].map((_, index) => ({
+const PLANS = Array.from({ length: 3 }, (_, index) => ({
   license: ['Standard', 'Plus', 'Extended'][index],
   price: [69, 129, 599][index],
   commons: [

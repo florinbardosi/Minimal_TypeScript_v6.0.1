@@ -1,33 +1,58 @@
 'use client';
 
-import { paths } from 'src/routes/paths';
+import type { Theme, SxProps } from '@mui/material/styles';
 
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import Box from '@mui/material/Box';
 
 import { Textfields } from './textfield';
-import { ComponentHero } from '../../component-hero';
-import { ScrollToViewTemplate } from '../../component-template';
+import { ComponentLayout } from '../../layout';
+
+// ----------------------------------------------------------------------
+
+const boxStyles: SxProps<Theme> = {
+  rowGap: 5,
+  columnGap: 3,
+  display: 'grid',
+  gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
+};
+
+const DEMO_COMPONENTS = [
+  {
+    name: 'Outlined',
+    component: (
+      <Box sx={boxStyles}>
+        <Textfields variant="outlined" />
+      </Box>
+    ),
+  },
+  {
+    name: 'Filled',
+    component: (
+      <Box sx={boxStyles}>
+        <Textfields variant="filled" />
+      </Box>
+    ),
+  },
+  {
+    name: 'Standard',
+    component: (
+      <Box sx={boxStyles}>
+        <Textfields variant="standard" />
+      </Box>
+    ),
+  },
+];
 
 // ----------------------------------------------------------------------
 
 export function TextfieldView() {
-  const DEMO = [
-    { name: 'Outlined', component: <Textfields variant="outlined" /> },
-    { name: 'Filled', component: <Textfields variant="filled" /> },
-    { name: 'Standard', component: <Textfields variant="standard" /> },
-  ];
-
   return (
-    <>
-      <ComponentHero>
-        <CustomBreadcrumbs
-          heading="Textfield"
-          links={[{ name: 'Components', href: paths.components }, { name: 'Textfield' }]}
-          moreLink={['https://mui.com/components/text-fields']}
-        />
-      </ComponentHero>
-
-      <ScrollToViewTemplate data={DEMO} />
-    </>
+    <ComponentLayout
+      sectionData={DEMO_COMPONENTS}
+      heroProps={{
+        heading: 'Textfield',
+        moreLinks: ['https://mui.com/material-ui/react-text-field/'],
+      }}
+    />
   );
 }

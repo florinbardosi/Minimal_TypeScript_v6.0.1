@@ -1,6 +1,8 @@
 import type { IJobFilters } from 'src/types/job';
-import type { Theme, SxProps } from '@mui/material/styles';
-import type { UseSetStateReturn } from 'src/hooks/use-set-state';
+import type { UseSetStateReturn } from 'minimal-shared/hooks';
+import type { FiltersResultProps } from 'src/components/filters-result';
+
+import { useCallback } from 'react';
 
 import Chip from '@mui/material/Chip';
 
@@ -8,41 +10,53 @@ import { chipProps, FiltersBlock, FiltersResult } from 'src/components/filters-r
 
 // ----------------------------------------------------------------------
 
-type Props = {
-  totalResults: number;
-  sx?: SxProps<Theme>;
+type Props = FiltersResultProps & {
   filters: UseSetStateReturn<IJobFilters>;
 };
 
 export function JobFiltersResult({ filters, totalResults, sx }: Props) {
-  const handleRemoveEmploymentTypes = (inputValue: string) => {
-    const newValue = filters.state.employmentTypes.filter((item) => item !== inputValue);
-    filters.setState({ employmentTypes: newValue });
-  };
+  const { state: currentFilters, setState: updateFilters, resetState: resetFilters } = filters;
 
-  const handleRemoveExperience = () => {
-    filters.setState({ experience: 'all' });
-  };
+  const handleRemoveEmploymentTypes = useCallback(
+    (inputValue: string) => {
+      const newValue = currentFilters.employmentTypes.filter((item) => item !== inputValue);
+      updateFilters({ employmentTypes: newValue });
+    },
+    [updateFilters, currentFilters.employmentTypes]
+  );
 
-  const handleRemoveRoles = (inputValue: string) => {
-    const newValue = filters.state.roles.filter((item) => item !== inputValue);
-    filters.setState({ roles: newValue });
-  };
+  const handleRemoveExperience = useCallback(() => {
+    updateFilters({ experience: 'all' });
+  }, [updateFilters]);
 
-  const handleRemoveLocations = (inputValue: string) => {
-    const newValue = filters.state.locations.filter((item) => item !== inputValue);
-    filters.setState({ locations: newValue });
-  };
+  const handleRemoveRoles = useCallback(
+    (inputValue: string) => {
+      const newValue = currentFilters.roles.filter((item) => item !== inputValue);
+      updateFilters({ roles: newValue });
+    },
+    [updateFilters, currentFilters.roles]
+  );
 
-  const handleRemoveBenefits = (inputValue: string) => {
-    const newValue = filters.state.benefits.filter((item) => item !== inputValue);
-    filters.setState({ benefits: newValue });
-  };
+  const handleRemoveLocations = useCallback(
+    (inputValue: string) => {
+      const newValue = currentFilters.locations.filter((item) => item !== inputValue);
+      updateFilters({ locations: newValue });
+    },
+    [updateFilters, currentFilters.locations]
+  );
+
+  const handleRemoveBenefits = useCallback(
+    (inputValue: string) => {
+      const newValue = currentFilters.benefits.filter((item) => item !== inputValue);
+      updateFilters({ benefits: newValue });
+    },
+    [updateFilters, currentFilters.benefits]
+  );
 
   return (
-    <FiltersResult totalResults={totalResults} onReset={filters.onResetState} sx={sx}>
-      <FiltersBlock label="Employment types:" isShow={!!filters.state.employmentTypes.length}>
-        {filters.state.employmentTypes.map((item) => (
+    <FiltersResult totalResults={totalResults} onReset={() => resetFilters()} sx={sx}>
+      <FiltersBlock label="Employment types:" isShow={!!currentFilters.employmentTypes.length}>
+        {currentFilters.employmentTypes.map((item) => (
           <Chip
             {...chipProps}
             key={item}
@@ -52,18 +66,18 @@ export function JobFiltersResult({ filters, totalResults, sx }: Props) {
         ))}
       </FiltersBlock>
 
-      <FiltersBlock label="Experience:" isShow={filters.state.experience !== 'all'}>
-        <Chip {...chipProps} label={filters.state.experience} onDelete={handleRemoveExperience} />
+      <FiltersBlock label="Experience:" isShow={currentFilters.experience !== 'all'}>
+        <Chip {...chipProps} label={currentFilters.experience} onDelete={handleRemoveExperience} />
       </FiltersBlock>
 
-      <FiltersBlock label="Roles:" isShow={!!filters.state.roles.length}>
-        {filters.state.roles.map((item) => (
+      <FiltersBlock label="Roles:" isShow={!!currentFilters.roles.length}>
+        {currentFilters.roles.map((item) => (
           <Chip {...chipProps} key={item} label={item} onDelete={() => handleRemoveRoles(item)} />
         ))}
       </FiltersBlock>
 
-      <FiltersBlock label="Locations:" isShow={!!filters.state.locations.length}>
-        {filters.state.locations.map((item) => (
+      <FiltersBlock label="Locations:" isShow={!!currentFilters.locations.length}>
+        {currentFilters.locations.map((item) => (
           <Chip
             {...chipProps}
             key={item}
@@ -73,8 +87,8 @@ export function JobFiltersResult({ filters, totalResults, sx }: Props) {
         ))}
       </FiltersBlock>
 
-      <FiltersBlock label="Benefits:" isShow={!!filters.state.benefits.length}>
-        {filters.state.benefits.map((item) => (
+      <FiltersBlock label="Benefits:" isShow={!!currentFilters.benefits.length}>
+        {currentFilters.benefits.map((item) => (
           <Chip
             {...chipProps}
             key={item}

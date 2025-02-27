@@ -1,14 +1,14 @@
 import type { CardProps } from '@mui/material/Card';
 import type { ChartOptions } from 'src/components/chart';
 
+import { varAlpha } from 'minimal-shared/utils';
+
 import Card from '@mui/material/Card';
 import Divider from '@mui/material/Divider';
 import CardHeader from '@mui/material/CardHeader';
 import { useTheme, alpha as hexAlpha } from '@mui/material/styles';
 
 import { fNumber } from 'src/utils/format-number';
-
-import { varAlpha } from 'src/theme/styles';
 
 import { Chart, useChart, ChartLegends } from 'src/components/chart';
 
@@ -28,7 +28,7 @@ type Props = CardProps & {
   };
 };
 
-export function EcommerceSaleByGender({ title, subheader, total, chart, ...other }: Props) {
+export function EcommerceSaleByGender({ title, subheader, total, chart, sx, ...other }: Props) {
   const theme = useTheme();
 
   const chartSeries = chart.series.map((item) => item.value);
@@ -69,16 +69,20 @@ export function EcommerceSaleByGender({ title, subheader, total, chart, ...other
   });
 
   return (
-    <Card {...other}>
+    <Card sx={sx} {...other}>
       <CardHeader title={title} subheader={subheader} />
 
       <Chart
         type="radialBar"
         series={chartSeries}
         options={chartOptions}
-        width={{ xs: 300, xl: 320 }}
-        height={{ xs: 300, xl: 320 }}
-        sx={{ my: 1.5, mx: 'auto' }}
+        slotProps={{ loading: { p: 4 } }}
+        sx={{
+          my: 1.5,
+          mx: 'auto',
+          width: { xs: 300, xl: 320 },
+          height: { xs: 300, xl: 320 },
+        }}
       />
 
       <Divider sx={{ borderStyle: 'dashed' }} />

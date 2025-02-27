@@ -52,12 +52,14 @@ export function KanbanContactsDialog({ assignee = [], open, onClose }: Props) {
           value={searchContact}
           onChange={handleSearchContacts}
           placeholder="Search..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                </InputAdornment>
+              ),
+            },
           }}
         />
       </Box>
@@ -84,12 +86,7 @@ export function KanbanContactsDialog({ assignee = [], open, onClose }: Props) {
                   >
                     <Avatar src={contact.avatarUrl} />
 
-                    <ListItemText
-                      primaryTypographyProps={{ typography: 'subtitle2', sx: { mb: 0.25 } }}
-                      secondaryTypographyProps={{ typography: 'caption' }}
-                      primary={contact.name}
-                      secondary={contact.email}
-                    />
+                    <ListItemText primary={contact.name} secondary={contact.email} />
 
                     <Button
                       size="small"
@@ -123,13 +120,9 @@ type ApplyFilterProps = {
 };
 
 function applyFilter({ inputData, query }: ApplyFilterProps) {
-  if (query) {
-    inputData = inputData.filter(
-      (contact) =>
-        contact.name.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
-        contact.email.toLowerCase().indexOf(query.toLowerCase()) !== -1
-    );
-  }
+  if (!query) return inputData;
 
-  return inputData;
+  return inputData.filter(({ name, email }) =>
+    [name, email].some((field) => field?.toLowerCase().includes(query.toLowerCase()))
+  );
 }

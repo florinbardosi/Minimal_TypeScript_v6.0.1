@@ -6,7 +6,7 @@ import { useTheme } from '@mui/material/styles';
 
 import { fNumber } from 'src/utils/format-number';
 
-import { CONFIG } from 'src/config-global';
+import { CONFIG } from 'src/global-config';
 
 import { Iconify } from 'src/components/iconify';
 import { SvgColor } from 'src/components/svg-color';
@@ -59,18 +59,20 @@ export function AppWidget({ title, total, icon, chart, sx, ...other }: Props) {
 
   return (
     <Box
-      sx={{
-        p: 3,
-        gap: 3,
-        borderRadius: 2,
-        display: 'flex',
-        overflow: 'hidden',
-        position: 'relative',
-        alignItems: 'center',
-        color: 'common.white',
-        bgcolor: 'primary.dark',
-        ...sx,
-      }}
+      sx={[
+        () => ({
+          p: 3,
+          gap: 3,
+          borderRadius: 2,
+          display: 'flex',
+          overflow: 'hidden',
+          position: 'relative',
+          alignItems: 'center',
+          color: 'common.white',
+          bgcolor: 'primary.dark',
+        }),
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...other}
     >
       <Box
@@ -85,9 +87,7 @@ export function AppWidget({ title, total, icon, chart, sx, ...other }: Props) {
           type="radialBar"
           series={[chart.series]}
           options={chartOptions}
-          width={80}
-          height={80}
-          sx={{ zIndex: 1 }}
+          sx={{ zIndex: 1, width: 80, height: 80 }}
         />
 
         <SvgColor
@@ -104,6 +104,7 @@ export function AppWidget({ title, total, icon, chart, sx, ...other }: Props) {
 
       <div>
         <Box sx={{ typography: 'h4' }}>{fNumber(total)}</Box>
+
         <Box sx={{ typography: 'subtitle2', opacity: 0.64 }}>{title}</Box>
       </div>
 

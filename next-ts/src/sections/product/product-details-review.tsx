@@ -1,5 +1,8 @@
 import type { IProductReview } from 'src/types/product';
 
+import { sumBy } from 'es-toolkit';
+import { useBoolean } from 'minimal-shared/hooks';
+
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Rating from '@mui/material/Rating';
@@ -8,9 +11,6 @@ import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 import LinearProgress from '@mui/material/LinearProgress';
 
-import { useBoolean } from 'src/hooks/use-boolean';
-
-import { sumBy } from 'src/utils/helper';
 import { fShortenNumber } from 'src/utils/format-number';
 
 import { Iconify } from 'src/components/iconify';
@@ -37,8 +37,8 @@ export function ProductDetailsReview({
 
   const total = sumBy(ratings, (star) => star.starCount);
 
-  const renderSummary = (
-    <Stack spacing={1} alignItems="center" justifyContent="center">
+  const renderSummary = () => (
+    <Stack spacing={1} sx={{ alignItems: 'center', justifyContent: 'center' }}>
       <Typography variant="subtitle2">Average rating</Typography>
 
       <Typography variant="h2">
@@ -54,21 +54,23 @@ export function ProductDetailsReview({
     </Stack>
   );
 
-  const renderProgress = (
+  const renderProgress = () => (
     <Stack
       spacing={1.5}
-      sx={{
-        py: 5,
-        px: { xs: 3, md: 5 },
-        borderLeft: (theme) => ({ md: `dashed 1px ${theme.vars.palette.divider}` }),
-        borderRight: (theme) => ({ md: `dashed 1px ${theme.vars.palette.divider}` }),
-      }}
+      sx={[
+        (theme) => ({
+          py: 5,
+          px: { xs: 3, md: 5 },
+          borderLeft: { md: `dashed 1px ${theme.vars.palette.divider}` },
+          borderRight: { md: `dashed 1px ${theme.vars.palette.divider}` },
+        }),
+      ]}
     >
       {ratings
         .slice(0)
         .reverse()
         .map((rating) => (
-          <Stack key={rating.name} direction="row" alignItems="center">
+          <Box key={rating.name} sx={{ display: 'flex', alignItems: 'center' }}>
             <Typography variant="subtitle2" component="span" sx={{ width: 42 }}>
               {rating.name}
             </Typography>
@@ -87,13 +89,13 @@ export function ProductDetailsReview({
             >
               {fShortenNumber(rating.reviewCount)}
             </Typography>
-          </Stack>
+          </Box>
         ))}
     </Stack>
   );
 
-  const renderReviewButton = (
-    <Stack alignItems="center" justifyContent="center">
+  const renderReviewButton = () => (
+    <Stack sx={{ alignItems: 'center', justifyContent: 'center' }}>
       <Button
         size="large"
         variant="soft"
@@ -109,21 +111,19 @@ export function ProductDetailsReview({
   return (
     <>
       <Box
-        display="grid"
-        gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' }}
-        sx={{ py: { xs: 5, md: 0 } }}
+        sx={{
+          display: 'grid',
+          py: { xs: 5, md: 0 },
+          gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' },
+        }}
       >
-        {renderSummary}
-
-        {renderProgress}
-
-        {renderReviewButton}
+        {renderSummary()}
+        {renderProgress()}
+        {renderReviewButton()}
       </Box>
 
       <Divider sx={{ borderStyle: 'dashed' }} />
-
       <ProductReviewList reviews={reviews} />
-
       <ProductReviewNewForm open={review.value} onClose={review.onFalse} />
     </>
   );

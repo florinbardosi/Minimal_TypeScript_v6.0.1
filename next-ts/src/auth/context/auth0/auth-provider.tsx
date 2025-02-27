@@ -5,9 +5,8 @@ import type { AppState } from '@auth0/auth0-react';
 import { useAuth0, Auth0Provider } from '@auth0/auth0-react';
 import { useMemo, useState, useEffect, useCallback } from 'react';
 
-import axios from 'src/utils/axios';
-
-import { CONFIG } from 'src/config-global';
+import axios from 'src/lib/axios';
+import { CONFIG } from 'src/global-config';
 
 import { AuthContext } from '../auth-context';
 
@@ -34,6 +33,7 @@ export function AuthProvider({ children }: Props) {
       clientId={clientId}
       authorizationParams={{ redirect_uri: callbackUrl }}
       onRedirectCallback={onRedirectCallback}
+      cacheLocation="localstorage"
     >
       <AuthProviderContainer>{children}</AuthProviderContainer>
     </Auth0Provider>

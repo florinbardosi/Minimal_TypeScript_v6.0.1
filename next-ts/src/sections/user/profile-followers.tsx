@@ -1,5 +1,4 @@
-'use client';
-
+import type { CardProps } from '@mui/material/Card';
 import type { IUserProfileFollower } from 'src/types/user';
 
 import { useState, useCallback } from 'react';
@@ -42,12 +41,14 @@ export function ProfileFollowers({ followers }: Props) {
       </Typography>
 
       <Box
-        gap={3}
-        display="grid"
-        gridTemplateColumns={{ xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }}
+        sx={{
+          gap: 3,
+          display: 'grid',
+          gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
+        }}
       >
         {followers.map((follower) => (
-          <FollowerItem
+          <CardItem
             key={follower.id}
             follower={follower}
             selected={followed.includes(follower.id)}
@@ -61,39 +62,53 @@ export function ProfileFollowers({ followers }: Props) {
 
 // ----------------------------------------------------------------------
 
-type FollowerItemProps = {
+type CardItemProps = CardProps & {
   selected: boolean;
   onSelected: () => void;
   follower: IUserProfileFollower;
 };
 
-function FollowerItem({ follower, selected, onSelected }: FollowerItemProps) {
-  const { name, country, avatarUrl } = follower;
-
+function CardItem({ follower, selected, onSelected, sx, ...other }: CardItemProps) {
   return (
-    <Card sx={{ display: 'flex', alignItems: 'center', p: (theme) => theme.spacing(3, 2, 3, 3) }}>
-      <Avatar alt={name} src={avatarUrl} sx={{ width: 48, height: 48, mr: 2 }} />
+    <Card
+      sx={[
+        (theme) => ({
+          display: 'flex',
+          alignItems: 'center',
+          p: theme.spacing(3, 2, 3, 3),
+        }),
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
+      {...other}
+    >
+      <Avatar
+        alt={follower?.name}
+        src={follower?.avatarUrl}
+        sx={{ width: 48, height: 48, mr: 2 }}
+      />
 
       <ListItemText
-        primary={name}
+        primary={follower?.name}
         secondary={
           <>
             <Iconify icon="mingcute:location-fill" width={16} sx={{ flexShrink: 0, mr: 0.5 }} />
-            {country}
+            {follower?.country}
           </>
         }
-        primaryTypographyProps={{ noWrap: true, typography: 'subtitle2' }}
-        secondaryTypographyProps={{
-          mt: 0.5,
-          noWrap: true,
-          display: 'flex',
-          component: 'span',
-          alignItems: 'center',
-          typography: 'caption',
-          color: 'text.disabled',
+        slotProps={{
+          primary: { noWrap: true },
+          secondary: {
+            noWrap: true,
+            sx: {
+              mt: 0.5,
+              display: 'flex',
+              alignItems: 'center',
+              typography: 'caption',
+              color: 'text.disabled',
+            },
+          },
         }}
       />
-
       <Button
         size="small"
         variant={selected ? 'text' : 'outlined'}

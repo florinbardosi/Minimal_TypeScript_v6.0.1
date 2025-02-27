@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { useParams } from 'src/routes/hooks';
 
 import { _jobs } from 'src/_mock/_job';
-import { CONFIG } from 'src/config-global';
+import { CONFIG } from 'src/global-config';
 
 import { JobDetailsView } from 'src/sections/job/view';
 

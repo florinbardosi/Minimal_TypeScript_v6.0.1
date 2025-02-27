@@ -3,13 +3,12 @@
 import type { ITourItem } from 'src/types/tour';
 
 import { useState, useCallback } from 'react';
+import { useTabs } from 'minimal-shared/hooks';
 
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 
 import { paths } from 'src/routes/paths';
-
-import { useTabs } from 'src/hooks/use-tabs';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { TOUR_DETAILS_TABS, TOUR_PUBLISH_OPTIONS } from 'src/_mock';
@@ -35,7 +34,18 @@ export function TourDetailsView({ tour }: Props) {
     setPublish(newValue);
   }, []);
 
-  const renderTabs = (
+  const renderToolbar = () => (
+    <TourDetailsToolbar
+      backHref={paths.dashboard.tour.root}
+      editHref={paths.dashboard.tour.edit(`${tour?.id}`)}
+      liveHref="#"
+      publish={publish || ''}
+      onChangePublish={handleChangePublish}
+      publishOptions={TOUR_PUBLISH_OPTIONS}
+    />
+  );
+
+  const renderTabs = () => (
     <Tabs value={tabs.value} onChange={tabs.onChange} sx={{ mb: { xs: 3, md: 5 } }}>
       {TOUR_DETAILS_TABS.map((tab) => (
         <Tab
@@ -53,18 +63,10 @@ export function TourDetailsView({ tour }: Props) {
 
   return (
     <DashboardContent>
-      <TourDetailsToolbar
-        backLink={paths.dashboard.tour.root}
-        editLink={paths.dashboard.tour.edit(`${tour?.id}`)}
-        liveLink="#"
-        publish={publish || ''}
-        onChangePublish={handleChangePublish}
-        publishOptions={TOUR_PUBLISH_OPTIONS}
-      />
-      {renderTabs}
+      {renderToolbar()}
 
+      {renderTabs()}
       {tabs.value === 'content' && <TourDetailsContent tour={tour} />}
-
       {tabs.value === 'bookers' && <TourDetailsBookers bookers={tour?.bookers} />}
     </DashboardContent>
   );

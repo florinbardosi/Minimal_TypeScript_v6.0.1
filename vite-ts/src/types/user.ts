@@ -91,20 +91,6 @@ export type IUserItem = {
   isVerified: boolean;
 };
 
-export type IUserAccount = {
-  city: string;
-  email: string;
-  state: string;
-  about: string;
-  address: string;
-  zipCode: string;
-  isPublic: boolean;
-  displayName: string;
-  phoneNumber: string;
-  country: string | null;
-  photoURL: File | string | null;
-};
-
 export type IUserAccountBillingHistory = {
   id: string;
   price: number;

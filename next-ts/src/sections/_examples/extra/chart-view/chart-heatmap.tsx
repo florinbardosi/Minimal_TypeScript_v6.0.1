@@ -34,5 +34,5 @@ export function ChartHeatmap({ chart }: Props) {
     xaxis: { categories: chart.categories },
   });
 
-  return <Chart type="heatmap" series={chart.series} options={chartOptions} height={320} />;
+  return <Chart type="heatmap" series={chart.series} options={chartOptions} sx={{ height: 320 }} />;
 }

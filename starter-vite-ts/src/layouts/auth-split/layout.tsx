@@ -1,4 +1,6 @@
-import type { Theme, SxProps, Breakpoint } from '@mui/material/styles';
+import type { Breakpoint } from '@mui/material/styles';
+
+import { merge } from 'es-toolkit';
 
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
@@ -7,122 +9,163 @@ import Alert from '@mui/material/Alert';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { CONFIG } from 'src/config-global';
+import { CONFIG } from 'src/global-config';
 
 import { Logo } from 'src/components/logo';
 
-import { Section } from './section';
-import { Main, Content } from './main';
-import { HeaderSection } from '../core/header-section';
+import { AuthSplitSection } from './section';
+import { AuthSplitContent } from './content';
+import { MainSection } from '../core/main-section';
 import { LayoutSection } from '../core/layout-section';
+import { HeaderSection } from '../core/header-section';
 import { SettingsButton } from '../components/settings-button';
+
+import type { AuthSplitSectionProps } from './section';
+import type { AuthSplitContentProps } from './content';
+import type { MainSectionProps } from '../core/main-section';
+import type { HeaderSectionProps } from '../core/header-section';
+import type { LayoutSectionProps } from '../core/layout-section';
 
 // ----------------------------------------------------------------------
 
-export type AuthSplitLayoutProps = {
-  sx?: SxProps<Theme>;
-  children: React.ReactNode;
-  header?: {
-    sx?: SxProps<Theme>;
-  };
-  section?: {
-    title?: string;
-    imgUrl?: string;
-    subtitle?: string;
+type LayoutBaseProps = Pick<LayoutSectionProps, 'sx' | 'children' | 'cssVars'>;
+
+export type AuthSplitLayoutProps = LayoutBaseProps & {
+  layoutQuery?: Breakpoint;
+  slotProps?: {
+    header?: HeaderSectionProps;
+    main?: MainSectionProps;
+    section?: AuthSplitSectionProps;
+    content?: AuthSplitContentProps;
   };
 };
 
-export function AuthSplitLayout({ sx, section, children, header }: AuthSplitLayoutProps) {
-  const layoutQuery: Breakpoint = 'md';
+export function AuthSplitLayout({
+  sx,
+  cssVars,
+  children,
+  slotProps,
+  layoutQuery = 'md',
+}: AuthSplitLayoutProps) {
+  const renderHeader = () => {
+    const headerSlotProps: HeaderSectionProps['slotProps'] = {
+      container: { maxWidth: false },
+    };
+
+    const headerSlots: HeaderSectionProps['slots'] = {
+      topArea: (
+        <Alert severity="info" sx={{ display: 'none', borderRadius: 0 }}>
+          This is an info Alert.
+        </Alert>
+      ),
+      leftArea: (
+        <>
+          {/** @slot Logo */}
+          <Logo />
+        </>
+      ),
+      rightArea: (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 } }}>
+          {/** @slot Help link */}
+          <Link
+            href={paths.faqs}
+            component={RouterLink}
+            color="inherit"
+            sx={{ typography: 'subtitle2' }}
+          >
+            Need help?
+          </Link>
+
+          {/** @slot Settings button */}
+          <SettingsButton />
+        </Box>
+      ),
+    };
+
+    return (
+      <HeaderSection
+        disableElevation
+        layoutQuery={layoutQuery}
+        {...slotProps?.header}
+        slots={{ ...headerSlots, ...slotProps?.header?.slots }}
+        slotProps={merge(headerSlotProps, slotProps?.header?.slotProps ?? {})}
+        sx={[
+          { position: { [layoutQuery]: 'fixed' } },
+          ...(Array.isArray(slotProps?.header?.sx)
+            ? (slotProps?.header?.sx ?? [])
+            : [slotProps?.header?.sx]),
+        ]}
+      />
+    );
+  };
+
+  const renderFooter = () => null;
+
+  const renderMain = () => (
+    <MainSection
+      {...slotProps?.main}
+      sx={[
+        (theme) => ({ [theme.breakpoints.up(layoutQuery)]: { flexDirection: 'row' } }),
+        ...(Array.isArray(slotProps?.main?.sx)
+          ? (slotProps?.main?.sx ?? [])
+          : [slotProps?.main?.sx]),
+      ]}
+    >
+      <AuthSplitSection
+        layoutQuery={layoutQuery}
+        method={CONFIG.auth.method}
+        {...slotProps?.section}
+        methods={[
+          {
+            label: 'Jwt',
+            path: paths.auth.jwt.signIn,
+            icon: `${CONFIG.assetsDir}/assets/icons/platforms/ic-jwt.svg`,
+          },
+          {
+            label: 'Firebase',
+            path: paths.auth.firebase.signIn,
+            icon: `${CONFIG.assetsDir}/assets/icons/platforms/ic-firebase.svg`,
+          },
+          {
+            label: 'Amplify',
+            path: paths.auth.amplify.signIn,
+            icon: `${CONFIG.assetsDir}/assets/icons/platforms/ic-amplify.svg`,
+          },
+          {
+            label: 'Auth0',
+            path: paths.auth.auth0.signIn,
+            icon: `${CONFIG.assetsDir}/assets/icons/platforms/ic-auth0.svg`,
+          },
+          {
+            label: 'Supabase',
+            path: paths.auth.supabase.signIn,
+            icon: `${CONFIG.assetsDir}/assets/icons/platforms/ic-supabase.svg`,
+          },
+        ]}
+      />
+      <AuthSplitContent layoutQuery={layoutQuery} {...slotProps?.content}>
+        {children}
+      </AuthSplitContent>
+    </MainSection>
+  );
 
   return (
     <LayoutSection
-      headerSection={
-        /** **************************************
-         * Header
-         *************************************** */
-        <HeaderSection
-          disableElevation
-          layoutQuery={layoutQuery}
-          slotProps={{ container: { maxWidth: false } }}
-          sx={{ position: { [layoutQuery]: 'fixed' }, ...header?.sx }}
-          slots={{
-            topArea: (
-              <Alert severity="info" sx={{ display: 'none', borderRadius: 0 }}>
-                This is an info Alert.
-              </Alert>
-            ),
-            leftArea: (
-              <>
-                {/* -- Logo -- */}
-                <Logo />
-              </>
-            ),
-            rightArea: (
-              <Box display="flex" alignItems="center" gap={{ xs: 1, sm: 1.5 }}>
-                {/* -- Help link -- */}
-                <Link
-                  href={paths.faqs}
-                  component={RouterLink}
-                  color="inherit"
-                  sx={{ typography: 'subtitle2' }}
-                >
-                  Need help?
-                </Link>
-                {/* -- Settings button -- */}
-                <SettingsButton />
-              </Box>
-            ),
-          }}
-        />
-      }
       /** **************************************
-       * Footer
+       * @Header
        *************************************** */
-      footerSection={null}
+      headerSection={renderHeader()}
       /** **************************************
-       * Style
+       * @Footer
        *************************************** */
-      cssVars={{ '--layout-auth-content-width': '420px' }}
+      footerSection={renderFooter()}
+      /** **************************************
+       * @Styles
+       *************************************** */
+      cssVars={{ '--layout-auth-content-width': '420px', ...cssVars }}
       sx={sx}
     >
-      <Main layoutQuery={layoutQuery}>
-        <Section
-          title={section?.title}
-          layoutQuery={layoutQuery}
-          imgUrl={section?.imgUrl}
-          method={CONFIG.auth.method}
-          subtitle={section?.subtitle}
-          methods={[
-            {
-              label: 'Jwt',
-              path: paths.auth.jwt.signIn,
-              icon: `${CONFIG.assetsDir}/assets/icons/platforms/ic-jwt.svg`,
-            },
-            {
-              label: 'Firebase',
-              path: paths.auth.firebase.signIn,
-              icon: `${CONFIG.assetsDir}/assets/icons/platforms/ic-firebase.svg`,
-            },
-            {
-              label: 'Amplify',
-              path: paths.auth.amplify.signIn,
-              icon: `${CONFIG.assetsDir}/assets/icons/platforms/ic-amplify.svg`,
-            },
-            {
-              label: 'Auth0',
-              path: paths.auth.auth0.signIn,
-              icon: `${CONFIG.assetsDir}/assets/icons/platforms/ic-auth0.svg`,
-            },
-            {
-              label: 'Supabase',
-              path: paths.auth.supabase.signIn,
-              icon: `${CONFIG.assetsDir}/assets/icons/platforms/ic-supabase.svg`,
-            },
-          ]}
-        />
-        <Content layoutQuery={layoutQuery}>{children}</Content>
-      </Main>
+      {renderMain()}
     </LayoutSection>
   );
 }

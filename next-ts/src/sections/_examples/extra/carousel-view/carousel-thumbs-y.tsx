@@ -23,11 +23,7 @@ type Props = {
 
 export function CarouselThumbsY({ data }: Props) {
   const carousel = useCarousel({
-    thumbs: {
-      axis: 'y',
-      slideSpacing: '8px',
-      slidesToShow: 'auto',
-    },
+    thumbs: { axis: 'y', slideSpacing: '8px', slidesToShow: 'auto' },
   });
 
   return (
@@ -41,10 +37,7 @@ export function CarouselThumbsY({ data }: Props) {
               component="img"
               alt={item.title}
               src={item.coverUrl}
-              sx={{
-                objectFit: 'cover',
-                aspectRatio: { xs: '3/4', sm: '16/10' },
-              }}
+              sx={{ objectFit: 'cover', aspectRatio: { xs: '3/4', sm: '16/10' } }}
             />
           </Box>
         ))}

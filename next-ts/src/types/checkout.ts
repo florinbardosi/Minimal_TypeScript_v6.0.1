@@ -5,18 +5,18 @@ import type { IAddressItem } from './common';
 export type ICheckoutItem = {
   id: string;
   name: string;
-  coverUrl: string;
-  available: number;
-  price: number;
-  colors: string[];
   size: string;
+  price: number;
+  coverUrl: string;
+  colors: string[];
   quantity: number;
+  available: number;
   subtotal?: number;
 };
 
 export type ICheckoutDeliveryOption = {
-  value: number;
   label: string;
+  value: number;
   description: string;
 };
 
@@ -41,30 +41,25 @@ export type ICheckoutState = {
   billing: IAddressItem | null;
 };
 
-export type CheckoutContextValue = ICheckoutState & {
-  canReset: boolean;
-  onReset: () => void;
-  onUpdate: (updateValue: Partial<ICheckoutState>) => void;
-  onUpdateField: (
-    name: keyof ICheckoutState,
-    updateValue: ICheckoutState[keyof ICheckoutState]
-  ) => void;
-  //
+export type CheckoutContextValue = {
+  loading: boolean;
   completed: boolean;
-  //
+  canReset: boolean;
+  /********/
+  state: ICheckoutState;
+  setState: (updateValue: Partial<ICheckoutState>) => void;
+  setField: (name: keyof ICheckoutState, updateValue: ICheckoutState[keyof ICheckoutState]) => void;
+  /********/
+  steps: string[];
+  activeStep: number | null;
+  onChangeStep: (type: 'back' | 'next' | 'go', step?: number) => void;
+  /********/
+  onChangeItemQuantity: (itemId: string, quantity: number) => void;
+  /********/
+  onResetCart: () => void;
   onAddToCart: (newItem: ICheckoutItem) => void;
-  onDeleteCart: (itemId: string) => void;
-  //
-  onIncreaseQuantity: (itemId: string) => void;
-  onDecreaseQuantity: (itemId: string) => void;
-  //
-  activeStep: number;
-  initialStep: () => void;
-  onBackStep: () => void;
-  onNextStep: () => void;
-  onGotoStep: (step: number) => void;
-  //
-  onCreateBilling: (billing: IAddressItem) => void;
+  onDeleteCartItem: (itemId: string) => void;
   onApplyDiscount: (discount: number) => void;
   onApplyShipping: (discount: number) => void;
+  onCreateBillingAddress: (address: IAddressItem) => void;
 };

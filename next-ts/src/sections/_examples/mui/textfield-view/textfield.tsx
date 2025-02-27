@@ -1,6 +1,7 @@
+import type { Theme, SxProps } from '@mui/material/styles';
+
 import { useState, useCallback } from 'react';
 
-import Stack from '@mui/material/Stack';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
@@ -8,7 +9,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 
 import { Iconify } from 'src/components/iconify';
 
-import { ComponentBlock } from '../../component-block';
+import { ComponentBox } from '../../layout';
 
 // ----------------------------------------------------------------------
 
@@ -60,18 +61,13 @@ export function Textfields({ variant }: Props) {
     event.preventDefault();
   }, []);
 
-  const blockProps = { gap: 3, flexDirection: 'column' } as const;
+  const componentBoxStyles: SxProps<Theme> = {
+    flexDirection: 'column',
+  };
 
   return (
-    <Stack
-      sx={{
-        rowGap: 5,
-        columnGap: 3,
-        display: 'grid',
-        gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
-      }}
-    >
-      <ComponentBlock title="General" sx={blockProps}>
+    <>
+      <ComponentBox title="General" sx={componentBoxStyles}>
         <TextField variant={variant} fullWidth label="Inactive" />
 
         <TextField
@@ -97,19 +93,21 @@ export function Textfields({ variant }: Props) {
           label="Disabled"
           defaultValue="Hello Minimal"
         />
-      </ComponentBlock>
+      </ComponentBox>
 
-      <ComponentBlock title="With icon & adornments" sx={blockProps}>
+      <ComponentBox title="With icon & adornments" sx={componentBoxStyles}>
         <TextField
           variant={variant}
           fullWidth
           label="Filled"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="solar:user-rounded-bold" width={24} />
-              </InputAdornment>
-            ),
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Iconify icon="solar:user-rounded-bold" width={24} />
+                </InputAdornment>
+              ),
+            },
           }}
         />
 
@@ -119,12 +117,14 @@ export function Textfields({ variant }: Props) {
           fullWidth
           label="Disabled"
           defaultValue="Hello Minimal"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="solar:user-rounded-bold" width={24} />
-              </InputAdornment>
-            ),
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Iconify icon="solar:user-rounded-bold" width={24} />
+                </InputAdornment>
+              ),
+            },
           }}
         />
 
@@ -132,7 +132,9 @@ export function Textfields({ variant }: Props) {
           variant={variant}
           fullWidth
           label="With normal TextField"
-          InputProps={{ startAdornment: <InputAdornment position="start">Kg</InputAdornment> }}
+          slotProps={{
+            input: { startAdornment: <InputAdornment position="start">Kg</InputAdornment> },
+          }}
         />
 
         <TextField
@@ -141,7 +143,9 @@ export function Textfields({ variant }: Props) {
           value={values.weight}
           onChange={handleChange('weight')}
           helperText="Weight"
-          InputProps={{ endAdornment: <InputAdornment position="end">Kg</InputAdornment> }}
+          slotProps={{
+            input: { endAdornment: <InputAdornment position="end">Kg</InputAdornment> },
+          }}
         />
 
         <TextField
@@ -151,32 +155,34 @@ export function Textfields({ variant }: Props) {
           value={values.password}
           onChange={handleChange('password')}
           label="Password"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="solar:user-rounded-bold" width={24} />
-              </InputAdornment>
-            ),
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  onClick={handleShowPassword}
-                  onMouseDown={handleMouseDownPassword}
-                  edge="end"
-                >
-                  {values.showPassword ? (
-                    <Iconify icon="solar:eye-bold" width={24} />
-                  ) : (
-                    <Iconify icon="solar:eye-closed-bold" width={24} />
-                  )}
-                </IconButton>
-              </InputAdornment>
-            ),
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Iconify icon="solar:user-rounded-bold" width={24} />
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={handleShowPassword}
+                    onMouseDown={handleMouseDownPassword}
+                    edge="end"
+                  >
+                    {values.showPassword ? (
+                      <Iconify icon="solar:eye-bold" width={24} />
+                    ) : (
+                      <Iconify icon="solar:eye-closed-bold" width={24} />
+                    )}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            },
           }}
         />
-      </ComponentBlock>
+      </ComponentBox>
 
-      <ComponentBlock title="With caption" sx={blockProps}>
+      <ComponentBox title="With caption" sx={componentBoxStyles}>
         <TextField
           variant={variant}
           fullWidth
@@ -193,9 +199,9 @@ export function Textfields({ variant }: Props) {
           defaultValue="Hello Minimal"
           helperText="Incorrect entry."
         />
-      </ComponentBlock>
+      </ComponentBox>
 
-      <ComponentBlock title="Type" sx={blockProps}>
+      <ComponentBox title="Type" sx={componentBoxStyles}>
         <TextField
           variant={variant}
           fullWidth
@@ -204,27 +210,17 @@ export function Textfields({ variant }: Props) {
           autoComplete="current-password"
         />
 
-        <TextField
-          variant={variant}
-          fullWidth
-          type="number"
-          label="Number"
-          defaultValue={0}
-          InputLabelProps={{ shrink: true }}
-        />
-
         <TextField variant={variant} fullWidth label="Search" type="search" />
-      </ComponentBlock>
+      </ComponentBox>
 
-      <ComponentBlock title="Sizes" sx={blockProps}>
+      <ComponentBox title="Sizes" sx={componentBoxStyles}>
         <TextField variant={variant} fullWidth label="Size" size="small" defaultValue="Small" />
 
         <TextField variant={variant} fullWidth label="Size" defaultValue="Normal" />
-      </ComponentBlock>
+      </ComponentBox>
 
-      <ComponentBlock title="Select" sx={blockProps}>
+      <ComponentBox title="Select" sx={componentBoxStyles}>
         <TextField
-          id="select-currency-label-x"
           variant={variant}
           select
           fullWidth
@@ -232,8 +228,10 @@ export function Textfields({ variant }: Props) {
           value={currency}
           onChange={handleChangeCurrency}
           helperText="Please select your currency"
-          InputLabelProps={{ htmlFor: `${variant}-select-currency-label` }}
-          inputProps={{ id: `${variant}-select-currency-label` }}
+          slotProps={{
+            htmlInput: { id: `${variant}-currency-select` },
+            inputLabel: { htmlFor: `${variant}-currency-select` },
+          }}
         >
           {CURRENCIES.map((option) => (
             <MenuItem key={option.value} value={option.value}>
@@ -249,11 +247,13 @@ export function Textfields({ variant }: Props) {
           size="small"
           value={currency}
           label="Native select"
-          SelectProps={{ native: true }}
           onChange={handleChangeCurrency}
           helperText="Please select your currency"
-          InputLabelProps={{ htmlFor: `${variant}-native-select-currency-label` }}
-          inputProps={{ id: `${variant}-native-select-currency-label` }}
+          slotProps={{
+            select: { native: true },
+            htmlInput: { id: `${variant}-currency-native-select` },
+            inputLabel: { htmlFor: `${variant}-currency-native-select` },
+          }}
         >
           {CURRENCIES.map((option) => (
             <option key={option.value} value={option.value}>
@@ -261,9 +261,9 @@ export function Textfields({ variant }: Props) {
             </option>
           ))}
         </TextField>
-      </ComponentBlock>
+      </ComponentBox>
 
-      <ComponentBlock title="Multiline" sx={blockProps}>
+      <ComponentBox title="Multiline" sx={componentBoxStyles}>
         <TextField
           variant={variant}
           fullWidth
@@ -289,7 +289,7 @@ export function Textfields({ variant }: Props) {
           label="Multiline"
           defaultValue="Default Value"
         />
-      </ComponentBlock>
-    </Stack>
+      </ComponentBox>
+    </>
   );
 }

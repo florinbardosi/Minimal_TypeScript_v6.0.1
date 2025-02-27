@@ -1,13 +1,14 @@
 import type { IChatParticipant } from 'src/types/chat';
 
+import { varAlpha } from 'minimal-shared/utils';
+
+import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
 import Dialog from '@mui/material/Dialog';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import DialogContent from '@mui/material/DialogContent';
-
-import { varAlpha } from 'src/theme/styles';
 
 import { Iconify } from 'src/components/iconify';
 
@@ -40,26 +41,26 @@ export function ChatRoomParticipantDialog({ participant, open, onClose }: Props)
 
           <Typography variant="subtitle1">{participant.name}</Typography>
 
-          <Stack direction="row" sx={{ typography: 'caption', color: 'text.disabled' }}>
+          <Box sx={{ display: 'flex', typography: 'caption', color: 'text.disabled' }}>
             <Iconify
               icon="mingcute:location-fill"
               width={16}
               sx={{ flexShrink: 0, mr: 0.5, mt: '2px' }}
             />
             {participant.address}
-          </Stack>
+          </Box>
 
-          <Stack spacing={1} direction="row" sx={{ pt: 1.5 }}>
+          <Box sx={{ gap: 1, pt: 1.5, display: 'flex' }}>
             <IconButton
               size="small"
               color="error"
-              sx={{
-                borderRadius: 1,
-                bgcolor: (theme) => varAlpha(theme.vars.palette.error.mainChannel, 0.08),
-                '&:hover': {
-                  bgcolor: (theme) => varAlpha(theme.vars.palette.error.mainChannel, 0.16),
-                },
-              }}
+              sx={[
+                (theme) => ({
+                  borderRadius: 1,
+                  bgcolor: varAlpha(theme.vars.palette.error.mainChannel, 0.08),
+                  '&:hover': { bgcolor: varAlpha(theme.vars.palette.error.mainChannel, 0.16) },
+                }),
+              ]}
             >
               <Iconify width={18} icon="solar:phone-bold" />
             </IconButton>
@@ -67,13 +68,13 @@ export function ChatRoomParticipantDialog({ participant, open, onClose }: Props)
             <IconButton
               size="small"
               color="info"
-              sx={{
-                borderRadius: 1,
-                bgcolor: (theme) => varAlpha(theme.vars.palette.info.mainChannel, 0.08),
-                '&:hover': {
-                  bgcolor: (theme) => varAlpha(theme.vars.palette.info.mainChannel, 0.16),
-                },
-              }}
+              sx={[
+                (theme) => ({
+                  borderRadius: 1,
+                  bgcolor: varAlpha(theme.vars.palette.info.mainChannel, 0.08),
+                  '&:hover': { bgcolor: varAlpha(theme.vars.palette.info.mainChannel, 0.16) },
+                }),
+              ]}
             >
               <Iconify width={18} icon="solar:chat-round-dots-bold" />
             </IconButton>
@@ -81,13 +82,13 @@ export function ChatRoomParticipantDialog({ participant, open, onClose }: Props)
             <IconButton
               size="small"
               color="primary"
-              sx={{
-                borderRadius: 1,
-                bgcolor: (theme) => varAlpha(theme.vars.palette.primary.mainChannel, 0.08),
-                '&:hover': {
-                  bgcolor: (theme) => varAlpha(theme.vars.palette.primary.mainChannel, 0.16),
-                },
-              }}
+              sx={[
+                (theme) => ({
+                  borderRadius: 1,
+                  bgcolor: varAlpha(theme.vars.palette.primary.mainChannel, 0.08),
+                  '&:hover': { bgcolor: varAlpha(theme.vars.palette.primary.mainChannel, 0.16) },
+                }),
+              ]}
             >
               <Iconify width={18} icon="fluent:mail-24-filled" />
             </IconButton>
@@ -95,17 +96,17 @@ export function ChatRoomParticipantDialog({ participant, open, onClose }: Props)
             <IconButton
               size="small"
               color="secondary"
-              sx={{
-                borderRadius: 1,
-                bgcolor: (theme) => varAlpha(theme.vars.palette.secondary.mainChannel, 0.08),
-                '&:hover': {
-                  bgcolor: (theme) => varAlpha(theme.vars.palette.secondary.mainChannel, 0.16),
-                },
-              }}
+              sx={[
+                (theme) => ({
+                  borderRadius: 1,
+                  bgcolor: varAlpha(theme.vars.palette.secondary.mainChannel, 0.08),
+                  '&:hover': { bgcolor: varAlpha(theme.vars.palette.secondary.mainChannel, 0.16) },
+                }),
+              ]}
             >
               <Iconify width={18} icon="solar:videocamera-record-bold" />
             </IconButton>
-          </Stack>
+          </Box>
         </Stack>
       </DialogContent>
     </Dialog>

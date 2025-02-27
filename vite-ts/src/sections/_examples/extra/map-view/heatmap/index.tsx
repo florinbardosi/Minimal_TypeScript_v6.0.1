@@ -1,4 +1,4 @@
-import type { MapProps } from 'react-map-gl';
+import type { MapProps } from 'src/components/map';
 
 import { Layer, Source } from 'react-map-gl';
 import { useMemo, useState, useEffect } from 'react';
@@ -6,18 +6,18 @@ import { useMemo, useState, useEffect } from 'react';
 import { Map } from 'src/components/map';
 
 import { heatmapLayer } from './map-style';
-import { ControlPanel } from './control-panel';
+import { MapControlPanel } from './control-panel';
 
 // ----------------------------------------------------------------------
 
-export function MapHeatmap({ ...other }: MapProps) {
+export function MapHeatmap({ sx, ...other }: MapProps) {
   const [allDays, useAllDays] = useState(true);
-
-  const [timeRange, setTimeRange] = useState([0, 0]);
 
   const [selectedTime, selectTime] = useState(0);
 
   const [earthquakes, setEarthQuakes] = useState();
+
+  const [timeRange, setTimeRange] = useState([0, 0]);
 
   useEffect(() => {
     fetch('https://docs.mapbox.com/mapbox-gl-js/assets/earthquakes.geojson')
@@ -25,9 +25,9 @@ export function MapHeatmap({ ...other }: MapProps) {
       .then((json) => {
         const { features } = json;
 
-        const endTime = features[0].properties.time;
-
         const startTime = features[features.length - 1].properties.time;
+
+        const endTime = features[0].properties.time;
 
         setTimeRange([startTime, endTime]);
 
@@ -44,16 +44,14 @@ export function MapHeatmap({ ...other }: MapProps) {
   );
 
   return (
-    <>
-      <Map initialViewState={{ latitude: 40, longitude: -100, zoom: 3 }} {...other}>
-        {data && (
-          <Source type="geojson" data={data}>
-            <Layer {...heatmapLayer} />
-          </Source>
-        )}
-      </Map>
+    <Map initialViewState={{ latitude: 40, longitude: -100, zoom: 3 }} sx={sx} {...other}>
+      {data && (
+        <Source type="geojson" data={data}>
+          <Layer {...heatmapLayer} />
+        </Source>
+      )}
 
-      <ControlPanel
+      <MapControlPanel
         startTime={timeRange[0]}
         endTime={timeRange[1]}
         selectedTime={selectedTime}
@@ -61,26 +59,16 @@ export function MapHeatmap({ ...other }: MapProps) {
         onChangeTime={selectTime}
         onChangeAllDays={useAllDays}
       />
-    </>
+    </Map>
   );
 }
 
 // ----------------------------------------------------------------------
 
-function filterFeaturesByDay(
-  featureCollection:
-    | {
-        features: any[];
-      }
-    | undefined,
-  time: number
-) {
+function filterFeaturesByDay(featureCollection: { features: any[] } | undefined, time: number) {
   const date = new Date(time);
-
   const year = date.getFullYear();
-
   const month = date.getMonth();
-
   const day = date.getDate();
 
   const features = featureCollection?.features.filter((feature) => {

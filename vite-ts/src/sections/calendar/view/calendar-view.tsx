@@ -1,23 +1,22 @@
-import Calendar from '@fullcalendar/react'; // => request placed at the top
+import type { Theme, SxProps } from '@mui/material/styles';
 import type { ICalendarEvent, ICalendarFilters } from 'src/types/calendar';
 
-import { useEffect } from 'react';
+import Calendar from '@fullcalendar/react';
 import listPlugin from '@fullcalendar/list';
 import dayGridPlugin from '@fullcalendar/daygrid';
+import { useEffect, startTransition } from 'react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import timelinePlugin from '@fullcalendar/timeline';
 import interactionPlugin from '@fullcalendar/interaction';
+import { useBoolean, useSetState } from 'minimal-shared/hooks';
 
+import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import DialogTitle from '@mui/material/DialogTitle';
-
-import { useBoolean } from 'src/hooks/use-boolean';
-import { useSetState } from 'src/hooks/use-set-state';
 
 import { fDate, fIsAfter, fIsBetween } from 'src/utils/format-time';
 
@@ -27,7 +26,7 @@ import { updateEvent, useGetEvents } from 'src/actions/calendar';
 
 import { Iconify } from 'src/components/iconify';
 
-import { StyledCalendar } from '../styles';
+import { CalendarRoot } from '../styles';
 import { useEvent } from '../hooks/use-event';
 import { CalendarForm } from '../calendar-form';
 import { useCalendar } from '../hooks/use-calendar';
@@ -44,20 +43,17 @@ export function CalendarView() {
 
   const { events, eventsLoading } = useGetEvents();
 
-  const filters = useSetState<ICalendarFilters>({
-    colors: [],
-    startDate: null,
-    endDate: null,
-  });
+  const filters = useSetState<ICalendarFilters>({ colors: [], startDate: null, endDate: null });
+  const { state: currentFilters } = filters;
 
-  const dateError = fIsAfter(filters.state.startDate, filters.state.endDate);
+  const dateError = fIsAfter(currentFilters.startDate, currentFilters.endDate);
 
   const {
     calendarRef,
-    //
+    /********/
     view,
     date,
-    //
+    /********/
     onDatePrev,
     onDateNext,
     onDateToday,
@@ -67,14 +63,14 @@ export function CalendarView() {
     onClickEvent,
     onResizeEvent,
     onInitialView,
-    //
+    /********/
     openForm,
     onOpenForm,
     onCloseForm,
-    //
+    /********/
     selectEventId,
     selectedRange,
-    //
+    /********/
     onClickEventInFilters,
   } = useCalendar();
 
@@ -85,11 +81,15 @@ export function CalendarView() {
   }, [onInitialView]);
 
   const canReset =
-    filters.state.colors.length > 0 || (!!filters.state.startDate && !!filters.state.endDate);
+    currentFilters.colors.length > 0 || (!!currentFilters.startDate && !!currentFilters.endDate);
 
-  const dataFiltered = applyFilter({ inputData: events, filters: filters.state, dateError });
+  const dataFiltered = applyFilter({
+    inputData: events,
+    filters: currentFilters,
+    dateError,
+  });
 
-  const renderResults = (
+  const renderResults = () => (
     <CalendarFiltersResult
       filters={filters}
       totalResults={dataFiltered.length}
@@ -97,16 +97,22 @@ export function CalendarView() {
     />
   );
 
-  const flexProps = { flex: '1 1 auto', display: 'flex', flexDirection: 'column' };
+  const flexStyles: SxProps<Theme> = {
+    flex: '1 1 auto',
+    display: 'flex',
+    flexDirection: 'column',
+  };
 
   return (
     <>
-      <DashboardContent maxWidth="xl" sx={{ ...flexProps }}>
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-          sx={{ mb: { xs: 3, md: 5 } }}
+      <DashboardContent maxWidth="xl" sx={{ ...flexStyles }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            mb: { xs: 3, md: 5 },
+          }}
         >
           <Typography variant="h4">Calendar</Typography>
           <Button
@@ -116,12 +122,22 @@ export function CalendarView() {
           >
             New event
           </Button>
-        </Stack>
+        </Box>
 
-        {canReset && renderResults}
+        {canReset && renderResults()}
 
-        <Card sx={{ ...flexProps, minHeight: '50vh' }}>
-          <StyledCalendar sx={{ ...flexProps, '.fc.fc-media-screen': { flex: '1 1 auto' } }}>
+        <Card
+          sx={{
+            ...flexStyles,
+            minHeight: '50vh',
+          }}
+        >
+          <CalendarRoot
+            sx={{
+              ...flexStyles,
+              '.fc.fc-media-screen': { flex: '1 1 auto' },
+            }}
+          >
             <CalendarToolbar
               date={fDate(date)}
               view={view}
@@ -153,10 +169,14 @@ export function CalendarView() {
               eventClick={onClickEvent}
               aspectRatio={3}
               eventDrop={(arg) => {
-                onDropEvent(arg, updateEvent);
+                startTransition(() => {
+                  onDropEvent(arg, updateEvent);
+                });
               }}
               eventResize={(arg) => {
-                onResizeEvent(arg, updateEvent);
+                startTransition(() => {
+                  onResizeEvent(arg, updateEvent);
+                });
               }}
               plugins={[
                 listPlugin,
@@ -166,7 +186,7 @@ export function CalendarView() {
                 interactionPlugin,
               ]}
             />
-          </StyledCalendar>
+          </CalendarRoot>
         </Card>
       </DashboardContent>
 
@@ -184,7 +204,10 @@ export function CalendarView() {
             display: 'flex',
             overflow: 'hidden',
             flexDirection: 'column',
-            '& form': { minHeight: 0, display: 'flex', flex: '1 1 auto', flexDirection: 'column' },
+            '& form': {
+              ...flexStyles,
+              minHeight: 0,
+            },
           },
         }}
       >

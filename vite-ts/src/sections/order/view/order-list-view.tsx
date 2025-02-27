@@ -1,6 +1,9 @@
+import type { TableHeadCellProps } from 'src/components/table';
 import type { IOrderItem, IOrderTableFilters } from 'src/types/order';
 
 import { useState, useCallback } from 'react';
+import { varAlpha } from 'minimal-shared/utils';
+import { useBoolean, useSetState } from 'minimal-shared/hooks';
 
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
@@ -13,14 +16,9 @@ import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
 
 import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
-
-import { useBoolean } from 'src/hooks/use-boolean';
-import { useSetState } from 'src/hooks/use-set-state';
 
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
-import { varAlpha } from 'src/theme/styles';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { _orders, ORDER_STATUS_OPTIONS } from 'src/_mock';
 
@@ -50,16 +48,11 @@ import { OrderTableFiltersResult } from '../order-table-filters-result';
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...ORDER_STATUS_OPTIONS];
 
-const TABLE_HEAD = [
+const TABLE_HEAD: TableHeadCellProps[] = [
   { id: 'orderNumber', label: 'Order', width: 88 },
   { id: 'name', label: 'Customer' },
   { id: 'createdAt', label: 'Date', width: 140 },
-  {
-    id: 'totalQuantity',
-    label: 'Items',
-    width: 120,
-    align: 'center',
-  },
+  { id: 'totalQuantity', label: 'Items', width: 120, align: 'center' },
   { id: 'totalAmount', label: 'Price', width: 140 },
   { id: 'status', label: 'Status', width: 110 },
   { id: '', width: 88 },
@@ -70,9 +63,7 @@ const TABLE_HEAD = [
 export function OrderListView() {
   const table = useTable({ defaultOrderBy: 'orderNumber' });
 
-  const router = useRouter();
-
-  const confirm = useBoolean();
+  const confirmDialog = useBoolean();
 
   const [tableData, setTableData] = useState<IOrderItem[]>(_orders);
 
@@ -82,22 +73,23 @@ export function OrderListView() {
     startDate: null,
     endDate: null,
   });
+  const { state: currentFilters, setState: updateFilters } = filters;
 
-  const dateError = fIsAfter(filters.state.startDate, filters.state.endDate);
+  const dateError = fIsAfter(currentFilters.startDate, currentFilters.endDate);
 
   const dataFiltered = applyFilter({
     inputData: tableData,
     comparator: getComparator(table.order, table.orderBy),
-    filters: filters.state,
+    filters: currentFilters,
     dateError,
   });
 
   const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
 
   const canReset =
-    !!filters.state.name ||
-    filters.state.status !== 'all' ||
-    (!!filters.state.startDate && !!filters.state.endDate);
+    !!currentFilters.name ||
+    currentFilters.status !== 'all' ||
+    (!!currentFilters.startDate && !!currentFilters.endDate);
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
@@ -121,25 +113,40 @@ export function OrderListView() {
 
     setTableData(deleteRows);
 
-    table.onUpdatePageDeleteRows({
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
+    table.onUpdatePageDeleteRows(dataInPage.length, dataFiltered.length);
   }, [dataFiltered.length, dataInPage.length, table, tableData]);
-
-  const handleViewRow = useCallback(
-    (id: string) => {
-      router.push(paths.dashboard.order.details(id));
-    },
-    [router]
-  );
 
   const handleFilterStatus = useCallback(
     (event: React.SyntheticEvent, newValue: string) => {
       table.onResetPage();
-      filters.setState({ status: newValue });
+      updateFilters({ status: newValue });
     },
-    [filters, table]
+    [updateFilters, table]
+  );
+
+  const renderConfirmDialog = () => (
+    <ConfirmDialog
+      open={confirmDialog.value}
+      onClose={confirmDialog.onFalse}
+      title="Delete"
+      content={
+        <>
+          Are you sure want to delete <strong> {table.selected.length} </strong> items?
+        </>
+      }
+      action={
+        <Button
+          variant="contained"
+          color="error"
+          onClick={() => {
+            handleDeleteRows();
+            confirmDialog.onFalse();
+          }}
+        >
+          Delete
+        </Button>
+      }
+    />
   );
 
   return (
@@ -157,13 +164,14 @@ export function OrderListView() {
 
         <Card>
           <Tabs
-            value={filters.state.status}
+            value={currentFilters.status}
             onChange={handleFilterStatus}
-            sx={{
-              px: 2.5,
-              boxShadow: (theme) =>
-                `inset 0 -2px 0 0 ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}`,
-            }}
+            sx={[
+              (theme) => ({
+                px: 2.5,
+                boxShadow: `inset 0 -2px 0 0 ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}`,
+              }),
+            ]}
           >
             {STATUS_OPTIONS.map((tab) => (
               <Tab
@@ -174,7 +182,7 @@ export function OrderListView() {
                 icon={
                   <Label
                     variant={
-                      ((tab.value === 'all' || tab.value === filters.state.status) && 'filled') ||
+                      ((tab.value === 'all' || tab.value === currentFilters.status) && 'filled') ||
                       'soft'
                     }
                     color={
@@ -221,7 +229,7 @@ export function OrderListView() {
               }
               action={
                 <Tooltip title="Delete">
-                  <IconButton color="primary" onClick={confirm.onTrue}>
+                  <IconButton color="primary" onClick={confirmDialog.onTrue}>
                     <Iconify icon="solar:trash-bin-trash-bold" />
                   </IconButton>
                 </Tooltip>
@@ -233,7 +241,7 @@ export function OrderListView() {
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
+                  headCells={TABLE_HEAD}
                   rowCount={dataFiltered.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
@@ -258,7 +266,7 @@ export function OrderListView() {
                         selected={table.selected.includes(row.id)}
                         onSelectRow={() => table.onSelectRow(row.id)}
                         onDeleteRow={() => handleDeleteRow(row.id)}
-                        onViewRow={() => handleViewRow(row.id)}
+                        detailsHref={paths.dashboard.order.details(row.id)}
                       />
                     ))}
 
@@ -285,28 +293,7 @@ export function OrderListView() {
         </Card>
       </DashboardContent>
 
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content={
-          <>
-            Are you sure want to delete <strong> {table.selected.length} </strong> items?
-          </>
-        }
-        action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              handleDeleteRows();
-              confirm.onFalse();
-            }}
-          >
-            Delete
-          </Button>
-        }
-      />
+      {renderConfirmDialog()}
     </>
   );
 }
@@ -334,11 +321,10 @@ function applyFilter({ inputData, comparator, filters, dateError }: ApplyFilterP
   inputData = stabilizedThis.map((el) => el[0]);
 
   if (name) {
-    inputData = inputData.filter(
-      (order) =>
-        order.orderNumber.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        order.customer.name.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        order.customer.email.toLowerCase().indexOf(name.toLowerCase()) !== -1
+    inputData = inputData.filter(({ orderNumber, customer }) =>
+      [orderNumber, customer.name, customer.email].some((field) =>
+        field?.toLowerCase().includes(name.toLowerCase())
+      )
     );
   }
 

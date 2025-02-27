@@ -1,4 +1,6 @@
-import { useState, useCallback } from 'react';
+import { varAlpha } from 'minimal-shared/utils';
+import { useBoolean } from 'minimal-shared/hooks';
+import { useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
@@ -7,13 +9,10 @@ import Button from '@mui/material/Button';
 import Portal from '@mui/material/Portal';
 import Backdrop from '@mui/material/Backdrop';
 import InputBase from '@mui/material/InputBase';
+import { useTheme } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-
-import { useBoolean } from 'src/hooks/use-boolean';
-import { useResponsive } from 'src/hooks/use-responsive';
-
-import { varAlpha } from 'src/theme/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 import { Editor } from 'src/components/editor';
 import { Iconify } from 'src/components/iconify';
@@ -27,7 +26,8 @@ type Props = {
 };
 
 export function MailCompose({ onCloseCompose }: Props) {
-  const smUp = useResponsive('up', 'sm');
+  const theme = useTheme();
+  const smUp = useMediaQuery(theme.breakpoints.up('sm'));
 
   const fullScreen = useBoolean();
 
@@ -37,35 +37,49 @@ export function MailCompose({ onCloseCompose }: Props) {
     setMessage(value);
   }, []);
 
+  useEffect(() => {
+    if (fullScreen.value) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [fullScreen.value]);
+
   return (
     <Portal>
-      {(fullScreen.value || !smUp) && (
-        <Backdrop open sx={{ zIndex: (theme) => theme.zIndex.modal - 1 }} />
-      )}
+      {(fullScreen.value || !smUp) && <Backdrop open sx={[{ zIndex: theme.zIndex.modal - 1 }]} />}
 
       <Paper
-        sx={{
-          maxWidth: 560,
-          right: POSITION,
-          borderRadius: 2,
-          display: 'flex',
-          bottom: POSITION,
-          position: 'fixed',
-          overflow: 'hidden',
-          flexDirection: 'column',
-          zIndex: (theme) => theme.zIndex.modal,
-          width: `calc(100% - ${POSITION * 2}px)`,
-          boxShadow: (theme) => theme.customShadows.dropdown,
-          ...(fullScreen.value && {
-            maxWidth: 1,
-            height: `calc(100% - ${POSITION * 2}px)`,
-          }),
-        }}
+        sx={[
+          {
+            maxWidth: 560,
+            right: POSITION,
+            borderRadius: 2,
+            display: 'flex',
+            bottom: POSITION,
+            position: 'fixed',
+            overflow: 'hidden',
+            flexDirection: 'column',
+            zIndex: theme.zIndex.modal,
+            width: `calc(100% - ${POSITION * 2}px)`,
+            boxShadow: theme.vars.customShadows.dropdown,
+            ...(fullScreen.value && { maxWidth: 1, height: `calc(100% - ${POSITION * 2}px)` }),
+          },
+        ]}
       >
-        <Stack
-          direction="row"
-          alignItems="center"
-          sx={{ bgcolor: 'background.neutral', p: (theme) => theme.spacing(1.5, 1, 1.5, 2) }}
+        <Box
+          sx={[
+            {
+              display: 'flex',
+              alignItems: 'center',
+              bgcolor: 'background.neutral',
+              p: theme.spacing(1.5, 1, 1.5, 2),
+            },
+          ]}
         >
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
             New message
@@ -78,60 +92,49 @@ export function MailCompose({ onCloseCompose }: Props) {
           <IconButton onClick={onCloseCompose}>
             <Iconify icon="mingcute:close-line" />
           </IconButton>
-        </Stack>
+        </Box>
 
         <InputBase
+          id="mail-compose-to"
           placeholder="To"
           endAdornment={
-            <Stack direction="row" spacing={0.5} sx={{ typography: 'subtitle2' }}>
+            <Box sx={{ gap: 0.5, display: 'flex', typography: 'subtitle2' }}>
               <Box sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}>Cc</Box>
               <Box sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}>Bcc</Box>
-            </Stack>
+            </Box>
           }
-          sx={{
-            px: 2,
-            height: 48,
-            borderBottom: (theme) =>
-              `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}`,
-          }}
+          sx={[
+            {
+              px: 2,
+              height: 48,
+              borderBottom: `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}`,
+            },
+          ]}
         />
 
         <InputBase
+          id="mail-compose-subject"
           placeholder="Subject"
-          sx={{
-            px: 2,
-            height: 48,
-            borderBottom: (theme) =>
-              `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}`,
-          }}
+          sx={[
+            {
+              px: 2,
+              height: 48,
+              borderBottom: `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}`,
+            },
+          ]}
         />
 
-        <Stack
-          spacing={2}
-          flexGrow={1}
-          sx={{
-            p: 2,
-            flex: '1 1 auto',
-            overflow: 'hidden',
-          }}
-        >
+        <Stack spacing={2} flexGrow={1} sx={{ p: 2, flex: '1 1 auto', overflow: 'hidden' }}>
           <Editor
             value={message}
             onChange={handleChangeMessage}
             placeholder="Type a message"
-            slotProps={{
-              wrap: {
-                ...(fullScreen.value && { minHeight: 0, flex: '1 1 auto' }),
-              },
-            }}
-            sx={{
-              maxHeight: 480,
-              ...(fullScreen.value && { maxHeight: 1, flex: '1 1 auto' }),
-            }}
+            slotProps={{ wrapper: { ...(fullScreen.value && { minHeight: 0, flex: '1 1 auto' }) } }}
+            sx={{ maxHeight: 480, ...(fullScreen.value && { maxHeight: 1, flex: '1 1 auto' }) }}
           />
 
-          <Stack direction="row" alignItems="center">
-            <Stack direction="row" alignItems="center" flexGrow={1}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
               <IconButton>
                 <Iconify icon="solar:gallery-add-bold" />
               </IconButton>
@@ -139,7 +142,7 @@ export function MailCompose({ onCloseCompose }: Props) {
               <IconButton>
                 <Iconify icon="eva:attach-2-fill" />
               </IconButton>
-            </Stack>
+            </Box>
 
             <Button
               variant="contained"
@@ -148,7 +151,7 @@ export function MailCompose({ onCloseCompose }: Props) {
             >
               Send
             </Button>
-          </Stack>
+          </Box>
         </Stack>
       </Paper>
     </Portal>

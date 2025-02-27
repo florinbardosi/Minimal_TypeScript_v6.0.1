@@ -1,10 +1,10 @@
-import type { StackProps } from '@mui/material/Stack';
+import type { MotionProps } from 'framer-motion';
+import type { BoxProps } from '@mui/material/Box';
 
 import { useRef } from 'react';
 import { m } from 'framer-motion';
 
 import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import { varContainer, MotionViewport } from 'src/components/animate';
@@ -13,37 +13,42 @@ import { getVariant } from '../get-variant';
 
 // ----------------------------------------------------------------------
 
-type Props = StackProps & {
-  selectVariant: string;
-};
+type Props = BoxProps &
+  MotionProps & {
+    selectedVariant: string;
+  };
 
-export function ContainerView({ selectVariant, sx, ...other }: Props) {
+export function ContainerView({ selectedVariant, sx, ...other }: Props) {
   const scrollRef = useRef(null);
 
   return (
-    <Stack
+    <Box
       ref={scrollRef}
       component={m.div}
       variants={varContainer()}
-      sx={{
-        py: 5,
-        gap: 3,
-        borderRadius: 2,
-        flex: '1 1 auto',
-        overflowX: 'auto',
-        bgcolor: 'background.neutral',
-        ...sx,
-      }}
+      sx={[
+        () => ({
+          py: 5,
+          gap: 3,
+          borderRadius: 2,
+          display: 'flex',
+          flex: '1 1 auto',
+          overflowX: 'auto',
+          flexDirection: 'column',
+          bgcolor: 'background.neutral',
+        }),
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...other}
     >
-      <>
-        {[...Array(40)].map((_, index) => (
-          <Box
-            key={index}
-            component={MotionViewport}
-            variants={getVariant(selectVariant)}
-            viewport={{ root: scrollRef, once: true, amount: 0.1 }}
-            sx={{
+      {Array.from({ length: 40 }, (_, index) => (
+        <Box
+          key={index}
+          component={MotionViewport}
+          variants={getVariant(selectedVariant)}
+          viewport={{ root: scrollRef, once: true, amount: 0.1 }}
+          sx={[
+            (theme) => ({
               py: 4,
               width: 1,
               mx: 'auto',
@@ -52,13 +57,13 @@ export function ContainerView({ selectVariant, sx, ...other }: Props) {
               borderRadius: 1,
               textAlign: 'center',
               bgcolor: 'background.paper',
-              boxShadow: (theme) => theme.customShadows.z8,
-            }}
-          >
-            <Typography variant="body2">Item {index + 1}</Typography>
-          </Box>
-        ))}
-      </>
-    </Stack>
+              boxShadow: theme.vars.customShadows.z8,
+            }),
+          ]}
+        >
+          <Typography variant="body2">Item {index + 1}</Typography>
+        </Box>
+      ))}
+    </Box>
   );
 }

@@ -1,22 +1,21 @@
 import 'src/global.css';
 
-// ----------------------------------------------------------------------
-
-import type { Viewport } from 'next';
+import type { Metadata, Viewport } from 'next';
 
 import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
 
-import { CONFIG } from 'src/config-global';
+import { CONFIG } from 'src/global-config';
 import { primary } from 'src/theme/core/palette';
 import { LocalizationProvider } from 'src/locales';
 import { detectLanguage } from 'src/locales/server';
-import { schemeConfig } from 'src/theme/scheme-config';
+import { themeConfig, ThemeProvider } from 'src/theme';
 import { I18nProvider } from 'src/locales/i18n-provider';
-import { ThemeProvider } from 'src/theme/theme-provider';
 
 import { Snackbar } from 'src/components/snackbar';
 import { ProgressBar } from 'src/components/progress-bar';
 import { MotionLazy } from 'src/components/animate/motion-lazy';
+import { detectSettings } from 'src/components/settings/server';
 import { SettingsDrawer, defaultSettings, SettingsProvider } from 'src/components/settings';
 
 import { CheckoutProvider } from 'src/sections/checkout/context';
@@ -42,7 +41,7 @@ export const viewport: Viewport = {
   themeColor: primary.main,
 };
 
-export const metadata = {
+export const metadata: Metadata = {
   icons: [
     {
       rel: 'icon',
@@ -51,38 +50,69 @@ export const metadata = {
   ],
 };
 
-type Props = {
+// ----------------------------------------------------------------------
+
+type RootLayoutProps = {
   children: React.ReactNode;
 };
 
-export default async function RootLayout({ children }: Props) {
-  const lang = CONFIG.isStaticExport ? 'en' : await detectLanguage();
+async function getAppConfig() {
+  if (CONFIG.isStaticExport) {
+    return {
+      lang: 'en',
+      i18nLang: undefined,
+      cookieSettings: undefined,
+      dir: defaultSettings.direction,
+    };
+  } else {
+    const [lang, settings] = await Promise.all([detectLanguage(), detectSettings()]);
+
+    return {
+      lang: lang ?? 'en',
+      i18nLang: lang ?? 'en',
+      cookieSettings: settings,
+      dir: settings.direction,
+    };
+  }
+}
+
+export default async function RootLayout({ children }: RootLayoutProps) {
+  const appConfig = await getAppConfig();
 
   return (
-    <html lang={lang ?? 'en'} suppressHydrationWarning>
+    <html lang={appConfig.lang} dir={appConfig.dir} suppressHydrationWarning>
       <body>
         <InitColorSchemeScript
-          defaultMode={schemeConfig.defaultMode}
-          modeStorageKey={schemeConfig.modeStorageKey}
+          defaultMode={themeConfig.defaultMode}
+          modeStorageKey={themeConfig.modeStorageKey}
+          attribute={themeConfig.cssVariables.colorSchemeSelector}
         />
 
-        <I18nProvider lang={CONFIG.isStaticExport ? undefined : lang}>
-          <LocalizationProvider>
-            <AuthProvider>
-              <SettingsProvider settings={defaultSettings}>
-                <ThemeProvider>
-                  <MotionLazy>
-                    <CheckoutProvider>
-                      <Snackbar />
-                      <ProgressBar />
-                      <SettingsDrawer />
-                      {children}
-                    </CheckoutProvider>
-                  </MotionLazy>
-                </ThemeProvider>
-              </SettingsProvider>
-            </AuthProvider>
-          </LocalizationProvider>
+        <I18nProvider lang={appConfig.i18nLang}>
+          <AuthProvider>
+            <SettingsProvider
+              cookieSettings={appConfig.cookieSettings}
+              defaultSettings={defaultSettings}
+            >
+              <LocalizationProvider>
+                <AppRouterCacheProvider options={{ key: 'css' }}>
+                  <ThemeProvider
+                    defaultMode={themeConfig.defaultMode}
+                    modeStorageKey={themeConfig.modeStorageKey}
+                  >
+                    <MotionLazy>
+                      <CheckoutProvider>
+                        <Snackbar />
+                        <ProgressBar />
+                        <SettingsDrawer defaultSettings={defaultSettings} />
+                        {children}
+                      </CheckoutProvider>
+                    </MotionLazy>
+                  </ThemeProvider>
+                </AppRouterCacheProvider>
+              </LocalizationProvider>
+            </SettingsProvider>
+          </AuthProvider>
         </I18nProvider>
       </body>
     </html>

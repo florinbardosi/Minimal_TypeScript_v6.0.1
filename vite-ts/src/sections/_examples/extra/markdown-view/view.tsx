@@ -1,16 +1,14 @@
-import { paths } from 'src/routes/paths';
+import type { Theme, SxProps } from '@mui/material/styles';
 
 import { _mock } from 'src/_mock';
 
 import { Markdown } from 'src/components/markdown';
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { ComponentHero } from '../../component-hero';
-import { ComponentBlock, ComponentContainer } from '../../component-block';
+import { ComponentBox, ComponentLayout } from '../../layout';
 
 // ----------------------------------------------------------------------
 
-const imgPath = _mock.image.cover(18);
+const IMG_PATH = _mock.image.cover(18);
 
 const htmlContent = `
 <h1>h1</h1>
@@ -72,7 +70,7 @@ const htmlContent = `
     return i
   }</code></pre>
 
-<p><img alt='cover' src=${imgPath}></p>
+<p><img alt='cover' src=${IMG_PATH}></p>
 
 <blockquote> <p>A block quote with <s>strikethrough</s> and a URL: <a href='https://reactjs.org'>https://reactjs.org</a>.</p> </blockquote>
 `;
@@ -116,38 +114,41 @@ for (var i=1; i &#x3C;= 20; i++) {
   }
 \`\`\`
 
-![cover](${imgPath})
+![cover](${IMG_PATH})
 
 > A block quote with ~~strikethrough~~ and a URL: [https://reactjs.org](https://reactjs.org).
 `;
 
+const componentBoxStyles: SxProps<Theme> = {
+  py: 0,
+};
+
+// ----------------------------------------------------------------------
+
 export function MarkdownView() {
   return (
-    <>
-      <ComponentHero>
-        <CustomBreadcrumbs
-          heading="Markdown"
-          links={[{ name: 'Components', href: paths.components }, { name: 'Markdown' }]}
-          moreLink={['https://www.npmjs.com/package/react-markdown']}
-        />
-      </ComponentHero>
-
-      <ComponentContainer
-        sx={{
+    <ComponentLayout
+      heroProps={{
+        heading: 'Markdown',
+        moreLinks: ['https://www.npmjs.com/package/react-markdown'],
+      }}
+      containerProps={{
+        maxWidth: 'lg',
+        sx: {
           rowGap: 5,
           columnGap: 3,
           display: 'grid',
           gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
-        }}
-      >
-        <ComponentBlock title="Html content" sx={{ pt: 0 }}>
-          <Markdown children={htmlContent} />
-        </ComponentBlock>
+        },
+      }}
+    >
+      <ComponentBox title="Html content" sx={componentBoxStyles}>
+        <Markdown children={htmlContent} />
+      </ComponentBox>
 
-        <ComponentBlock title="Mardown content" sx={{ pt: 0 }}>
-          <Markdown children={mardownContent} />
-        </ComponentBlock>
-      </ComponentContainer>
-    </>
+      <ComponentBox title="Mardown content" sx={componentBoxStyles}>
+        <Markdown children={mardownContent} />
+      </ComponentBox>
+    </ComponentLayout>
   );
 }

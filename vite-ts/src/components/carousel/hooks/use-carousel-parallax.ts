@@ -2,6 +2,8 @@ import type { EmblaEventType, EmblaCarouselType } from 'embla-carousel';
 
 import { useRef, useEffect, useCallback } from 'react';
 
+import { carouselClasses } from '../classes';
+
 import type { CarouselOptions } from '../types';
 
 // ----------------------------------------------------------------------
@@ -16,7 +18,9 @@ export function useParallax(mainApi?: EmblaCarouselType, parallax?: CarouselOpti
   const setTweenNodes = useCallback((_mainApi: EmblaCarouselType): void => {
     tweenNodes.current = _mainApi
       .slideNodes()
-      .map((slideNode) => slideNode.querySelector('.slide__parallax__layer') as HTMLElement);
+      .map(
+        (slideNode) => slideNode.querySelector(`.${carouselClasses.slide.parallax}`) as HTMLElement
+      );
   }, []);
 
   const setTweenFactor = useCallback(

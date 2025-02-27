@@ -1,4 +1,5 @@
-import type { ICheckoutItem } from 'src/types/checkout';
+import type { CheckoutContextValue } from 'src/types/checkout';
+import type { TableHeadCellProps } from 'src/components/table';
 
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -10,7 +11,7 @@ import { CheckoutCartProduct } from './checkout-cart-product';
 
 // ----------------------------------------------------------------------
 
-const TABLE_HEAD = [
+const TABLE_HEAD: TableHeadCellProps[] = [
   { id: 'product', label: 'Product' },
   { id: 'price', label: 'Price' },
   { id: 'quantity', label: 'Quantity' },
@@ -21,31 +22,28 @@ const TABLE_HEAD = [
 // ----------------------------------------------------------------------
 
 type Props = {
-  products: ICheckoutItem[];
-  onDelete: (id: string) => void;
-  onDecreaseQuantity: (id: string) => void;
-  onIncreaseQuantity: (id: string) => void;
+  checkoutState: CheckoutContextValue['state'];
+  onDeleteCartItem: CheckoutContextValue['onDeleteCartItem'];
+  onChangeItemQuantity: CheckoutContextValue['onChangeItemQuantity'];
 };
 
 export function CheckoutCartProductList({
-  products,
-  onDelete,
-  onIncreaseQuantity,
-  onDecreaseQuantity,
+  checkoutState,
+  onDeleteCartItem,
+  onChangeItemQuantity,
 }: Props) {
   return (
     <Scrollbar>
       <Table sx={{ minWidth: 720 }}>
-        <TableHeadCustom headLabel={TABLE_HEAD} />
+        <TableHeadCustom headCells={TABLE_HEAD} />
 
         <TableBody>
-          {products.map((row) => (
+          {checkoutState.items.map((row) => (
             <CheckoutCartProduct
               key={row.id}
               row={row}
-              onDelete={() => onDelete(row.id)}
-              onDecrease={() => onDecreaseQuantity(row.id)}
-              onIncrease={() => onIncreaseQuantity(row.id)}
+              onDeleteCartItem={onDeleteCartItem}
+              onChangeItemQuantity={onChangeItemQuantity}
             />
           ))}
         </TableBody>

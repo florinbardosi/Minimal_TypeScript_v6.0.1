@@ -7,8 +7,6 @@ import IconButton from '@mui/material/IconButton';
 
 import { Iconify } from 'src/components/iconify';
 
-import { svgColorClasses } from '../../svg-color';
-
 // ----------------------------------------------------------------------
 
 export function FullScreenButton() {
@@ -26,19 +24,7 @@ export function FullScreenButton() {
 
   return (
     <Tooltip title={fullscreen ? 'Exit' : 'Full Screen'}>
-      <IconButton
-        onClick={onToggleFullScreen}
-        sx={{
-          [`& .${svgColorClasses.root}`]: {
-            background: (theme) =>
-              `linear-gradient(135deg, ${theme.vars.palette.grey[500]}, ${theme.vars.palette.grey[600]})`,
-            ...(fullscreen && {
-              background: (theme) =>
-                `linear-gradient(135deg, ${theme.vars.palette.primary.light}, ${theme.vars.palette.primary.main})`,
-            }),
-          },
-        }}
-      >
+      <IconButton onClick={onToggleFullScreen} color={fullscreen ? 'primary' : 'default'}>
         <Iconify
           icon={
             fullscreen

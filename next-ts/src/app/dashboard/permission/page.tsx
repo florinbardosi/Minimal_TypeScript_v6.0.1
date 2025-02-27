@@ -1,10 +1,12 @@
-import { CONFIG } from 'src/config-global';
+import type { Metadata } from 'next';
+
+import { CONFIG } from 'src/global-config';
 
 import { PermissionDeniedView } from 'src/sections/permission/view';
 
 // ----------------------------------------------------------------------
 
-export const metadata = { title: `Permission | Dashboard - ${CONFIG.appName}` };
+export const metadata: Metadata = { title: `Permission | Dashboard - ${CONFIG.appName}` };
 
 export default function Page() {
   return <PermissionDeniedView />;

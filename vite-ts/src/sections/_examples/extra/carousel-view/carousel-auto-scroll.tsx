@@ -18,12 +18,7 @@ type Props = {
 };
 
 export function CarouselAutoScroll({ data }: Props) {
-  const carousel = useCarousel(
-    {
-      loop: true,
-    },
-    [AutoScroll({ playOnInit: false })]
-  );
+  const carousel = useCarousel({ loop: true }, [AutoScroll({ playOnInit: false })]);
 
   return (
     <>
@@ -69,10 +64,7 @@ function CarouselItem({ item, index }: CarouselItemProps) {
         component="img"
         alt={item.title}
         src={item.coverUrl}
-        sx={{
-          objectFit: 'cover',
-          aspectRatio: { xs: '4/3', sm: '16/10' },
-        }}
+        sx={{ objectFit: 'cover', aspectRatio: { xs: '4/3', sm: '16/10' } }}
       />
     </Box>
   );

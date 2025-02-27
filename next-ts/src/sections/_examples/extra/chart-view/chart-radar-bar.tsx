@@ -28,11 +28,7 @@ export function ChartRadarBar({ chart }: Props) {
     colors: chartColors,
     stroke: { width: 2 },
     fill: { opacity: 0.48 },
-    legend: {
-      show: true,
-      floating: true,
-      position: 'right',
-    },
+    legend: { show: true, floating: true, position: 'right' },
     xaxis: {
       categories: chart.categories,
       labels: {
@@ -50,5 +46,5 @@ export function ChartRadarBar({ chart }: Props) {
     },
   });
 
-  return <Chart type="radar" series={chart.series} options={chartOptions} height={280} />;
+  return <Chart type="radar" series={chart.series} options={chartOptions} sx={{ height: 280 }} />;
 }

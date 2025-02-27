@@ -5,9 +5,9 @@ import { isValidPhoneNumber } from 'react-phone-number-input/input';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
+import Grid from '@mui/material/Grid2';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
 import LoadingButton from '@mui/lab/LoadingButton';
 
@@ -28,9 +28,12 @@ export const UpdateUserSchema = zod.object({
     .string()
     .min(1, { message: 'Email is required!' })
     .email({ message: 'Email must be a valid email address!' }),
-  photoURL: schemaHelper.file({ message: { required_error: 'Avatar is required!' } }),
-  phoneNumber: schemaHelper.phoneNumber({ isValidPhoneNumber }),
-  country: schemaHelper.objectOrNull({ message: { required_error: 'Country is required!' } }),
+  photoURL: schemaHelper.file({ message: 'Avatar is required!' }),
+  phoneNumber: schemaHelper.phoneNumber({ isValid: isValidPhoneNumber }),
+  country: schemaHelper.nullableInput(zod.string().min(1, { message: 'Country is required!' }), {
+    // message for null value
+    message: 'Country is required!',
+  }),
   address: zod.string().min(1, { message: 'Address is required!' }),
   state: zod.string().min(1, { message: 'State is required!' }),
   city: zod.string().min(1, { message: 'City is required!' }),
@@ -40,27 +43,44 @@ export const UpdateUserSchema = zod.object({
   isPublic: zod.boolean(),
 });
 
+// ----------------------------------------------------------------------
+
 export function AccountGeneral() {
   const { user } = useMockedUser();
 
-  const defaultValues = {
-    displayName: user?.displayName || '',
-    email: user?.email || '',
-    photoURL: user?.photoURL || null,
-    phoneNumber: user?.phoneNumber || '',
-    country: user?.country || '',
-    address: user?.address || '',
-    state: user?.state || '',
-    city: user?.city || '',
-    zipCode: user?.zipCode || '',
-    about: user?.about || '',
-    isPublic: user?.isPublic || false,
+  const currentUser: UpdateUserSchemaType = {
+    displayName: user?.displayName,
+    email: user?.email,
+    photoURL: user?.photoURL,
+    phoneNumber: user?.phoneNumber,
+    country: user?.country,
+    address: user?.address,
+    state: user?.state,
+    city: user?.city,
+    zipCode: user?.zipCode,
+    about: user?.about,
+    isPublic: user?.isPublic,
+  };
+
+  const defaultValues: UpdateUserSchemaType = {
+    displayName: '',
+    email: '',
+    photoURL: null,
+    phoneNumber: '',
+    country: null,
+    address: '',
+    state: '',
+    city: '',
+    zipCode: '',
+    about: '',
+    isPublic: false,
   };
 
   const methods = useForm<UpdateUserSchemaType>({
     mode: 'all',
     resolver: zodResolver(UpdateUserSchema),
     defaultValues,
+    values: currentUser,
   });
 
   const {
@@ -81,7 +101,7 @@ export function AccountGeneral() {
   return (
     <Form methods={methods} onSubmit={onSubmit}>
       <Grid container spacing={3}>
-        <Grid xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card
             sx={{
               pt: 10,
@@ -123,13 +143,15 @@ export function AccountGeneral() {
           </Card>
         </Grid>
 
-        <Grid xs={12} md={8}>
+        <Grid size={{ xs: 12, md: 8 }}>
           <Card sx={{ p: 3 }}>
             <Box
-              rowGap={3}
-              columnGap={2}
-              display="grid"
-              gridTemplateColumns={{ xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' }}
+              sx={{
+                rowGap: 3,
+                columnGap: 2,
+                display: 'grid',
+                gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' },
+              }}
             >
               <Field.Text name="displayName" label="Name" />
               <Field.Text name="email" label="Email address" />
@@ -143,7 +165,7 @@ export function AccountGeneral() {
               <Field.Text name="zipCode" label="Zip/code" />
             </Box>
 
-            <Stack spacing={3} alignItems="flex-end" sx={{ mt: 3 }}>
+            <Stack spacing={3} sx={{ mt: 3, alignItems: 'flex-end' }}>
               <Field.Text name="about" multiline rows={4} label="About" />
 
               <LoadingButton type="submit" variant="contained" loading={isSubmitting}>

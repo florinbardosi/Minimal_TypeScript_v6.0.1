@@ -1,111 +1,120 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useBoolean } from 'minimal-shared/hooks';
+import { useRef, useEffect, useCallback } from 'react';
+import { isActiveLink, isExternalLink } from 'minimal-shared/utils';
 
-import Stack from '@mui/material/Stack';
-import Drawer from '@mui/material/Drawer';
 import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
+import Drawer, { drawerClasses } from '@mui/material/Drawer';
 
-import { isExternalLink } from 'src/routes/utils';
-import { usePathname, useActiveLink } from 'src/routes/hooks';
+import { usePathname } from 'src/routes/hooks';
 
 import { Scrollbar } from 'src/components/scrollbar';
 
-import { NavItem } from './nav-item';
-import { Iconify } from '../../iconify';
-import { NavUl, NavLi } from '../../nav-section';
-import { NavSubList } from '../components/nav-sub-list';
+import { Nav, NavUl, NavLi, NavItem, NavSubList, NavDrawerHeader } from '../components';
 
 import type { NavListProps } from '../types';
 
 // ----------------------------------------------------------------------
 
-export function NavList({ data, render, cssVars, slotProps }: NavListProps) {
+export function NavList({
+  data,
+  render,
+  cssVars,
+  slotProps,
+  onCloseDrawerRoot,
+}: NavListProps & { onCloseDrawerRoot: () => void }) {
   const pathname = usePathname();
+  const navItemRef = useRef<HTMLButtonElement | null>(null);
 
-  const active = useActiveLink(data.path, !!data.children);
-
-  const [openMenu, setOpenMenu] = useState(false);
+  const isActive = isActiveLink(pathname, data.path, !!data.children);
+  const { value: open, onFalse: onClose, onTrue: onOpen } = useBoolean();
 
   useEffect(() => {
-    if (openMenu) {
-      handleCloseMenu();
+    // If the pathname changes, close the drawer
+    if (open) {
+      onClose();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
-  const handleOpenMenu = useCallback(() => {
-    if (data.children) {
-      setOpenMenu(true);
+  useEffect(() => {
+    // If the data has children and is active, open the subdrawer
+    if (!!data.children && isActive) {
+      onOpen();
     }
-  }, [data.children]);
-
-  const handleCloseMenu = useCallback(() => {
-    setOpenMenu(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const renderNavItem = (
+  const handleOpenSubDrawer = useCallback(() => {
+    if (data.children) {
+      onOpen();
+    }
+  }, [data.children, onOpen]);
+
+  const handleCloseSubDrawer = useCallback(() => {
+    onClose();
+    onCloseDrawerRoot();
+  }, [onClose, onCloseDrawerRoot]);
+
+  const handleBack = useCallback(() => {
+    onClose();
+  }, [onClose]);
+
+  const renderNavItem = () => (
     <NavItem
-      render={render}
+      ref={navItemRef}
       // slots
       path={data.path}
       icon={data.icon}
       info={data.info}
       title={data.title}
       // state
-      active={active}
+      open={open}
+      active={isActive}
       disabled={data.disabled}
+      // options
+      render={render}
       hasChild={!!data.children}
-      open={data.children && !!openMenu}
       externalLink={isExternalLink(data.path)}
       // styles
       slotProps={slotProps?.rootItem}
       // actions
-      onClick={handleOpenMenu}
+      onClick={handleOpenSubDrawer}
     />
   );
 
-  if (data.children) {
-    return (
-      <NavLi disabled={data.disabled}>
-        {renderNavItem}
+  const renderDrawer = () =>
+    !!data.children && (
+      <Drawer
+        open={open}
+        onClose={handleCloseSubDrawer}
+        slotProps={{ backdrop: { invisible: true } }}
+        sx={{
+          ...cssVars,
+          [`& .${drawerClasses.paper}`]: {
+            display: 'flex',
+            flexDirection: 'column',
+            width: 'calc(var(--nav-width) - 8px)',
+          },
+        }}
+      >
+        <NavDrawerHeader title={data.title} onBack={handleBack} />
 
-        <Drawer
-          open={openMenu}
-          onClose={handleCloseMenu}
-          slotProps={{ backdrop: { invisible: true } }}
-          PaperProps={{
-            sx: {
-              display: 'flex',
-              flexDirection: 'column',
-              width: 'calc(var(--nav-width) - 8px)',
-            },
-          }}
-          sx={{ ...cssVars }}
-        >
-          <Stack direction="row" alignItems="center" spacing={1} sx={{ px: 1, py: 1.5 }}>
-            <IconButton onClick={handleCloseMenu}>
-              <Iconify icon="eva:arrow-ios-back-fill" width={16} />
-            </IconButton>
+        <Divider />
 
-            <Typography noWrap variant="subtitle1" sx={{ textTransform: 'capitalize' }}>
-              {data.title}
-            </Typography>
-          </Stack>
-
-          <Divider />
-
-          <Scrollbar fillContent sx={{ p: 2 }}>
-            <Stack component="nav" spacing={4}>
-              <NavUl sx={{ gap: 3 }}>
-                <NavSubList data={data.children} slotProps={slotProps} />
-              </NavUl>
-            </Stack>
-          </Scrollbar>
-        </Drawer>
-      </NavLi>
+        <Scrollbar fillContent sx={{ p: 2 }}>
+          <Nav>
+            <NavUl sx={{ gap: 3 }}>
+              <NavSubList data={data.children} slotProps={slotProps} />
+            </NavUl>
+          </Nav>
+        </Scrollbar>
+      </Drawer>
     );
-  }
 
-  return <NavLi disabled={data.disabled}>{renderNavItem}</NavLi>;
+  return (
+    <NavLi disabled={data.disabled}>
+      {renderNavItem()}
+      {renderDrawer()}
+    </NavLi>
+  );
 }

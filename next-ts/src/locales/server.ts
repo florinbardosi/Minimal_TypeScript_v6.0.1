@@ -4,18 +4,28 @@ import { cookies as getCookies } from 'next/headers';
 import resourcesToBackend from 'i18next-resources-to-backend';
 import { initReactI18next } from 'react-i18next/initReactI18next';
 
-import { defaultNS, cookieName, i18nOptions, fallbackLng } from './config-locales';
+import { defaultNS, cookieName, i18nOptions, fallbackLng } from './locales-config';
 
-import type { LanguageValue } from './config-locales';
+import type { LanguageValue } from './locales-config';
 
 // ----------------------------------------------------------------------
 
 /**
- * [1] with url:
- * https://nextjs.org/docs/pages/building-your-application/routing/internationalization
+ * Internationalization configuration for Next.js server-side.
  *
- * Use i18next with app folder and without locale in url:
- * https://github.com/i18next/next-app-dir-i18next-example/issues/12#issuecomment-1500917570
+ * Supports two approaches for language handling:
+ *
+ * 1. URL-based routing (Next.js default)
+ *    - Languages are part of the URL path
+ *    - Example: /en/about, /fr/about
+ *    - @see {@link https://nextjs.org/docs/pages/building-your-application/routing/internationalization}
+ *
+ * 2. Cookie-based routing
+ *    - Language preference stored in cookies
+ *    - No URL modification required
+ *    - @see {@link https://github.com/i18next/next-app-dir-i18next-example/issues/12#issuecomment-1500917570}
+ *
+ * Current implementation uses approach #2 (Cookie-based)
  */
 
 export async function detectLanguage() {

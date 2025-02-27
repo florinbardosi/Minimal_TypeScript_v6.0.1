@@ -1,7 +1,6 @@
 import type { IJobItem } from 'src/types/job';
 
 import { z as zod } from 'zod';
-import { useMemo, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
 
@@ -42,21 +41,28 @@ export type NewJobSchemaType = zod.infer<typeof NewJobSchema>;
 export const NewJobSchema = zod.object({
   title: zod.string().min(1, { message: 'Title is required!' }),
   content: zod.string().min(1, { message: 'Content is required!' }),
-  employmentTypes: zod.string().array().nonempty({ message: 'Choose at least one option!' }),
-  role: schemaHelper.objectOrNull<string | null>({
-    message: { required_error: 'Role is required!' },
+  employmentTypes: zod.string().array().min(1, { message: 'Choose at least one option!' }),
+  role: schemaHelper.nullableInput(zod.string().min(1, { message: 'Role is required!' }), {
+    // message for null value
+    message: 'Role is required!',
   }),
-  skills: zod.string().array().nonempty({ message: 'Choose at least one option!' }),
-  workingSchedule: zod.string().array().nonempty({ message: 'Choose at least one option!' }),
-  locations: zod.string().array().nonempty({ message: 'Choose at least one option!' }),
-  expiredDate: schemaHelper.date({ message: { required_error: 'Expired date is required!' } }),
+  skills: zod.string().array().min(1, { message: 'Choose at least one option!' }),
+  workingSchedule: zod.string().array().min(1, { message: 'Choose at least one option!' }),
+  locations: zod.string().array().min(1, { message: 'Choose at least one option!' }),
+  expiredDate: schemaHelper.date({ message: { required: 'Expired date is required!' } }),
   salary: zod.object({
-    price: zod.number().min(1, { message: 'Price is required!' }),
+    price: schemaHelper.nullableInput(
+      zod.number({ coerce: true }).min(1, { message: 'Price is required!' }),
+      {
+        // message for null value
+        message: 'Price is required!',
+      }
+    ),
     // Not required
     type: zod.string(),
     negotiable: zod.boolean(),
   }),
-  benefits: zod.string().array().nonempty({ message: 'Choose at least one option!' }),
+  benefits: zod.string().array().min(0, { message: 'Choose at least one option!' }),
   // Not required
   experience: zod.string(),
 });
@@ -70,27 +76,25 @@ type Props = {
 export function JobNewEditForm({ currentJob }: Props) {
   const router = useRouter();
 
-  const defaultValues = useMemo(
-    () => ({
-      title: currentJob?.title || '',
-      content: currentJob?.content || '',
-      employmentTypes: currentJob?.employmentTypes || [],
-      experience: currentJob?.experience || '1 year exp',
-      role: currentJob?.role || _roles[1],
-      skills: currentJob?.skills || [],
-      workingSchedule: currentJob?.workingSchedule || [],
-      locations: currentJob?.locations || [],
-      expiredDate: currentJob?.expiredDate || null,
-      salary: currentJob?.salary || { type: 'Hourly', price: 0, negotiable: false },
-      benefits: currentJob?.benefits || [],
-    }),
-    [currentJob]
-  );
+  const defaultValues: NewJobSchemaType = {
+    title: '',
+    content: '',
+    employmentTypes: [],
+    experience: '1 year exp',
+    role: _roles[1],
+    skills: [],
+    workingSchedule: [],
+    locations: [],
+    expiredDate: null,
+    salary: { type: 'Hourly', price: null, negotiable: false },
+    benefits: [],
+  };
 
   const methods = useForm<NewJobSchemaType>({
     mode: 'all',
     resolver: zodResolver(NewJobSchema),
     defaultValues,
+    values: currentJob,
   });
 
   const {
@@ -99,12 +103,6 @@ export function JobNewEditForm({ currentJob }: Props) {
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
-
-  useEffect(() => {
-    if (currentJob) {
-      reset(defaultValues);
-    }
-  }, [currentJob, defaultValues, reset]);
 
   const onSubmit = handleSubmit(async (data) => {
     try {
@@ -118,7 +116,7 @@ export function JobNewEditForm({ currentJob }: Props) {
     }
   });
 
-  const renderDetails = (
+  const renderDetails = () => (
     <Card>
       <CardHeader title="Details" subheader="Title, short description, image..." sx={{ mb: 3 }} />
 
@@ -138,7 +136,7 @@ export function JobNewEditForm({ currentJob }: Props) {
     </Card>
   );
 
-  const renderProperties = (
+  const renderProperties = () => (
     <Card>
       <CardHeader
         title="Properties"
@@ -260,7 +258,7 @@ export function JobNewEditForm({ currentJob }: Props) {
             name="salary.type"
             control={control}
             render={({ field }) => (
-              <Box gap={2} display="grid" gridTemplateColumns="repeat(2, 1fr)">
+              <Box sx={{ gap: 2, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
                 {[
                   {
                     label: 'Hourly',
@@ -299,14 +297,19 @@ export function JobNewEditForm({ currentJob }: Props) {
             name="salary.price"
             placeholder="0.00"
             type="number"
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Box sx={{ typography: 'subtitle2', color: 'text.disabled' }}>$</Box>
-                </InputAdornment>
-              ),
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start" sx={{ mr: 0.75 }}>
+                    <Box component="span" sx={{ color: 'text.disabled' }}>
+                      $
+                    </Box>
+                  </InputAdornment>
+                ),
+              },
             }}
           />
+
           <Field.Switch name="salary.negotiable" label="Salary is negotiable" />
         </Stack>
 
@@ -322,11 +325,11 @@ export function JobNewEditForm({ currentJob }: Props) {
     </Card>
   );
 
-  const renderActions = (
-    <Box display="flex" alignItems="center" flexWrap="wrap">
+  const renderActions = () => (
+    <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
       <FormControlLabel
-        control={<Switch defaultChecked inputProps={{ id: 'publish-switch' }} />}
         label="Publish"
+        control={<Switch defaultChecked inputProps={{ id: 'publish-switch' }} />}
         sx={{ flexGrow: 1, pl: 3 }}
       />
 
@@ -345,11 +348,9 @@ export function JobNewEditForm({ currentJob }: Props) {
   return (
     <Form methods={methods} onSubmit={onSubmit}>
       <Stack spacing={{ xs: 3, md: 5 }} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
-        {renderDetails}
-
-        {renderProperties}
-
-        {renderActions}
+        {renderDetails()}
+        {renderProperties()}
+        {renderActions()}
       </Stack>
     </Form>
   );

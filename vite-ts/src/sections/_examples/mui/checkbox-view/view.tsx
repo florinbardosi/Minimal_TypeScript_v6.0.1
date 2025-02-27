@@ -5,14 +5,9 @@ import FormGroup from '@mui/material/FormGroup';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
-import { paths } from 'src/routes/paths';
-
 import { Iconify } from 'src/components/iconify';
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { ComponentHero } from '../../component-hero';
-import { ComponentBlock } from '../../component-block';
-import { ScrollToViewTemplate } from '../../component-template';
+import { ComponentBox, ComponentLayout } from '../../layout';
 
 // ----------------------------------------------------------------------
 
@@ -37,27 +32,82 @@ export function CheckboxView() {
     setChecked([checked[0], event.target.checked]);
   };
 
-  const DEMO = [
+  const DEMO_COMPONENTS = [
     {
       name: 'Basic',
       component: (
-        <ComponentBlock>
-          <Checkbox size="medium" />
-          <Checkbox size="medium" defaultChecked />
-          <Checkbox size="medium" defaultChecked indeterminate />
-          <Checkbox size="medium" disabled />
-          <Checkbox size="medium" disabled defaultChecked />
-          <Checkbox size="medium" disabled indeterminate />
-        </ComponentBlock>
+        <ComponentBox>
+          <Checkbox
+            size="medium"
+            inputProps={{
+              id: 'unchecked-checkbox',
+              'aria-label': 'Unchecked checkbox',
+            }}
+          />
+          <Checkbox
+            size="medium"
+            defaultChecked
+            inputProps={{
+              id: 'checked-checkbox',
+              'aria-label': 'Checked checkbox',
+            }}
+          />
+          <Checkbox
+            size="medium"
+            defaultChecked
+            indeterminate
+            inputProps={{
+              id: 'indeterminate-checkbox',
+              'aria-label': 'Indeterminate checkbox',
+            }}
+          />
+          <Checkbox
+            size="medium"
+            disabled
+            inputProps={{
+              id: 'disabled-checkbox',
+              'aria-label': 'Disabled checkbox',
+            }}
+          />
+          <Checkbox
+            size="medium"
+            disabled
+            defaultChecked
+            inputProps={{
+              id: 'disabled-checked-checkbox',
+              'aria-label': 'Disabled checked checkbox',
+            }}
+          />
+          <Checkbox
+            size="medium"
+            disabled
+            indeterminate
+            inputProps={{
+              id: 'disabled-indeterminate-checkbox',
+              'aria-label': 'Disabled indeterminate checkbox',
+            }}
+          />
+        </ComponentBox>
       ),
     },
     {
       name: 'Size & custom icon',
       component: (
-        <ComponentBlock>
-          <FormControlLabel label="Normal" control={<Checkbox size="medium" defaultChecked />} />
-          <FormControlLabel label="Small" control={<Checkbox size="small" defaultChecked />} />
+        <ComponentBox>
           <FormControlLabel
+            label="Normal"
+            control={
+              <Checkbox size="medium" defaultChecked inputProps={{ id: 'medium-size-checkbox' }} />
+            }
+          />
+          <FormControlLabel
+            label="Small"
+            control={
+              <Checkbox size="small" defaultChecked inputProps={{ id: 'small-size-checkbox' }} />
+            }
+          />
+          <FormControlLabel
+            label="Custom icon"
             control={
               <Checkbox
                 color="info"
@@ -67,10 +117,10 @@ export function CheckboxView() {
                 inputProps={{ id: 'favorite-checkbox' }}
               />
             }
-            label="Custom icon"
           />
 
           <FormControlLabel
+            label="Custom icon"
             control={
               <Checkbox
                 color="error"
@@ -80,15 +130,14 @@ export function CheckboxView() {
                 inputProps={{ id: 'award-checkbox' }}
               />
             }
-            label="Custom icon"
           />
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Placement',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <FormControl component="fieldset">
             <FormGroup aria-label="position" row>
               {PLACEMENTS.map((placement) => (
@@ -97,33 +146,47 @@ export function CheckboxView() {
                   value={placement}
                   label={placement}
                   labelPlacement={placement}
-                  control={<Checkbox size="medium" />}
+                  control={<Checkbox size="medium" inputProps={{ id: `${placement}-checkbox` }} />}
                   sx={{ textTransform: 'capitalize' }}
                 />
               ))}
             </FormGroup>
           </FormControl>
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Colors',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <FormGroup>
             {COLORS.map((color) => (
               <FormControlLabel
                 key={color}
-                control={<Checkbox size="medium" defaultChecked color={color} />}
                 label={color}
+                control={
+                  <Checkbox
+                    size="medium"
+                    defaultChecked
+                    color={color}
+                    inputProps={{ id: `${color}-checkbox` }}
+                  />
+                }
                 sx={{ textTransform: 'capitalize' }}
               />
             ))}
 
             <FormControlLabel
               disabled
-              control={<Checkbox size="medium" defaultChecked color="error" />}
               label="Disabled"
+              control={
+                <Checkbox
+                  size="medium"
+                  defaultChecked
+                  color="error"
+                  inputProps={{ id: 'color-disabled-checkbox' }}
+                />
+              }
             />
           </FormGroup>
 
@@ -132,26 +195,42 @@ export function CheckboxView() {
               {COLORS.map((color) => (
                 <FormControlLabel
                   key={color}
-                  control={<Checkbox size="medium" defaultChecked indeterminate color={color} />}
                   label={color}
+                  control={
+                    <Checkbox
+                      size="medium"
+                      defaultChecked
+                      indeterminate
+                      color={color}
+                      inputProps={{ id: `${color}-indeterminate-checkbox` }}
+                    />
+                  }
                   sx={{ textTransform: 'capitalize' }}
                 />
               ))}
 
               <FormControlLabel
                 disabled
-                control={<Checkbox size="medium" defaultChecked indeterminate color="error" />}
                 label="Disabled"
+                control={
+                  <Checkbox
+                    size="medium"
+                    defaultChecked
+                    indeterminate
+                    color="error"
+                    inputProps={{ id: 'color-disabled-indeterminate-checkbox' }}
+                  />
+                }
               />
             </FormGroup>
           </FormControl>
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Indeterminate',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <div>
             <FormControlLabel
               label="Parent"
@@ -161,36 +240,47 @@ export function CheckboxView() {
                   checked={checked[0] && checked[1]}
                   indeterminate={checked[0] !== checked[1]}
                   onChange={handleChange1}
+                  inputProps={{ id: 'Parent-checkbox' }}
                 />
               }
             />
             <div>
               <FormControlLabel
                 label="Child 1"
-                control={<Checkbox size="medium" checked={checked[0]} onChange={handleChange2} />}
+                control={
+                  <Checkbox
+                    size="medium"
+                    checked={checked[0]}
+                    onChange={handleChange2}
+                    inputProps={{ id: 'child-1-checkbox' }}
+                  />
+                }
               />
               <FormControlLabel
                 label="Child 2"
-                control={<Checkbox size="medium" checked={checked[1]} onChange={handleChange3} />}
+                control={
+                  <Checkbox
+                    size="medium"
+                    checked={checked[1]}
+                    onChange={handleChange3}
+                    inputProps={{ id: 'child-2-checkbox' }}
+                  />
+                }
               />
             </div>
           </div>
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
   ];
 
   return (
-    <>
-      <ComponentHero>
-        <CustomBreadcrumbs
-          heading="Checkboxes"
-          links={[{ name: 'Components', href: paths.components }, { name: 'Checkboxes' }]}
-          moreLink={['https://mui.com/components/checkboxes']}
-        />
-      </ComponentHero>
-
-      <ScrollToViewTemplate data={DEMO} />
-    </>
+    <ComponentLayout
+      sectionData={DEMO_COMPONENTS}
+      heroProps={{
+        heading: 'Checkboxes',
+        moreLinks: ['https://mui.com/material-ui/react-checkbox/'],
+      }}
+    />
   );
 }

@@ -35,7 +35,10 @@ export const VerifySchema = zod.object({
 // ----------------------------------------------------------------------
 
 export function CenteredVerifyView() {
-  const defaultValues = { code: '', email: '' };
+  const defaultValues: VerifySchemaType = {
+    code: '',
+    email: '',
+  };
 
   const methods = useForm<VerifySchemaType>({
     resolver: zodResolver(VerifySchema),
@@ -56,13 +59,13 @@ export function CenteredVerifyView() {
     }
   });
 
-  const renderForm = (
-    <Box gap={3} display="flex" flexDirection="column">
+  const renderForm = () => (
+    <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
       <Field.Text
         name="email"
         label="Email address"
         placeholder="example@gmail.com"
-        InputLabelProps={{ shrink: true }}
+        slotProps={{ inputLabel: { shrink: true } }}
       />
 
       <Field.Code name="code" />
@@ -89,7 +92,7 @@ export function CenteredVerifyView() {
       />
 
       <Form methods={methods} onSubmit={onSubmit}>
-        {renderForm}
+        {renderForm()}
       </Form>
 
       <FormResendCode onResendCode={() => {}} value={0} disabled={false} />

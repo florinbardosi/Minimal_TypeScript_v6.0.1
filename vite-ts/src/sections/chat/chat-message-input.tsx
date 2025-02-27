@@ -2,7 +2,7 @@ import type { IChatParticipant } from 'src/types/chat';
 
 import { useRef, useMemo, useState, useCallback } from 'react';
 
-import Stack from '@mui/material/Stack';
+import Box from '@mui/material/Box';
 import InputBase from '@mui/material/InputBase';
 import IconButton from '@mui/material/IconButton';
 
@@ -42,7 +42,7 @@ export function ChatMessageInput({
 
   const [message, setMessage] = useState('');
 
-  const myContact = useMemo(
+  const myContact: IChatParticipant = useMemo(
     () => ({
       id: `${user?.id}`,
       role: `${user?.role}`,
@@ -52,7 +52,7 @@ export function ChatMessageInput({
       lastActivity: today(),
       avatarUrl: `${user?.photoURL}`,
       phoneNumber: `${user?.phoneNumber}`,
-      status: 'online' as 'online' | 'offline' | 'alway' | 'busy',
+      status: 'online',
     }),
     [user]
   );
@@ -113,7 +113,7 @@ export function ChatMessageInput({
           </IconButton>
         }
         endAdornment={
-          <Stack direction="row" sx={{ flexShrink: 0 }}>
+          <Box sx={{ flexShrink: 0, display: 'flex' }}>
             <IconButton onClick={handleAttach}>
               <Iconify icon="solar:gallery-add-bold" />
             </IconButton>
@@ -123,14 +123,16 @@ export function ChatMessageInput({
             <IconButton>
               <Iconify icon="solar:microphone-bold" />
             </IconButton>
-          </Stack>
+          </Box>
         }
-        sx={{
-          px: 1,
-          height: 56,
-          flexShrink: 0,
-          borderTop: (theme) => `solid 1px ${theme.vars.palette.divider}`,
-        }}
+        sx={[
+          (theme) => ({
+            px: 1,
+            height: 56,
+            flexShrink: 0,
+            borderTop: `solid 1px ${theme.vars.palette.divider}`,
+          }),
+        ]}
       />
 
       <input type="file" ref={fileRef} style={{ display: 'none' }} />

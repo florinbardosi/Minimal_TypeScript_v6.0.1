@@ -1,14 +1,15 @@
+import type { SWRConfiguration } from 'swr';
 import type { IMail, IMailLabel } from 'src/types/mail';
 
 import useSWR from 'swr';
 import { useMemo } from 'react';
+import { keyBy } from 'es-toolkit';
 
-import { keyBy } from 'src/utils/helper';
-import { fetcher, endpoints } from 'src/utils/axios';
+import { fetcher, endpoints } from 'src/lib/axios';
 
 // ----------------------------------------------------------------------
 
-const swrOptions = {
+const swrOptions: SWRConfiguration = {
   revalidateIfStale: false,
   revalidateOnFocus: false,
   revalidateOnReconnect: false,
@@ -31,7 +32,7 @@ export function useGetLabels() {
       labelsLoading: isLoading,
       labelsError: error,
       labelsValidating: isValidating,
-      labelsEmpty: !isLoading && !data?.labels.length,
+      labelsEmpty: !isLoading && !isValidating && !data?.labels.length,
     }),
     [data?.labels, error, isLoading, isValidating]
   );
@@ -51,7 +52,7 @@ export function useGetMails(labelId: string) {
   const { data, isLoading, error, isValidating } = useSWR<MailsData>(url, fetcher, swrOptions);
 
   const memoizedValue = useMemo(() => {
-    const byId = data?.mails.length ? keyBy(data?.mails, 'id') : {};
+    const byId = data?.mails.length ? keyBy(data?.mails, (option) => option.id) : {};
     const allIds = Object.keys(byId);
 
     return {
@@ -59,7 +60,7 @@ export function useGetMails(labelId: string) {
       mailsLoading: isLoading,
       mailsError: error,
       mailsValidating: isValidating,
-      mailsEmpty: !isLoading && !allIds.length,
+      mailsEmpty: !isLoading && !isValidating && !allIds.length,
     };
   }, [data?.mails, error, isLoading, isValidating]);
 
@@ -83,6 +84,7 @@ export function useGetMail(mailId: string) {
       mailLoading: isLoading,
       mailError: error,
       mailValidating: isValidating,
+      mailEmpty: !isLoading && !isValidating && !data?.mail,
     }),
     [data?.mail, error, isLoading, isValidating]
   );

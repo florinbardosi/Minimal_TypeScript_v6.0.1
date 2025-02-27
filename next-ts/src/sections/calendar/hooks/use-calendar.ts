@@ -5,16 +5,17 @@ import type { ICalendarView, ICalendarRange, ICalendarEvent } from 'src/types/ca
 
 import { useRef, useState, useCallback } from 'react';
 
-import { useResponsive } from 'src/hooks/use-responsive';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 // ----------------------------------------------------------------------
 
 export function useCalendar() {
   const calendarRef = useRef<FullCalendar>(null);
-
   const calendarEl = calendarRef.current;
 
-  const smUp = useResponsive('up', 'sm');
+  const theme = useTheme();
+  const smUp = useMediaQuery(theme.breakpoints.up('sm'));
 
   const [date, setDate] = useState(new Date());
 
@@ -149,10 +150,10 @@ export function useCalendar() {
 
   return {
     calendarRef,
-    //
+    /********/
     view,
     date,
-    //
+    /********/
     onDatePrev,
     onDateNext,
     onDateToday,
@@ -162,14 +163,14 @@ export function useCalendar() {
     onSelectRange,
     onResizeEvent,
     onInitialView,
-    //
+    /********/
     openForm,
     onOpenForm,
     onCloseForm,
-    //
+    /********/
     selectEventId,
     selectedRange,
-    //
+    /********/
     onClickEventInFilters,
   };
 }

@@ -21,10 +21,7 @@ type Props = {
 };
 
 export function CarouselVariableWidths({ data }: Props) {
-  const carousel = useCarousel({
-    slidesToShow: 'auto',
-    slideSpacing: '20px',
-  });
+  const carousel = useCarousel({ slidesToShow: 'auto', slideSpacing: '20px' });
 
   return (
     <>
@@ -33,8 +30,14 @@ export function CarouselVariableWidths({ data }: Props) {
           <CarouselItem key={item.id} index={index} item={item} />
         ))}
       </Carousel>
-
-      <Box display="flex" alignItems="center" justifyContent="space-between" sx={{ mt: 3 }}>
+      <Box
+        sx={{
+          mt: 3,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
         <CarouselArrowBasicButtons {...carousel.arrows} options={carousel.options} />
         <CarouselDotButtons
           scrollSnaps={carousel.dots.scrollSnaps}

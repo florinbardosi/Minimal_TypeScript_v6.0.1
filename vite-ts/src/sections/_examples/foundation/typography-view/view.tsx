@@ -1,26 +1,16 @@
-import type { MediaFontSize } from 'src/theme/styles';
+import type { Theme, SxProps } from '@mui/material/styles';
 import type { Variant } from '@mui/material/styles/createTypography';
 
+import { useRef, useState, useEffect, useCallback } from 'react';
+
 import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
-import Stack from '@mui/material/Stack';
-import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 
-import { paths } from 'src/routes/paths';
-
-import { useResponsive } from 'src/hooks/use-responsive';
-
-import { remToPx } from 'src/theme/styles';
-
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-
-import { ComponentHero } from '../../component-hero';
-import { ScrollToViewTemplate } from '../../component-template';
+import { ComponentBox, ComponentLayout } from '../../layout';
 
 // ----------------------------------------------------------------------
 
-const VARIANTS = [
+const TYPOGRAPHY_VARIANTS = [
   'h1',
   'h2',
   'h3',
@@ -36,64 +26,65 @@ const VARIANTS = [
   'button',
 ] as const;
 
-const BASE = VARIANTS.map((variant) => ({
+const COLOR_VARIANTS = ['primary', 'secondary', 'disabled'];
+const MAIN_COLOR_VARIANTS = ['primary', 'secondary', 'info', 'warning', 'error'];
+
+const componentBoxStyles: SxProps<Theme> = {
+  py: 3,
+  flexDirection: 'column',
+  alignItems: 'flex-start',
+};
+
+const BASE_COMPONENTS = TYPOGRAPHY_VARIANTS.map((variant) => ({
   name: variant[0].toUpperCase() + variant.substring(1),
   component: <BlockVariant variant={variant} />,
 }));
 
+const DEMO_COMPONENTS = [
+  ...BASE_COMPONENTS,
+  {
+    name: 'Colors',
+    component: (
+      <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
+        {COLOR_VARIANTS.map((color) => (
+          <ComponentBox key={color} sx={{ ...componentBoxStyles, color: `text.${color}` }}>
+            <Typography variant="subtitle2" sx={{ textTransform: 'capitalize' }}>
+              text {color}
+            </Typography>
+            <Typography variant="body2">
+              Cras ultricies mi eu turpis hendrerit fringilla. Fusce vel dui. Pellentesque auctor
+              neque nec urna. Sed cursus turpis vitae tortor. Curabitur suscipit suscipit tellus.
+            </Typography>
+          </ComponentBox>
+        ))}
+
+        {MAIN_COLOR_VARIANTS.map((color) => (
+          <ComponentBox key={color} sx={{ ...componentBoxStyles, color: `${color}.main` }}>
+            <Typography variant="subtitle2" sx={{ textTransform: 'capitalize' }}>
+              {color}
+            </Typography>
+            <Typography variant="body2">
+              Cras ultricies mi eu turpis hendrerit fringilla. Fusce vel dui. Pellentesque auctor
+              neque nec urna. Sed cursus turpis vitae tortor. Curabitur suscipit suscipit tellus.
+            </Typography>
+          </ComponentBox>
+        ))}
+      </Box>
+    ),
+  },
+];
+
+// ----------------------------------------------------------------------
+
 export function TypographyView() {
-  const DEMO = [
-    ...BASE,
-    {
-      name: 'Colors',
-      component: (
-        <Stack spacing={3}>
-          {['primary', 'secondary', 'disabled'].map((color) => (
-            <Paper key={color}>
-              <Typography
-                variant="subtitle2"
-                sx={{ mb: 1, color: `text.${color}`, textTransform: 'capitalize' }}
-              >
-                text {color}
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 1, color: `text.${color}` }}>
-                Cras ultricies mi eu turpis hendrerit fringilla. Fusce vel dui. Pellentesque auctor
-                neque nec urna. Sed cursus turpis vitae tortor. Curabitur suscipit suscipit tellus.
-              </Typography>
-            </Paper>
-          ))}
-
-          {['primary', 'secondary', 'info', 'warning', 'error'].map((color) => (
-            <Paper key={color}>
-              <Typography
-                variant="subtitle2"
-                sx={{ mb: 1, color: `${color}.main`, textTransform: 'capitalize' }}
-              >
-                {color}
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 1, color: `${color}.main` }}>
-                Cras ultricies mi eu turpis hendrerit fringilla. Fusce vel dui. Pellentesque auctor
-                neque nec urna. Sed cursus turpis vitae tortor. Curabitur suscipit suscipit tellus.
-              </Typography>
-            </Paper>
-          ))}
-        </Stack>
-      ),
-    },
-  ];
-
   return (
-    <>
-      <ComponentHero>
-        <CustomBreadcrumbs
-          heading="Typography"
-          links={[{ name: 'Components', href: paths.components }, { name: 'Typography' }]}
-          moreLink={['https://mui.com/components/typography']}
-        />
-      </ComponentHero>
-
-      <ScrollToViewTemplate data={DEMO} />
-    </>
+    <ComponentLayout
+      sectionData={DEMO_COMPONENTS}
+      heroProps={{
+        heading: 'Typography',
+        moreLinks: ['https://mui.com/components/typography'],
+      }}
+    />
   );
 }
 
@@ -104,54 +95,50 @@ type BlockVariantProps = {
 };
 
 function BlockVariant({ variant }: BlockVariantProps) {
-  const theme = useTheme();
+  const typographyRef = useRef<HTMLDivElement>(null);
 
-  const upSm = useResponsive('up', 'sm');
+  const [computedStyle, setComputedStyle] = useState<CSSStyleDeclaration | null>(null);
 
-  const upMd = useResponsive('up', 'md');
-
-  const upLg = useResponsive('up', 'lg');
-
-  const fontProperties = theme.typography[variant];
-
-  const keysStartWith = (obj: Record<string, any>): boolean =>
-    Object.keys(obj).some((key) => key.startsWith('@media'));
-
-  const hasMedia = keysStartWith(fontProperties);
-
-  let { fontSize } = fontProperties;
-
-  if (hasMedia) {
-    if (upSm) {
-      fontSize = (fontProperties as MediaFontSize)[theme.breakpoints.up('sm')]?.fontSize;
+  const handleUpdate = useCallback(() => {
+    if (typographyRef.current) {
+      const resolvedStyle = getComputedStyle(typographyRef.current);
+      setComputedStyle(resolvedStyle);
     }
-    if (upMd) {
-      fontSize = (fontProperties as MediaFontSize)[theme.breakpoints.up('md')]?.fontSize;
-    }
-    if (upLg) {
-      fontSize = (fontProperties as MediaFontSize)[theme.breakpoints.up('lg')]?.fontSize;
-    }
-  }
+  }, []);
+
+  useEffect(() => {
+    handleUpdate();
+    window.addEventListener('resize', handleUpdate);
+
+    return () => {
+      window.removeEventListener('resize', handleUpdate);
+    };
+  }, [handleUpdate]);
+
+  const lineHeight =
+    parseInt(computedStyle?.lineHeight ?? '0px', 10) /
+    parseInt(computedStyle?.fontSize ?? '0px', 10);
 
   return (
-    <Paper variant="outlined" sx={{ p: 3 }}>
-      <Typography variant={variant}>How can you choose a typeface?</Typography>
+    <ComponentBox sx={componentBoxStyles}>
+      <Typography ref={typographyRef} variant={variant}>
+        How can you choose a typeface?
+      </Typography>
 
-      <Stack
-        spacing={0.5}
+      <Box
         sx={{
-          mt: 2,
+          gap: 0.5,
+          display: 'flex',
           typography: 'body2',
           color: 'text.secondary',
+          flexDirection: 'column',
           fontFamily: '"Lucida Console", Courier, monospace',
         }}
       >
-        <Box component="span">fontSize: {`${remToPx(fontSize as string)}px`}</Box>
-
-        <Box component="span">lineHeight: {Number(fontProperties.lineHeight).toFixed(2)}</Box>
-
-        <Box component="span">fontWeight: {fontProperties.fontWeight}</Box>
-      </Stack>
-    </Paper>
+        <span>fontSize: {computedStyle?.fontSize ?? '-'}</span>
+        <span>lineHeight: {Number.isNaN(lineHeight) ? '-' : lineHeight.toFixed(2)}</span>
+        <span>fontWeight: {computedStyle?.fontWeight ?? '-'}</span>
+      </Box>
+    </ComponentBox>
   );
 }

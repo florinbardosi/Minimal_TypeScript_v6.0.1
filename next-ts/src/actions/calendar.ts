@@ -1,9 +1,10 @@
+import type { SWRConfiguration } from 'swr';
 import type { ICalendarEvent } from 'src/types/calendar';
 
 import { useMemo } from 'react';
 import useSWR, { mutate } from 'swr';
 
-import axios, { fetcher, endpoints } from 'src/utils/axios';
+import axios, { fetcher, endpoints } from 'src/lib/axios';
 
 // ----------------------------------------------------------------------
 
@@ -11,7 +12,7 @@ const enableServer = false;
 
 const CALENDAR_ENDPOINT = endpoints.calendar;
 
-const swrOptions = {
+const swrOptions: SWRConfiguration = {
   revalidateIfStale: enableServer,
   revalidateOnFocus: enableServer,
   revalidateOnReconnect: enableServer,
@@ -31,17 +32,14 @@ export function useGetEvents() {
   );
 
   const memoizedValue = useMemo(() => {
-    const events = data?.events.map((event) => ({
-      ...event,
-      textColor: event.color,
-    }));
+    const events = data?.events.map((event) => ({ ...event, textColor: event.color }));
 
     return {
       events: events || [],
       eventsLoading: isLoading,
       eventsError: error,
       eventsValidating: isValidating,
-      eventsEmpty: !isLoading && !data?.events.length,
+      eventsEmpty: !isLoading && !isValidating && !data?.events.length,
     };
   }, [data?.events, error, isLoading, isValidating]);
 
@@ -62,6 +60,7 @@ export async function createEvent(eventData: ICalendarEvent) {
   /**
    * Work in local
    */
+
   mutate(
     CALENDAR_ENDPOINT,
     (currentData) => {
@@ -89,6 +88,7 @@ export async function updateEvent(eventData: Partial<ICalendarEvent>) {
   /**
    * Work in local
    */
+
   mutate(
     CALENDAR_ENDPOINT,
     (currentData) => {
@@ -118,6 +118,7 @@ export async function deleteEvent(eventId: string) {
   /**
    * Work in local
    */
+
   mutate(
     CALENDAR_ENDPOINT,
     (currentData) => {

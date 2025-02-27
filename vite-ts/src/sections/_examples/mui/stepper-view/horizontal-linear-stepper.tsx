@@ -1,15 +1,13 @@
 import { useState } from 'react';
+import { varAlpha } from 'minimal-shared/utils';
 
 import Box from '@mui/material/Box';
 import Step from '@mui/material/Step';
-import Stack from '@mui/material/Stack';
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
 import Stepper from '@mui/material/Stepper';
 import StepLabel from '@mui/material/StepLabel';
 import Typography from '@mui/material/Typography';
-
-import { varAlpha } from 'src/theme/styles';
 
 // ----------------------------------------------------------------------
 
@@ -87,12 +85,14 @@ export function HorizontalLinearStepper() {
       {activeStep === steps.length ? (
         <>
           <Paper
-            sx={{
-              p: 3,
-              my: 3,
-              minHeight: 120,
-              bgcolor: (theme) => varAlpha(theme.vars.palette.grey['500Channel'], 0.12),
-            }}
+            sx={[
+              (theme) => ({
+                p: 3,
+                my: 3,
+                minHeight: 120,
+                bgcolor: varAlpha(theme.vars.palette.grey['500Channel'], 0.12),
+              }),
+            ]}
           >
             <Typography sx={{ my: 1 }}>All steps completed - you&apos;re finished</Typography>
           </Paper>
@@ -105,17 +105,19 @@ export function HorizontalLinearStepper() {
       ) : (
         <>
           <Paper
-            sx={{
-              p: 3,
-              my: 3,
-              minHeight: 120,
-              bgcolor: (theme) => varAlpha(theme.vars.palette.grey['500Channel'], 0.12),
-            }}
+            sx={[
+              (theme) => ({
+                p: 3,
+                my: 3,
+                minHeight: 120,
+                bgcolor: varAlpha(theme.vars.palette.grey['500Channel'], 0.12),
+              }),
+            ]}
           >
             <Typography sx={{ my: 1 }}> Step {activeStep + 1}</Typography>
           </Paper>
 
-          <Stack direction="row">
+          <Box sx={{ display: 'flex' }}>
             <Button color="inherit" disabled={activeStep === 0} onClick={handleBack} sx={{ mr: 1 }}>
               Back
             </Button>
@@ -129,7 +131,7 @@ export function HorizontalLinearStepper() {
             <Button variant="contained" onClick={handleNext}>
               {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
             </Button>
-          </Stack>
+          </Box>
         </>
       )}
     </Box>

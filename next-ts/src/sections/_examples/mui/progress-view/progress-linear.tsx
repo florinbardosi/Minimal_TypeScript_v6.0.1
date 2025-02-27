@@ -1,7 +1,6 @@
-import Stack from '@mui/material/Stack';
 import LinearProgress from '@mui/material/LinearProgress';
 
-import { ComponentBlock } from '../../component-block';
+import { ComponentBox } from '../../layout';
 
 // ----------------------------------------------------------------------
 
@@ -16,21 +15,14 @@ type LinearProps = {
 
 export function ProgressLinear({ progress, buffer }: LinearProps) {
   return (
-    <Stack
-      sx={{
-        rowGap: 5,
-        columnGap: 3,
-        display: 'grid',
-        gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
-      }}
-    >
-      <ComponentBlock title="Indeterminate" sx={{ flexDirection: 'column' }}>
+    <>
+      <ComponentBox title="Indeterminate" sx={{ flexDirection: 'column' }}>
         {COLORS.map((color) => (
           <LinearProgress key={color} color={color} sx={{ mb: 2, width: 1 }} />
         ))}
-      </ComponentBlock>
+      </ComponentBox>
 
-      <ComponentBlock title="Determinate" sx={{ flexDirection: 'column' }}>
+      <ComponentBox title="Determinate" sx={{ flexDirection: 'column' }}>
         {COLORS.map((color) => (
           <LinearProgress
             key={color}
@@ -40,9 +32,9 @@ export function ProgressLinear({ progress, buffer }: LinearProps) {
             sx={{ mb: 2, width: 1 }}
           />
         ))}
-      </ComponentBlock>
+      </ComponentBox>
 
-      <ComponentBlock title="Buffer" sx={{ flexDirection: 'column' }}>
+      <ComponentBox title="Buffer" sx={{ flexDirection: 'column' }}>
         {COLORS.map((color) => (
           <LinearProgress
             key={color}
@@ -53,9 +45,9 @@ export function ProgressLinear({ progress, buffer }: LinearProps) {
             sx={{ mb: 2, width: 1 }}
           />
         ))}
-      </ComponentBlock>
+      </ComponentBox>
 
-      <ComponentBlock title="Query" sx={{ flexDirection: 'column' }}>
+      <ComponentBox title="Query" sx={{ flexDirection: 'column' }}>
         {COLORS.map((color) => (
           <LinearProgress
             key={color}
@@ -66,7 +58,7 @@ export function ProgressLinear({ progress, buffer }: LinearProps) {
             sx={{ mb: 2, width: 1 }}
           />
         ))}
-      </ComponentBlock>
-    </Stack>
+      </ComponentBox>
+    </>
   );
 }

@@ -1,7 +1,8 @@
-import type { StackProps } from '@mui/material/Stack';
+import type { BoxProps } from '@mui/material/Box';
+
+import { usePopover } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuList from '@mui/material/MenuList';
@@ -12,40 +13,65 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { RouterLink } from 'src/routes/components';
 
 import { Iconify } from 'src/components/iconify';
-import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import { CustomPopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
-type Props = StackProps & {
-  backLink: string;
-  editLink: string;
-  liveLink: string;
+type Props = BoxProps & {
+  backHref: string;
+  editHref: string;
+  liveHref: string;
   publish: string;
   onChangePublish: (newValue: string) => void;
-  publishOptions: {
-    value: string;
-    label: string;
-  }[];
+  publishOptions: { value: string; label: string }[];
 };
 
 export function JobDetailsToolbar({
+  sx,
   publish,
-  backLink,
-  editLink,
-  liveLink,
+  backHref,
+  editHref,
+  liveHref,
   publishOptions,
   onChangePublish,
-  sx,
   ...other
 }: Props) {
-  const popover = usePopover();
+  const menuActions = usePopover();
+
+  const renderMenuActions = () => (
+    <CustomPopover
+      open={menuActions.open}
+      anchorEl={menuActions.anchorEl}
+      onClose={menuActions.onClose}
+    >
+      <MenuList>
+        {publishOptions.map((option) => (
+          <MenuItem
+            key={option.value}
+            selected={option.value === publish}
+            onClick={() => {
+              menuActions.onClose();
+              onChangePublish(option.value);
+            }}
+          >
+            {option.value === 'published' && <Iconify icon="eva:cloud-upload-fill" />}
+            {option.value === 'draft' && <Iconify icon="solar:file-text-bold" />}
+            {option.label}
+          </MenuItem>
+        ))}
+      </MenuList>
+    </CustomPopover>
+  );
 
   return (
     <>
-      <Stack spacing={1.5} direction="row" sx={{ mb: { xs: 3, md: 5 }, ...sx }} {...other}>
+      <Box
+        sx={[{ mb: 3, gap: 1.5, display: 'flex' }, ...(Array.isArray(sx) ? sx : [sx])]}
+        {...other}
+      >
         <Button
           component={RouterLink}
-          href={backLink}
+          href={backHref}
           startIcon={<Iconify icon="eva:arrow-ios-back-fill" width={16} />}
         >
           Back
@@ -55,14 +81,14 @@ export function JobDetailsToolbar({
 
         {publish === 'published' && (
           <Tooltip title="Go Live">
-            <IconButton component={RouterLink} href={liveLink}>
+            <IconButton component={RouterLink} href={liveHref}>
               <Iconify icon="eva:external-link-fill" />
             </IconButton>
           </Tooltip>
         )}
 
         <Tooltip title="Edit">
-          <IconButton component={RouterLink} href={editLink}>
+          <IconButton component={RouterLink} href={editHref}>
             <Iconify icon="solar:pen-bold" />
           </IconButton>
         </Tooltip>
@@ -73,31 +99,14 @@ export function JobDetailsToolbar({
           loading={!publish}
           loadingIndicator="Loading…"
           endIcon={<Iconify icon="eva:arrow-ios-downward-fill" />}
-          onClick={popover.onOpen}
+          onClick={menuActions.onOpen}
           sx={{ textTransform: 'capitalize' }}
         >
           {publish}
         </LoadingButton>
-      </Stack>
+      </Box>
 
-      <CustomPopover open={popover.open} anchorEl={popover.anchorEl} onClose={popover.onClose}>
-        <MenuList>
-          {publishOptions.map((option) => (
-            <MenuItem
-              key={option.value}
-              selected={option.value === publish}
-              onClick={() => {
-                popover.onClose();
-                onChangePublish(option.value);
-              }}
-            >
-              {option.value === 'published' && <Iconify icon="eva:cloud-upload-fill" />}
-              {option.value === 'draft' && <Iconify icon="solar:file-text-bold" />}
-              {option.label}
-            </MenuItem>
-          ))}
-        </MenuList>
-      </CustomPopover>
+      {renderMenuActions()}
     </>
   );
 }

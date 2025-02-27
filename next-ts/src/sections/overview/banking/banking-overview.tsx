@@ -1,13 +1,13 @@
 import type { CardProps } from '@mui/material/Card';
 
+import { useTabs } from 'minimal-shared/hooks';
+
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import Card from '@mui/material/Card';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import { useTheme } from '@mui/material/styles';
-
-import { useTabs } from 'src/hooks/use-tabs';
 
 import { fPercent, fCurrency } from 'src/utils/format-number';
 
@@ -24,7 +24,7 @@ const TABS = [
     label: 'Income',
     percent: 8.2,
     total: 9990,
-    chart: { series: [{ data: [5, 31, 33, 50, 100, 76, 72, 76, 89] }] },
+    chart: { series: [{ data: [5, 31, 33, 50, 99, 76, 72, 76, 89] }] },
   },
   {
     value: 'expenses',
@@ -52,7 +52,7 @@ export function BankingOverview({ sx, ...other }: CardProps) {
     },
   });
 
-  const renderBalance = (
+  const renderBalance = () => (
     <Box sx={{ flexGrow: 1 }}>
       <Box
         sx={{
@@ -69,11 +69,12 @@ export function BankingOverview({ sx, ...other }: CardProps) {
           <Iconify width={16} icon="eva:info-outline" sx={{ color: 'text.disabled' }} />
         </Tooltip>
       </Box>
+
       <Box sx={{ typography: 'h3' }}>{fCurrency(49990)}</Box>
     </Box>
   );
 
-  const renderActions = (
+  const renderActions = () => (
     <Box sx={{ gap: 1, display: 'flex' }}>
       <Button
         variant="soft"
@@ -99,14 +100,14 @@ export function BankingOverview({ sx, ...other }: CardProps) {
     </Box>
   );
 
-  const renderTabs = (
+  const renderTabs = () => (
     <CustomTabs
       value={tabs.value}
       onChange={tabs.onChange}
       variant="fullWidth"
       sx={{ my: 3, borderRadius: 2 }}
       slotProps={{
-        indicator: { borderRadius: 1.5, boxShadow: theme.customShadows.z4 },
+        indicator: { borderRadius: 1.5, boxShadow: theme.vars.customShadows.z4 },
         tab: { p: 3 },
       }}
     >
@@ -195,7 +196,7 @@ export function BankingOverview({ sx, ...other }: CardProps) {
   );
 
   return (
-    <Card sx={{ p: 3, ...sx }} {...other}>
+    <Card sx={[{ p: 3 }, ...(Array.isArray(sx) ? sx : [sx])]} {...other}>
       <Box
         sx={{
           gap: 2,
@@ -204,17 +205,17 @@ export function BankingOverview({ sx, ...other }: CardProps) {
           flexDirection: { xs: 'column', md: 'row' },
         }}
       >
-        {renderBalance}
-        {renderActions}
+        {renderBalance()}
+        {renderActions()}
       </Box>
 
-      {renderTabs}
+      {renderTabs()}
 
       <Chart
         type="line"
         series={tabs.value === 'income' ? TABS[0].chart.series : TABS[1].chart.series}
         options={chartOptions}
-        height={270}
+        sx={{ height: 270 }}
       />
     </Card>
   );

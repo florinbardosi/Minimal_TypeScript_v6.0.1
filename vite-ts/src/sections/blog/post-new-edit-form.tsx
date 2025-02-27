@@ -1,9 +1,10 @@
 import type { IPostItem } from 'src/types/blog';
 
 import { z as zod } from 'zod';
+import { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
+import { useBoolean } from 'minimal-shared/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMemo, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
@@ -20,8 +21,6 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 
-import { useBoolean } from 'src/hooks/use-boolean';
-
 import { _tags } from 'src/_mock';
 
 import { toast } from 'src/components/snackbar';
@@ -36,10 +35,13 @@ export type NewPostSchemaType = zod.infer<typeof NewPostSchema>;
 export const NewPostSchema = zod.object({
   title: zod.string().min(1, { message: 'Title is required!' }),
   description: zod.string().min(1, { message: 'Description is required!' }),
-  content: schemaHelper.editor().min(100, { message: 'Content must be at least 100 characters' }),
-  coverUrl: schemaHelper.file({ message: { required_error: 'Cover is required!' } }),
+  content: schemaHelper
+    .editor()
+    .min(100, { message: 'Content must be at least 100 characters' })
+    .max(500, { message: 'Content must be less than 500 characters' }),
+  coverUrl: schemaHelper.file({ message: 'Cover is required!' }),
   tags: zod.string().array().min(2, { message: 'Must have at least 2 items!' }),
-  metaKeywords: zod.string().array().nonempty({ message: 'Meta keywords is required!' }),
+  metaKeywords: zod.string().array().min(1, { message: 'Meta keywords is required!' }),
   // Not required
   metaTitle: zod.string(),
   metaDescription: zod.string(),
@@ -54,26 +56,24 @@ type Props = {
 export function PostNewEditForm({ currentPost }: Props) {
   const router = useRouter();
 
-  const preview = useBoolean();
+  const showPreview = useBoolean();
 
-  const defaultValues = useMemo(
-    () => ({
-      title: currentPost?.title || '',
-      description: currentPost?.description || '',
-      content: currentPost?.content || '',
-      coverUrl: currentPost?.coverUrl || null,
-      tags: currentPost?.tags || [],
-      metaKeywords: currentPost?.metaKeywords || [],
-      metaTitle: currentPost?.metaTitle || '',
-      metaDescription: currentPost?.metaDescription || '',
-    }),
-    [currentPost]
-  );
+  const defaultValues: NewPostSchemaType = {
+    title: '',
+    description: '',
+    content: '',
+    coverUrl: null,
+    tags: [],
+    metaKeywords: [],
+    metaTitle: '',
+    metaDescription: '',
+  };
 
   const methods = useForm<NewPostSchemaType>({
     mode: 'all',
     resolver: zodResolver(NewPostSchema),
     defaultValues,
+    values: currentPost,
   });
 
   const {
@@ -86,17 +86,11 @@ export function PostNewEditForm({ currentPost }: Props) {
 
   const values = watch();
 
-  useEffect(() => {
-    if (currentPost) {
-      reset(defaultValues);
-    }
-  }, [currentPost, defaultValues, reset]);
-
   const onSubmit = handleSubmit(async (data) => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 500));
       reset();
-      preview.onFalse();
+      showPreview.onFalse();
       toast.success(currentPost ? 'Update success!' : 'Create success!');
       router.push(paths.dashboard.post.root);
       console.info('DATA', data);
@@ -109,7 +103,7 @@ export function PostNewEditForm({ currentPost }: Props) {
     setValue('coverUrl', null);
   }, [setValue]);
 
-  const renderDetails = (
+  const renderDetails = () => (
     <Card>
       <CardHeader title="Details" subheader="Title, short description, image..." sx={{ mb: 3 }} />
 
@@ -133,7 +127,7 @@ export function PostNewEditForm({ currentPost }: Props) {
     </Card>
   );
 
-  const renderProperties = (
+  const renderProperties = () => (
     <Card>
       <CardHeader
         title="Properties"
@@ -205,23 +199,30 @@ export function PostNewEditForm({ currentPost }: Props) {
         />
 
         <FormControlLabel
-          control={<Switch defaultChecked inputProps={{ id: 'comments-switch' }} />}
           label="Enable comments"
+          control={<Switch defaultChecked inputProps={{ id: 'comments-switch' }} />}
         />
       </Stack>
     </Card>
   );
 
-  const renderActions = (
-    <Box display="flex" alignItems="center" flexWrap="wrap" justifyContent="flex-end">
+  const renderActions = () => (
+    <Box
+      sx={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+      }}
+    >
       <FormControlLabel
-        control={<Switch defaultChecked inputProps={{ id: 'publish-switch' }} />}
         label="Publish"
+        control={<Switch defaultChecked inputProps={{ id: 'publish-switch' }} />}
         sx={{ pl: 3, flexGrow: 1 }}
       />
 
       <div>
-        <Button color="inherit" variant="outlined" size="large" onClick={preview.onTrue}>
+        <Button color="inherit" variant="outlined" size="large" onClick={showPreview.onTrue}>
           Preview
         </Button>
 
@@ -241,20 +242,18 @@ export function PostNewEditForm({ currentPost }: Props) {
   return (
     <Form methods={methods} onSubmit={onSubmit}>
       <Stack spacing={5} sx={{ mx: 'auto', maxWidth: { xs: 720, xl: 880 } }}>
-        {renderDetails}
-
-        {renderProperties}
-
-        {renderActions}
+        {renderDetails()}
+        {renderProperties()}
+        {renderActions()}
       </Stack>
 
       <PostDetailsPreview
         isValid={isValid}
         onSubmit={onSubmit}
         title={values.title}
-        open={preview.value}
+        open={showPreview.value}
         content={values.content}
-        onClose={preview.onFalse}
+        onClose={showPreview.onFalse}
         coverUrl={values.coverUrl}
         isSubmitting={isSubmitting}
         description={values.description}

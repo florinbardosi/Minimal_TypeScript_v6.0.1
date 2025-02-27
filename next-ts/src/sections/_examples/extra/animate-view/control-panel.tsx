@@ -1,37 +1,44 @@
-import type { StackProps } from '@mui/material/Stack';
+import type { BoxProps } from '@mui/material/Box';
 
 import Box from '@mui/material/Box';
 import Radio from '@mui/material/Radio';
-import Stack from '@mui/material/Stack';
 import RadioGroup from '@mui/material/RadioGroup';
 import Typography from '@mui/material/Typography';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
+import type { VariantOption } from './variant-keys';
+
 // ----------------------------------------------------------------------
 
-type Props = StackProps & {
-  variantKey: {
-    type: string;
-    values: string[];
-  }[];
-  selectVariant: string;
+export type ControlPanelProps = BoxProps & {
+  options: VariantOption[];
+  selectedVariant: string;
   onChangeVariant: (event: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
-export function ControlPanel({ variantKey, selectVariant, onChangeVariant, sx, ...other }: Props) {
+export function ControlPanel({
+  sx,
+  options,
+  selectedVariant,
+  onChangeVariant,
+  ...other
+}: ControlPanelProps) {
   return (
-    <Stack
-      sx={{
-        p: 2.5,
-        width: 320,
-        overflowX: 'auto',
-        borderLeft: (theme) => `solid 1px ${theme.vars.palette.divider}`,
-        ...sx,
-      }}
+    <Box
+      sx={[
+        (theme) => ({
+          p: 2.5,
+          width: 280,
+          flexShrink: 0,
+          overflowX: 'auto',
+          borderLeft: `solid 1px ${theme.vars.palette.divider}`,
+        }),
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...other}
     >
-      <RadioGroup value={selectVariant} onChange={onChangeVariant}>
-        {variantKey.map((variant) => (
+      <RadioGroup value={selectedVariant} onChange={onChangeVariant}>
+        {options.map((variant) => (
           <Box key={variant.type} sx={{ my: 1.5 }}>
             <Typography variant="overline" sx={{ px: 1, mb: 1, display: 'block' }}>
               {variant.type}
@@ -51,14 +58,16 @@ export function ControlPanel({ variantKey, selectVariant, onChangeVariant, sx, .
                   width: '100%',
                   borderRadius: 0.75,
                   color: 'text.secondary',
-                  ...(selectVariant === value && { color: 'warning.contrastText' }),
-                  ...(selectVariant === value && { bgcolor: 'warning.main' }),
+                  ...(selectedVariant === value && {
+                    bgcolor: 'warning.main',
+                    color: 'warning.contrastText',
+                  }),
                 }}
               />
             ))}
           </Box>
         ))}
       </RadioGroup>
-    </Stack>
+    </Box>
   );
 }

@@ -1,7 +1,6 @@
-import Stack from '@mui/material/Stack';
 import CircularProgress from '@mui/material/CircularProgress';
 
-import { ComponentBlock } from '../../component-block';
+import { ComponentBox } from '../../layout';
 
 // ----------------------------------------------------------------------
 
@@ -15,28 +14,28 @@ type CircularProps = {
 
 export function ProgressCircular({ progress }: CircularProps) {
   return (
-    <Stack spacing={5}>
-      <ComponentBlock title="Indeterminate">
+    <>
+      <ComponentBox title="Indeterminate">
         {COLORS.map((color) => (
           <CircularProgress key={color} color={color} />
         ))}
-      </ComponentBlock>
+      </ComponentBox>
 
-      <ComponentBlock title="Determinate">
+      <ComponentBox title="Determinate">
         <CircularProgress color="info" />
         <CircularProgress color="info" variant="determinate" value={25} />
         <CircularProgress color="info" variant="determinate" value={50} />
         <CircularProgress color="info" variant="determinate" value={75} />
         <CircularProgress color="info" variant="determinate" value={100} />
         <CircularProgress color="info" variant="determinate" value={progress} />
-      </ComponentBlock>
+      </ComponentBox>
 
-      <ComponentBlock title="Sizes">
+      <ComponentBox title="Sizes">
         <CircularProgress size={48} color="info" />
         <CircularProgress color="info" />
         <CircularProgress size={32} color="info" />
         <CircularProgress size={24} color="info" />
-      </ComponentBlock>
-    </Stack>
+      </ComponentBox>
+    </>
   );
 }

@@ -1,5 +1,6 @@
+import type { RouteObject } from 'react-router';
+
 import { lazy, Suspense } from 'react';
-import { Navigate, useRoutes } from 'react-router-dom';
 
 import { MainLayout } from 'src/layouts/main';
 
@@ -14,38 +15,41 @@ import { componentsRoutes } from './components';
 // ----------------------------------------------------------------------
 
 const HomePage = lazy(() => import('src/pages/home'));
+const Page404 = lazy(() => import('src/pages/error/404'));
 
-export function Router() {
-  return useRoutes([
-    {
-      path: '/',
-      /**
-       * Skip home page
-       * element: <Navigate to={CONFIG.auth.redirectPath} replace />,
-       */
-      element: (
-        <Suspense fallback={<SplashScreen />}>
-          <MainLayout>
-            <HomePage />
-          </MainLayout>
-        </Suspense>
-      ),
-    },
+export const routesSection: RouteObject[] = [
+  {
+    path: '/',
+    /**
+     * @skip homepage
+     * import { Navigate } from "react-router";
+     * import { CONFIG } from 'src/global-config';
+     *
+     * element: <Navigate to={CONFIG.auth.redirectPath} replace />,
+     * and remove the element below:
+     */
+    element: (
+      <Suspense fallback={<SplashScreen />}>
+        <MainLayout>
+          <HomePage />
+        </MainLayout>
+      </Suspense>
+    ),
+  },
 
-    // Auth
-    ...authRoutes,
-    ...authDemoRoutes,
+  // Auth
+  ...authRoutes,
+  ...authDemoRoutes,
 
-    // Dashboard
-    ...dashboardRoutes,
+  // Dashboard
+  ...dashboardRoutes,
 
-    // Main
-    ...mainRoutes,
+  // Main
+  ...mainRoutes,
 
-    // Components
-    ...componentsRoutes,
+  // Components
+  ...componentsRoutes,
 
-    // No match
-    { path: '*', element: <Navigate to="/404" replace /> },
-  ]);
-}
+  // No match
+  { path: '*', element: <Page404 /> },
+];

@@ -7,5 +7,13 @@ type Props = {
 };
 
 export default function Layout({ children }: Props) {
-  return <SimpleLayout content={{ compact: true }}>{children}</SimpleLayout>;
+  return (
+    <SimpleLayout
+      slotProps={{
+        content: { compact: true },
+      }}
+    >
+      {children}
+    </SimpleLayout>
+  );
 }

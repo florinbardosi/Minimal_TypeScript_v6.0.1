@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
+import { varAlpha, mergeClasses } from 'minimal-shared/utils';
 
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-
-import { varAlpha } from 'src/theme/styles';
 
 import { Image } from '../image';
 import { Iconify } from '../iconify';
@@ -45,14 +44,15 @@ export function UploadAvatar({
     }
   }, [value]);
 
-  const renderPreview = hasFile && (
-    <Image alt="avatar" src={preview} sx={{ width: 1, height: 1, borderRadius: '50%' }} />
-  );
+  const renderPreview = () =>
+    hasFile && (
+      <Image alt="Avatar" src={preview} sx={{ width: 1, height: 1, borderRadius: '50%' }} />
+    );
 
-  const renderPlaceholder = (
+  const renderPlaceholder = () => (
     <Box
       className="upload-placeholder"
-      sx={{
+      sx={(theme) => ({
         top: 0,
         gap: 1,
         left: 0,
@@ -66,21 +66,22 @@ export function UploadAvatar({
         color: 'text.disabled',
         flexDirection: 'column',
         justifyContent: 'center',
-        bgcolor: (theme) => varAlpha(theme.vars.palette.grey['500Channel'], 0.08),
-        transition: (theme) =>
-          theme.transitions.create(['opacity'], { duration: theme.transitions.duration.shorter }),
+        bgcolor: varAlpha(theme.vars.palette.grey['500Channel'], 0.08),
+        transition: theme.transitions.create(['opacity'], {
+          duration: theme.transitions.duration.shorter,
+        }),
         '&:hover': { opacity: 0.72 },
         ...(hasError && {
           color: 'error.main',
-          bgcolor: (theme) => varAlpha(theme.vars.palette.error.mainChannel, 0.08),
+          bgcolor: varAlpha(theme.vars.palette.error.mainChannel, 0.08),
         }),
         ...(hasFile && {
           zIndex: 9,
           opacity: 0,
           color: 'common.white',
-          bgcolor: (theme) => varAlpha(theme.vars.palette.grey['900Channel'], 0.64),
+          bgcolor: varAlpha(theme.vars.palette.grey['900Channel'], 0.64),
         }),
-      }}
+      })}
     >
       <Iconify icon="solar:camera-add-bold" width={32} />
 
@@ -88,7 +89,7 @@ export function UploadAvatar({
     </Box>
   );
 
-  const renderContent = (
+  const renderContent = () => (
     <Box
       sx={{
         width: 1,
@@ -98,8 +99,8 @@ export function UploadAvatar({
         position: 'relative',
       }}
     >
-      {renderPreview}
-      {renderPlaceholder}
+      {renderPreview()}
+      {renderPlaceholder()}
     </Box>
   );
 
@@ -107,36 +108,36 @@ export function UploadAvatar({
     <>
       <Box
         {...getRootProps()}
-        className={uploadClasses.uploadBox.concat(className ? ` ${className}` : '')}
-        sx={{
-          p: 1,
-          m: 'auto',
-          width: 144,
-          height: 144,
-          cursor: 'pointer',
-          overflow: 'hidden',
-          borderRadius: '50%',
-          border: (theme) => `1px dashed ${varAlpha(theme.vars.palette.grey['500Channel'], 0.2)}`,
-          ...(isDragActive && { opacity: 0.72 }),
-          ...(disabled && { opacity: 0.48, pointerEvents: 'none' }),
-          ...(hasError && { borderColor: 'error.main' }),
-          ...(hasFile && {
-            ...(hasError && {
-              bgcolor: (theme) => varAlpha(theme.vars.palette.error.mainChannel, 0.08),
+        className={mergeClasses([uploadClasses.uploadBox, className])}
+        sx={[
+          (theme) => ({
+            p: 1,
+            m: 'auto',
+            width: 144,
+            height: 144,
+            cursor: 'pointer',
+            overflow: 'hidden',
+            borderRadius: '50%',
+            border: `1px dashed ${varAlpha(theme.vars.palette.grey['500Channel'], 0.2)}`,
+            ...(isDragActive && { opacity: 0.72 }),
+            ...(disabled && { opacity: 0.48, pointerEvents: 'none' }),
+            ...(hasError && { borderColor: 'error.main' }),
+            ...(hasFile && {
+              ...(hasError && { bgcolor: varAlpha(theme.vars.palette.error.mainChannel, 0.08) }),
+              '&:hover .upload-placeholder': { opacity: 1 },
             }),
-            '&:hover .upload-placeholder': { opacity: 1 },
           }),
-          ...sx,
-        }}
+          ...(Array.isArray(sx) ? sx : [sx]),
+        ]}
       >
         <input {...getInputProps()} />
 
-        {renderContent}
+        {renderContent()}
       </Box>
 
       {helperText && helperText}
 
-      <RejectionFiles files={fileRejections} />
+      {!!fileRejections.length && <RejectionFiles files={fileRejections} />}
     </>
   );
 }

@@ -1,9 +1,6 @@
-import type { BoxProps } from '@mui/material/Box';
+import { varAlpha, mergeClasses } from 'minimal-shared/utils';
 
-import Box from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
-
-import { varAlpha } from 'src/theme/styles';
 
 import { carouselClasses } from '../classes';
 
@@ -11,7 +8,21 @@ import type { CarouselProgressBarProps } from '../types';
 
 // ----------------------------------------------------------------------
 
-const StyledRoot = styled(Box)(({ theme }) => ({
+export function CarouselProgressBar({ sx, value, className, ...other }: CarouselProgressBarProps) {
+  return (
+    <ProgressBarRoot
+      className={mergeClasses([carouselClasses.progress.root, className])}
+      sx={[{ '--progress-value': value }, ...(Array.isArray(sx) ? sx : [sx])]}
+      {...other}
+    >
+      <ProgressBar className={carouselClasses.progress.bar} />
+    </ProgressBarRoot>
+  );
+}
+
+// ----------------------------------------------------------------------
+
+const ProgressBarRoot = styled('div')(({ theme }) => ({
   height: 6,
   maxWidth: 120,
   width: '100%',
@@ -22,35 +33,12 @@ const StyledRoot = styled(Box)(({ theme }) => ({
   backgroundColor: varAlpha(theme.vars.palette.grey['500Channel'], 0.2),
 }));
 
-const StyledProgress = styled(Box)(() => ({
+const ProgressBar = styled('span')(({ theme }) => ({
   top: 0,
   bottom: 0,
   width: '100%',
   left: '-100%',
   position: 'absolute',
   backgroundColor: 'currentColor',
+  transform: `translate3d(calc(var(--progress-value) * ${theme.direction === 'rtl' ? -1 : 1}%), 0px, 0px)`,
 }));
-
-// ----------------------------------------------------------------------
-
-export function CarouselProgressBar({
-  sx,
-  value,
-  className,
-  ...other
-}: BoxProps & CarouselProgressBarProps) {
-  return (
-    <StyledRoot
-      sx={sx}
-      className={carouselClasses.progress.concat(className ? ` ${className}` : '')}
-      {...other}
-    >
-      <StyledProgress
-        className={carouselClasses.progressBar}
-        sx={{
-          transform: `translate3d(${value}%, 0px, 0px)`,
-        }}
-      />
-    </StyledRoot>
-  );
-}

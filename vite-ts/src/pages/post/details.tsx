@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async';
 
 import { useParams } from 'src/routes/hooks';
 
-import { CONFIG } from 'src/config-global';
+import { CONFIG } from 'src/global-config';
 import { useGetPost, useGetLatestPosts } from 'src/actions/blog';
 
 import { PostDetailsHomeView } from 'src/sections/blog/view';

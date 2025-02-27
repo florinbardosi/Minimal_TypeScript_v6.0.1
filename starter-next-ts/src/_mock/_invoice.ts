@@ -1,6 +1,7 @@
 import { fSub, fAdd } from 'src/utils/format-time';
 
 import { _mock } from './_mock';
+import { _tags } from './assets';
 import { _addressBooks } from './_others';
 
 // ----------------------------------------------------------------------
@@ -12,13 +13,13 @@ export const INVOICE_STATUS_OPTIONS = [
   { value: 'draft', label: 'Draft' },
 ];
 
-export const INVOICE_SERVICE_OPTIONS = [...Array(8)].map((_, index) => ({
+export const INVOICE_SERVICE_OPTIONS = Array.from({ length: 8 }, (_, index) => ({
   id: _mock.id(index),
-  name: _mock.role(index),
+  name: _tags[index],
   price: _mock.number.price(index),
 }));
 
-const ITEMS = [...Array(3)].map((__, index) => {
+const ITEMS = Array.from({ length: 3 }, (__, index) => {
   const total = INVOICE_SERVICE_OPTIONS[index].price * _mock.number.nativeS(index);
 
   return {
@@ -32,7 +33,7 @@ const ITEMS = [...Array(3)].map((__, index) => {
   };
 });
 
-export const _invoices = [...Array(20)].map((_, index) => {
+export const _invoices = Array.from({ length: 20 }, (_, index) => {
   const taxes = _mock.number.price(index + 1);
 
   const discount = _mock.number.price(index + 2);

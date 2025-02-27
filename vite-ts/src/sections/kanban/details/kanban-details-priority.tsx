@@ -1,25 +1,33 @@
-import Stack from '@mui/material/Stack';
-import ButtonBase from '@mui/material/ButtonBase';
+import type { BoxProps } from '@mui/material/Box';
 
-import { varAlpha } from 'src/theme/styles';
+import { varAlpha } from 'minimal-shared/utils';
+
+import Box from '@mui/material/Box';
+import ButtonBase from '@mui/material/ButtonBase';
 
 import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-type Props = {
+type Props = BoxProps & {
   priority: string;
   onChangePriority: (newValue: string) => void;
 };
 
-export function KanbanDetailsPriority({ priority, onChangePriority }: Props) {
+export function KanbanDetailsPriority({ priority, onChangePriority, sx, ...other }: Props) {
   return (
-    <Stack direction="row" flexWrap="wrap" spacing={1}>
+    <Box
+      sx={[
+        () => ({ gap: 1, display: 'flex', flexWrap: 'wrap' }),
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
+      {...other}
+    >
       {['low', 'medium', 'hight'].map((option) => (
         <ButtonBase
           key={option}
           onClick={() => onChangePriority(option)}
-          sx={{
+          sx={(theme) => ({
             py: 0.5,
             pl: 0.75,
             pr: 1.25,
@@ -28,12 +36,11 @@ export function KanbanDetailsPriority({ priority, onChangePriority }: Props) {
             lineHeight: '20px',
             textTransform: 'capitalize',
             fontWeight: 'fontWeightBold',
-            boxShadow: (theme) =>
-              `inset 0 0 0 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.24)}`,
+            boxShadow: `inset 0 0 0 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.24)}`,
             ...(option === priority && {
-              boxShadow: (theme) => `inset 0 0 0 2px ${theme.vars.palette.text.primary}`,
+              boxShadow: `inset 0 0 0 2px ${theme.vars.palette.text.primary}`,
             }),
-          }}
+          })}
         >
           <Iconify
             icon={
@@ -52,6 +59,6 @@ export function KanbanDetailsPriority({ priority, onChangePriority }: Props) {
           {option}
         </ButtonBase>
       ))}
-    </Stack>
+    </Box>
   );
 }

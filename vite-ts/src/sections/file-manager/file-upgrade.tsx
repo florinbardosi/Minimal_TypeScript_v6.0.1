@@ -6,7 +6,7 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 
-import { CONFIG } from 'src/config-global';
+import { CONFIG } from 'src/global-config';
 
 import { SvgColor } from 'src/components/svg-color';
 
@@ -15,15 +15,16 @@ import { SvgColor } from 'src/components/svg-color';
 export function FileUpgrade({ sx, ...other }: CardProps) {
   return (
     <Card
-      sx={{
-        p: 5,
-        display: 'flex',
-        alignItems: 'center',
-        color: 'common.white',
-        background: (theme) =>
-          `radial-gradient(70% 70% at 0% 0%, ${theme.vars.palette.grey[700]} 0%, ${theme.vars.palette.common.black} 100%)`,
-        ...sx,
-      }}
+      sx={[
+        (theme) => ({
+          p: 5,
+          display: 'flex',
+          alignItems: 'center',
+          color: 'common.white',
+          background: `radial-gradient(70% 70% at 0% 0%, ${theme.vars.palette.grey[700]} 0%, ${theme.vars.palette.common.black} 100%)`,
+        }),
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...other}
     >
       <Box

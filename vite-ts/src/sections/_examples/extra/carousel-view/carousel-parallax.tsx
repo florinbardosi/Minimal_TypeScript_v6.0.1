@@ -67,10 +67,7 @@ function CarouselItem({ item, index }: CarouselItemProps) {
         component="img"
         alt={item.title}
         src={item.coverUrl}
-        sx={{
-          objectFit: 'cover',
-          aspectRatio: { xs: '4/3', sm: '16/10' },
-        }}
+        sx={{ objectFit: 'cover', aspectRatio: { xs: '4/3', sm: '16/10' } }}
       />
     </Box>
   );

@@ -1,4 +1,4 @@
-import type { StackProps } from '@mui/material/Stack';
+import type { BoxProps } from '@mui/material/Box';
 
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
@@ -12,7 +12,7 @@ import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-type Props = StackProps & {
+type Props = BoxProps & {
   title: string;
   link?: string;
   subtitle?: string;
@@ -32,9 +32,26 @@ export function FileManagerPanel({
   ...other
 }: Props) {
   return (
-    <Stack direction="row" alignItems="center" sx={{ mb: 3, ...sx }} {...other}>
+    <Box
+      sx={[
+        {
+          mb: 3,
+          display: 'flex',
+          alignItems: 'center',
+        },
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
+      {...other}
+    >
       <Stack flexGrow={1}>
-        <Stack direction="row" alignItems="center" spacing={1} flexGrow={1}>
+        <Box
+          sx={{
+            gap: 1,
+            flexGrow: 1,
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
           <Typography variant="h6"> {title} </Typography>
 
           <IconButton
@@ -49,9 +66,9 @@ export function FileManagerPanel({
               '&:hover': { bgcolor: 'primary.dark' },
             }}
           >
-            <Iconify icon="mingcute:add-line" />
+            <Iconify width={16} icon="mingcute:add-line" />
           </IconButton>
-        </Stack>
+        </Box>
 
         <Box sx={{ typography: 'body2', color: 'text.disabled', mt: 0.5 }}>{subtitle}</Box>
       </Stack>
@@ -73,6 +90,6 @@ export function FileManagerPanel({
           <Iconify icon={collapse ? 'eva:arrow-ios-downward-fill' : 'eva:arrow-ios-upward-fill'} />
         </IconButton>
       )}
-    </Stack>
+    </Box>
   );
 }

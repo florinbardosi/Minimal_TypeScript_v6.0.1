@@ -2,6 +2,7 @@ import type { ICalendarEvent } from 'src/types/calendar';
 
 import { z as zod } from 'zod';
 import { useCallback } from 'react';
+import { uuidv4 } from 'minimal-shared/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
 
@@ -13,7 +14,6 @@ import IconButton from '@mui/material/IconButton';
 import LoadingButton from '@mui/lab/LoadingButton';
 import DialogActions from '@mui/material/DialogActions';
 
-import { uuidv4 } from 'src/utils/uuidv4';
 import { fIsAfter } from 'src/utils/format-time';
 
 import { createEvent, updateEvent, deleteEvent } from 'src/actions/calendar';
@@ -137,9 +137,9 @@ export function CalendarForm({ currentEvent, colorOptions, onClose }: Props) {
             control={control}
             render={({ field }) => (
               <ColorPicker
-                selected={field.value as string}
-                onSelectColor={(color) => field.onChange(color as string)}
-                colors={colorOptions}
+                value={field.value as string}
+                onChange={(color) => field.onChange(color as string)}
+                options={colorOptions}
               />
             )}
           />

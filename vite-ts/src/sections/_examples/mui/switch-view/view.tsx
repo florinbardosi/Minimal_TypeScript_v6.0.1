@@ -3,13 +3,7 @@ import FormGroup from '@mui/material/FormGroup';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
-import { paths } from 'src/routes/paths';
-
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-
-import { ComponentHero } from '../../component-hero';
-import { ComponentBlock } from '../../component-block';
-import { ScrollToViewTemplate } from '../../component-template';
+import { ComponentBox, ComponentLayout } from '../../layout';
 
 // ----------------------------------------------------------------------
 
@@ -17,90 +11,94 @@ const COLORS = ['default', 'primary', 'secondary', 'info', 'success', 'warning',
 
 const PLACEMENTS = ['top', 'start', 'bottom', 'end'] as const;
 
-// ----------------------------------------------------------------------
-
-export function SwitchView() {
-  const DEMO = [
-    {
-      name: 'Basic',
-      component: (
-        <ComponentBlock>
-          <Switch name="basic-1" defaultChecked />
-          <Switch name="basic-2" />
-          <Switch name="basic-3" disabled />
-          <Switch name="basic-4" disabled checked />
-          <Switch name="basic-5" defaultChecked color="default" />
-        </ComponentBlock>
-      ),
-    },
-    {
-      name: 'Sizes',
-      component: (
-        <ComponentBlock>
-          <FormGroup row>
-            <FormControlLabel control={<Switch name="small" size="small" />} label="Small" />
-            <FormControlLabel control={<Switch name="normal" />} label="Normal" />
-          </FormGroup>
-        </ComponentBlock>
-      ),
-    },
-    {
-      name: 'Placement',
-      component: (
-        <ComponentBlock>
-          <FormGroup row>
-            {PLACEMENTS.map((placement) => (
+const DEMO_COMPONENTS = [
+  {
+    name: 'Basic',
+    component: (
+      <ComponentBox>
+        <Switch defaultChecked inputProps={{ id: 'checked-switch' }} />
+        <Switch inputProps={{ id: 'unchecked-switch' }} />
+        <Switch disabled inputProps={{ id: 'disabled-unchecked-switch' }} />
+        <Switch disabled checked inputProps={{ id: 'disabled-checked-switch' }} />
+        <Switch defaultChecked color="default" inputProps={{ id: 'color-checked-switch' }} />
+      </ComponentBox>
+    ),
+  },
+  {
+    name: 'Sizes',
+    component: (
+      <ComponentBox>
+        <FormGroup row>
+          <FormControlLabel
+            label="Small"
+            control={<Switch size="small" inputProps={{ id: 'size-small-switch' }} />}
+          />
+          <FormControlLabel
+            label="Normal"
+            control={<Switch inputProps={{ id: 'size-normal-switch' }} />}
+          />
+        </FormGroup>
+      </ComponentBox>
+    ),
+  },
+  {
+    name: 'Placement',
+    component: (
+      <ComponentBox>
+        <FormGroup row>
+          {PLACEMENTS.map((placement) => (
+            <FormControlLabel
+              key={placement}
+              value={placement}
+              label={placement}
+              labelPlacement={placement}
+              control={<Switch inputProps={{ id: `${placement}-switch` }} />}
+              sx={{ textTransform: 'capitalize' }}
+            />
+          ))}
+        </FormGroup>
+      </ComponentBox>
+    ),
+  },
+  {
+    name: 'Colors',
+    component: (
+      <ComponentBox>
+        <FormControl component="fieldset">
+          <FormGroup>
+            {COLORS.map((color) => (
               <FormControlLabel
-                key={placement}
-                value={placement}
-                label={placement}
-                labelPlacement={placement}
-                control={<Switch name={placement} />}
+                key={color}
+                label={color}
+                control={
+                  <Switch defaultChecked color={color} inputProps={{ id: `${color}-switch` }} />
+                }
                 sx={{ textTransform: 'capitalize' }}
               />
             ))}
+
+            <FormControlLabel
+              disabled
+              label="Disabled"
+              control={<Switch color="error" inputProps={{ id: 'error-disabled-switch' }} />}
+            />
           </FormGroup>
-        </ComponentBlock>
-      ),
-    },
-    {
-      name: 'Colors',
-      component: (
-        <ComponentBlock>
-          <FormControl component="fieldset">
-            <FormGroup>
-              {COLORS.map((color) => (
-                <FormControlLabel
-                  key={color}
-                  control={<Switch defaultChecked name={color} color={color} />}
-                  label={color}
-                  sx={{ textTransform: 'capitalize' }}
-                />
-              ))}
+        </FormControl>
+      </ComponentBox>
+    ),
+  },
+];
 
-              <FormControlLabel
-                disabled
-                control={<Switch name="error-disabled" color="error" />}
-                label="Disabled"
-              />
-            </FormGroup>
-          </FormControl>
-        </ComponentBlock>
-      ),
-    },
-  ];
+// ----------------------------------------------------------------------
 
+export function SwitchView() {
   return (
-    <>
-      <ComponentHero>
-        <CustomBreadcrumbs
-          heading="Switch"
-          links={[{ name: 'Components', href: paths.components }, { name: 'Switch' }]}
-          moreLink={['https://mui.com/components/switches']}
-        />
-      </ComponentHero>
-
-      <ScrollToViewTemplate data={DEMO} />
-    </>
+    <ComponentLayout
+      sectionData={DEMO_COMPONENTS}
+      heroProps={{
+        heading: 'Switch',
+        moreLinks: ['https://mui.com/material-ui/react-switch/'],
+      }}
+    />
   );
 }

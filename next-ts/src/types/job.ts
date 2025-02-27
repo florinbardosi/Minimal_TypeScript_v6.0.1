@@ -3,8 +3,8 @@
 export type IJobFilters = {
   roles: string[];
   experience: string;
-  locations: string[];
   benefits: string[];
+  locations: string[];
   employmentTypes: string[];
 };
 

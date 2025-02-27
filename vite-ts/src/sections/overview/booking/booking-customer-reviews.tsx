@@ -35,13 +35,13 @@ type Props = CardProps & {
   }[];
 };
 
-export function BookingCustomerReviews({ title, subheader, list, ...other }: Props) {
+export function BookingCustomerReviews({ title, subheader, list, sx, ...other }: Props) {
   const carousel = useCarousel({ align: 'start' }, [AutoHeight()]);
 
   const customerInfo = list.find((_, index) => index === carousel.dots.selectedIndex);
 
   return (
-    <Card {...other}>
+    <Card sx={sx} {...other}>
       <CardHeader
         title={title}
         subheader={subheader}
@@ -88,33 +88,28 @@ type ItemProps = BoxProps & {
 function Item({ item, sx, ...other }: ItemProps) {
   return (
     <Box
-      sx={{
-        p: 3,
-        gap: 2,
-        display: 'flex',
-        position: 'relative',
-        flexDirection: 'column',
-        ...sx,
-      }}
-      {...other}
-    >
-      <Box
-        sx={{
+      sx={[
+        {
+          p: 3,
           gap: 2,
           display: 'flex',
-          alignItems: 'center',
-        }}
-      >
+          position: 'relative',
+          flexDirection: 'column',
+        },
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
+      {...other}
+    >
+      <Box sx={{ gap: 2, display: 'flex', alignItems: 'center' }}>
         <Avatar alt={item.name} src={item.avatarUrl} sx={{ width: 48, height: 48 }} />
 
         <ListItemText
           primary={item.name}
           secondary={`Posted ${fDateTime(item.postedAt)}`}
-          secondaryTypographyProps={{
-            mt: 0.5,
-            component: 'span',
-            typography: 'caption',
-            color: 'text.disabled',
+          slotProps={{
+            secondary: {
+              sx: { mt: 0.5, typography: 'caption', color: 'text.disabled' },
+            },
           }}
         />
       </Box>

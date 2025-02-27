@@ -1,7 +1,6 @@
-import type { StackProps } from '@mui/material/Stack';
-import type { Theme, SxProps } from '@mui/material/styles';
+import type { UseSetStateReturn } from 'minimal-shared/hooks';
 import type { ITourGuide, ITourFilters } from 'src/types/tour';
-import type { UseSetStateReturn } from 'src/hooks/use-set-state';
+import type { FiltersResultProps } from 'src/components/filters-result';
 
 import { useCallback } from 'react';
 
@@ -14,59 +13,59 @@ import { chipProps, FiltersBlock, FiltersResult } from 'src/components/filters-r
 
 // ----------------------------------------------------------------------
 
-type Props = StackProps & {
-  totalResults: number;
-  sx?: SxProps<Theme>;
+type Props = FiltersResultProps & {
   filters: UseSetStateReturn<ITourFilters>;
 };
 
 export function TourFiltersResult({ filters, totalResults, sx }: Props) {
+  const { state: currentFilters, setState: updateFilters, resetState: resetFilters } = filters;
+
   const handleRemoveServices = useCallback(
     (inputValue: string) => {
-      const newValue = filters.state.services.filter((item) => item !== inputValue);
+      const newValue = currentFilters.services.filter((item) => item !== inputValue);
 
-      filters.setState({ services: newValue });
+      updateFilters({ services: newValue });
     },
-    [filters]
+    [updateFilters, currentFilters.services]
   );
 
   const handleRemoveAvailable = useCallback(() => {
-    filters.setState({ startDate: null, endDate: null });
-  }, [filters]);
+    updateFilters({ startDate: null, endDate: null });
+  }, [updateFilters]);
 
   const handleRemoveTourGuide = useCallback(
     (inputValue: ITourGuide) => {
-      const newValue = filters.state.tourGuides.filter((item) => item.name !== inputValue.name);
+      const newValue = currentFilters.tourGuides.filter((item) => item.name !== inputValue.name);
 
-      filters.setState({ tourGuides: newValue });
+      updateFilters({ tourGuides: newValue });
     },
-    [filters]
+    [updateFilters, currentFilters.tourGuides]
   );
 
   const handleRemoveDestination = useCallback(
     (inputValue: string) => {
-      const newValue = filters.state.destination.filter((item) => item !== inputValue);
+      const newValue = currentFilters.destination.filter((item) => item !== inputValue);
 
-      filters.setState({ destination: newValue });
+      updateFilters({ destination: newValue });
     },
-    [filters]
+    [updateFilters, currentFilters.destination]
   );
 
   return (
-    <FiltersResult totalResults={totalResults} onReset={filters.onResetState} sx={sx}>
+    <FiltersResult totalResults={totalResults} onReset={() => resetFilters()} sx={sx}>
       <FiltersBlock
         label="Available:"
-        isShow={Boolean(filters.state.startDate && filters.state.endDate)}
+        isShow={Boolean(currentFilters.startDate && currentFilters.endDate)}
       >
         <Chip
           {...chipProps}
-          label={fDateRangeShortLabel(filters.state.startDate, filters.state.endDate)}
+          label={fDateRangeShortLabel(currentFilters.startDate, currentFilters.endDate)}
           onDelete={handleRemoveAvailable}
         />
       </FiltersBlock>
 
-      <FiltersBlock label="Services:" isShow={!!filters.state.services.length}>
-        {filters.state.services.map((item) => (
+      <FiltersBlock label="Services:" isShow={!!currentFilters.services.length}>
+        {currentFilters.services.map((item) => (
           <Chip
             {...chipProps}
             key={item}
@@ -76,8 +75,8 @@ export function TourFiltersResult({ filters, totalResults, sx }: Props) {
         ))}
       </FiltersBlock>
 
-      <FiltersBlock label="Tour guide:" isShow={!!filters.state.tourGuides.length}>
-        {filters.state.tourGuides.map((item) => (
+      <FiltersBlock label="Tour guide:" isShow={!!currentFilters.tourGuides.length}>
+        {currentFilters.tourGuides.map((item) => (
           <Chip
             {...chipProps}
             key={item.id}
@@ -88,8 +87,8 @@ export function TourFiltersResult({ filters, totalResults, sx }: Props) {
         ))}
       </FiltersBlock>
 
-      <FiltersBlock label="Destination:" isShow={!!filters.state.destination.length}>
-        {filters.state.destination.map((item) => (
+      <FiltersBlock label="Destination:" isShow={!!currentFilters.destination.length}>
+        {currentFilters.destination.map((item) => (
           <Chip
             {...chipProps}
             key={item}

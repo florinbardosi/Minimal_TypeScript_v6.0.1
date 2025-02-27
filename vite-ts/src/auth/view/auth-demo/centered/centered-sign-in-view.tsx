@@ -1,5 +1,6 @@
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
+import { useBoolean } from 'minimal-shared/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Box from '@mui/material/Box';
@@ -11,11 +12,9 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { useBoolean } from 'src/hooks/use-boolean';
-
 import { Iconify } from 'src/components/iconify';
-import { AnimateLogo2 } from 'src/components/animate';
 import { Form, Field } from 'src/components/hook-form';
+import { AnimateLogoRotate } from 'src/components/animate';
 
 import { FormHead } from '../../../components/form-head';
 import { FormSocials } from '../../../components/form-socials';
@@ -39,9 +38,12 @@ export const SignInSchema = zod.object({
 // ----------------------------------------------------------------------
 
 export function CenteredSignInView() {
-  const password = useBoolean();
+  const showPassword = useBoolean();
 
-  const defaultValues = { email: '', password: '' };
+  const defaultValues: SignInSchemaType = {
+    email: '',
+    password: '',
+  };
 
   const methods = useForm<SignInSchemaType>({
     resolver: zodResolver(SignInSchema),
@@ -62,13 +64,11 @@ export function CenteredSignInView() {
     }
   });
 
-  const renderLogo = <AnimateLogo2 sx={{ mb: 3, mx: 'auto' }} />;
+  const renderForm = () => (
+    <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
+      <Field.Text name="email" label="Email address" slotProps={{ inputLabel: { shrink: true } }} />
 
-  const renderForm = (
-    <Box gap={3} display="flex" flexDirection="column">
-      <Field.Text name="email" label="Email address" InputLabelProps={{ shrink: true }} />
-
-      <Box gap={1.5} display="flex" flexDirection="column">
+      <Box sx={{ gap: 1.5, display: 'flex', flexDirection: 'column' }}>
         <Link
           component={RouterLink}
           href={paths.authDemo.centered.resetPassword}
@@ -83,16 +83,20 @@ export function CenteredSignInView() {
           name="password"
           label="Password"
           placeholder="6+ characters"
-          type={password.value ? 'text' : 'password'}
-          InputLabelProps={{ shrink: true }}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton onClick={password.onToggle} edge="end">
-                  <Iconify icon={password.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
-                </IconButton>
-              </InputAdornment>
-            ),
+          type={showPassword.value ? 'text' : 'password'}
+          slotProps={{
+            inputLabel: { shrink: true },
+            input: {
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={showPassword.onToggle} edge="end">
+                    <Iconify
+                      icon={showPassword.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'}
+                    />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            },
           }}
         />
       </Box>
@@ -113,7 +117,7 @@ export function CenteredSignInView() {
 
   return (
     <>
-      {renderLogo}
+      <AnimateLogoRotate sx={{ mb: 3, mx: 'auto' }} />
 
       <FormHead
         title="Sign in to your account"
@@ -128,7 +132,7 @@ export function CenteredSignInView() {
       />
 
       <Form methods={methods} onSubmit={onSubmit}>
-        {renderForm}
+        {renderForm()}
       </Form>
 
       <FormDivider />

@@ -5,8 +5,6 @@ import Portal from '@mui/material/Portal';
 import Checkbox from '@mui/material/Checkbox';
 import Typography from '@mui/material/Typography';
 
-import { stylesMode } from 'src/theme/styles';
-
 import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
@@ -32,20 +30,22 @@ export function FileManagerActionSelected({
   return (
     <Portal>
       <Box
-        sx={{
-          right: 0,
-          zIndex: 9,
-          bottom: 0,
-          display: 'flex',
-          borderRadius: 1.5,
-          position: 'fixed',
-          alignItems: 'center',
-          bgcolor: 'text.primary',
-          p: (theme) => theme.spacing(1.5, 2, 1.5, 1),
-          boxShadow: (theme) => theme.customShadows.z20,
-          m: { xs: 2, md: 3 },
-          ...sx,
-        }}
+        sx={[
+          (theme) => ({
+            right: 0,
+            zIndex: 9,
+            bottom: 0,
+            display: 'flex',
+            borderRadius: 1.5,
+            position: 'fixed',
+            alignItems: 'center',
+            bgcolor: 'text.primary',
+            p: theme.spacing(1.5, 2, 1.5, 1),
+            boxShadow: theme.vars.customShadows.z20,
+            m: { xs: 2, md: 3 },
+          }),
+          ...(Array.isArray(sx) ? sx : [sx]),
+        ]}
         {...other}
       >
         <Checkbox
@@ -62,7 +62,15 @@ export function FileManagerActionSelected({
         {selected && (
           <Typography
             variant="subtitle2"
-            sx={{ mr: 2, color: 'common.white', [stylesMode.dark]: { color: 'grey.800' } }}
+            sx={[
+              (theme) => ({
+                mr: 2,
+                color: 'common.white',
+                ...theme.applyStyles('dark', {
+                  color: 'grey.800',
+                }),
+              }),
+            ]}
           >
             {selected.length} Items selected
           </Typography>

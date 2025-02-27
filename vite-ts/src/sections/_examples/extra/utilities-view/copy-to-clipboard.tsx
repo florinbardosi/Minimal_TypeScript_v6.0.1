@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useDoubleClick, useCopyToClipboard } from 'minimal-shared/hooks';
 
 import Tooltip from '@mui/material/Tooltip';
 import TextField from '@mui/material/TextField';
@@ -6,13 +7,10 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import InputAdornment from '@mui/material/InputAdornment';
 
-import { useDoubleClick } from 'src/hooks/use-double-click';
-import { useCopyToClipboard } from 'src/hooks/use-copy-to-clipboard';
-
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 
-import { ComponentBlock, ComponentContainer } from '../../component-block';
+import { ComponentBox } from '../../layout';
 
 // ----------------------------------------------------------------------
 
@@ -43,36 +41,31 @@ export function CopyToClipboard() {
   }, []);
 
   return (
-    <ComponentContainer
-      sx={{
-        rowGap: 5,
-        columnGap: 3,
-        display: 'grid',
-        gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
-      }}
-    >
-      <ComponentBlock title="onChange">
+    <>
+      <ComponentBox title="onChange">
         <TextField
           fullWidth
           value={value}
           onChange={handleChange}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <Tooltip title="Copy">
-                  <IconButton onClick={() => onCopy(value)}>
-                    <Iconify icon="eva:copy-fill" width={24} />
-                  </IconButton>
-                </Tooltip>
-              </InputAdornment>
-            ),
+          slotProps={{
+            input: {
+              endAdornment: (
+                <InputAdornment position="end">
+                  <Tooltip title="Copy">
+                    <IconButton onClick={() => onCopy(value)}>
+                      <Iconify icon="eva:copy-fill" width={24} />
+                    </IconButton>
+                  </Tooltip>
+                </InputAdornment>
+              ),
+            },
           }}
         />
-      </ComponentBlock>
+      </ComponentBox>
 
-      <ComponentBlock title="onDoubleClick">
+      <ComponentBox title="onDoubleClick">
         <Typography onClick={handleClick}>{textOnClick}</Typography>
-      </ComponentBlock>
-    </ComponentContainer>
+      </ComponentBox>
+    </>
   );
 }

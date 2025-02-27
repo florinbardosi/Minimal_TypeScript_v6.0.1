@@ -1,9 +1,7 @@
+import { useSetState } from 'minimal-shared/hooks';
 import { useMemo, useEffect, useCallback } from 'react';
 
-import { useSetState } from 'src/hooks/use-set-state';
-
-import axios from 'src/utils/axios';
-
+import axios from 'src/lib/axios';
 import { supabase } from 'src/lib/supabase';
 
 import { AuthContext } from '../auth-context';
@@ -23,10 +21,7 @@ type Props = {
 };
 
 export function AuthProvider({ children }: Props) {
-  const { state, setState } = useSetState<AuthState>({
-    user: null,
-    loading: true,
-  });
+  const { state, setState } = useSetState<AuthState>({ user: null, loading: true });
 
   const checkUserSession = useCallback(async () => {
     try {

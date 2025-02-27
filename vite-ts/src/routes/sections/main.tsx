@@ -1,5 +1,7 @@
+import type { RouteObject } from 'react-router';
+
+import { Outlet } from 'react-router';
 import { lazy, Suspense } from 'react';
-import { Outlet } from 'react-router-dom';
 
 import { MainLayout } from 'src/layouts/main';
 import { SimpleLayout } from 'src/layouts/simple';
@@ -31,7 +33,7 @@ const BlankPage = lazy(() => import('src/pages/blank'));
 
 // ----------------------------------------------------------------------
 
-export const mainRoutes = [
+export const mainRoutes: RouteObject[] = [
   {
     element: (
       <Suspense fallback={<SplashScreen />}>
@@ -46,26 +48,14 @@ export const mainRoutes = [
           </MainLayout>
         ),
         children: [
-          {
-            path: 'about-us',
-            element: <AboutPage />,
-          },
-          {
-            path: 'contact-us',
-            element: <ContactPage />,
-          },
-          {
-            path: 'faqs',
-            element: <FaqsPage />,
-          },
-          {
-            path: 'blank',
-            element: <BlankPage />,
-          },
+          { path: 'about-us', element: <AboutPage /> },
+          { path: 'contact-us', element: <ContactPage /> },
+          { path: 'faqs', element: <FaqsPage /> },
+          { path: 'blank', element: <BlankPage /> },
           {
             path: 'product',
             children: [
-              { element: <ProductListPage />, index: true },
+              { index: true, element: <ProductListPage /> },
               { path: 'list', element: <ProductListPage /> },
               { path: ':id', element: <ProductDetailsPage /> },
               { path: 'checkout', element: <ProductCheckoutPage /> },
@@ -74,7 +64,7 @@ export const mainRoutes = [
           {
             path: 'post',
             children: [
-              { element: <PostListPage />, index: true },
+              { index: true, element: <PostListPage /> },
               { path: 'list', element: <PostListPage /> },
               { path: ':title', element: <PostDetailsPage /> },
             ],
@@ -100,7 +90,7 @@ export const mainRoutes = [
       {
         path: 'coming-soon',
         element: (
-          <SimpleLayout content={{ compact: true }}>
+          <SimpleLayout slotProps={{ content: { compact: true } }}>
             <ComingSoonPage />
           </SimpleLayout>
         ),
@@ -108,14 +98,19 @@ export const mainRoutes = [
       {
         path: 'maintenance',
         element: (
-          <SimpleLayout content={{ compact: true }}>
+          <SimpleLayout slotProps={{ content: { compact: true } }}>
             <MaintenancePage />
           </SimpleLayout>
         ),
       },
-      { path: '500', element: <Page500 /> },
-      { path: '404', element: <Page404 /> },
-      { path: '403', element: <Page403 /> },
+      {
+        path: 'error',
+        children: [
+          { path: '500', element: <Page500 /> },
+          { path: '404', element: <Page404 /> },
+          { path: '403', element: <Page403 /> },
+        ],
+      },
     ],
   },
 ];

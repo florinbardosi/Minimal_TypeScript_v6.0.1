@@ -1,11 +1,12 @@
 'use client';
 
+import { varAlpha } from 'minimal-shared/utils';
+
 import Box from '@mui/material/Box';
 import { cardClasses } from '@mui/material/Card';
 import Typography from '@mui/material/Typography';
 
-import { CONFIG } from 'src/config-global';
-import { varAlpha } from 'src/theme/styles';
+import { CONFIG } from 'src/global-config';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { _coursesContinue, _coursesFeatured, _coursesReminder } from 'src/_mock';
 
@@ -25,32 +26,28 @@ export function OverviewCourseView() {
     <DashboardContent
       maxWidth={false}
       disablePadding
-      sx={{
-        borderTop: (theme) => ({
-          lg: `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.12)}`,
+      sx={[
+        (theme) => ({
+          borderTop: { lg: `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.12)}` },
         }),
-      }}
+      ]}
     >
-      <Box
-        sx={{
-          display: 'flex',
-          flex: '1 1 auto',
-          flexDirection: { xs: 'column', lg: 'row' },
-        }}
-      >
+      <Box sx={{ display: 'flex', flex: '1 1 auto', flexDirection: { xs: 'column', lg: 'row' } }}>
         <Box
-          sx={{
-            gap: 3,
-            display: 'flex',
-            minWidth: { lg: 0 },
-            py: { lg: 3, xl: 5 },
-            flexDirection: 'column',
-            flex: { lg: '1 1 auto' },
-            px: { xs: 2, sm: 3, xl: 5 },
-            borderRight: (theme) => ({
-              lg: `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.12)}`,
+          sx={[
+            (theme) => ({
+              gap: 3,
+              display: 'flex',
+              minWidth: { lg: 0 },
+              py: { lg: 3, xl: 5 },
+              flexDirection: 'column',
+              flex: { lg: '1 1 auto' },
+              px: { xs: 2, sm: 3, xl: 5 },
+              borderRight: {
+                lg: `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.12)}`,
+              },
             }),
-          }}
+          ]}
         >
           <Box sx={{ mb: 2 }}>
             <Typography variant="h4" sx={{ mb: 1 }}>

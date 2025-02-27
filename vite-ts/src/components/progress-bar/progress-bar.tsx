@@ -11,7 +11,6 @@ export function ProgressBar() {
   const pathname = usePathname();
 
   const [mounted, setMounted] = useState(false);
-
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {

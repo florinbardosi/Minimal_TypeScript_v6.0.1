@@ -1,30 +1,25 @@
-import type { MapProps, LayerProps } from 'react-map-gl';
+import type { LayerProps } from 'react-map-gl';
+import type { Theme } from '@mui/material/styles';
+import type { MapProps } from 'src/components/map';
 
 import { useState, useEffect } from 'react';
 import { Layer, Source } from 'react-map-gl';
 
 import { useTheme } from '@mui/material/styles';
 
-import { Map, MapControl } from 'src/components/map';
+import { Map, MapControls } from 'src/components/map';
 
 // ----------------------------------------------------------------------
 
-export function MapGeoJSONAnimation({ ...other }: MapProps) {
+type PointData = {
+  type: string;
+  coordinates: [number, number];
+};
+
+export function MapGeoJSONAnimation({ sx, ...other }: MapProps) {
   const theme = useTheme();
 
-  const pointLayer: LayerProps = {
-    id: 'point',
-    type: 'circle',
-    paint: { 'circle-radius': 10, 'circle-color': theme.palette.error.main },
-  };
-
-  const [pointData, setPointData] = useState<
-    | {
-        type: string;
-        coordinates: number[];
-      }
-    | any
-  >(null);
+  const [pointData, setPointData] = useState<PointData | any>(null);
 
   useEffect(() => {
     const animation = window.requestAnimationFrame(() =>
@@ -38,13 +33,14 @@ export function MapGeoJSONAnimation({ ...other }: MapProps) {
     <Map
       initialViewState={{ latitude: 0, longitude: -100, zoom: 3 }}
       mapStyle="mapbox://styles/mapbox/satellite-streets-v11"
+      sx={sx}
       {...other}
     >
-      <MapControl />
+      <MapControls />
 
       {pointData && (
         <Source type="geojson" data={pointData}>
-          <Layer {...pointLayer} />
+          <Layer {...pointLayer(theme)} />
         </Source>
       )}
     </Map>
@@ -52,6 +48,15 @@ export function MapGeoJSONAnimation({ ...other }: MapProps) {
 }
 
 // ----------------------------------------------------------------------
+
+const pointLayer = (theme: Theme): LayerProps => ({
+  id: 'point',
+  type: 'circle',
+  paint: {
+    'circle-radius': 10,
+    'circle-color': theme.palette.error.main,
+  },
+});
 
 function pointOnCircle({
   center,

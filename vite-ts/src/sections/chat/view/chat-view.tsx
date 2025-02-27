@@ -1,13 +1,13 @@
 import type { IChatParticipant } from 'src/types/chat';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, startTransition } from 'react';
 
 import Typography from '@mui/material/Typography';
 
 import { paths } from 'src/routes/paths';
 import { useRouter, useSearchParams } from 'src/routes/hooks';
 
-import { CONFIG } from 'src/config-global';
+import { CONFIG } from 'src/global-config';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { useGetContacts, useGetConversation, useGetConversations } from 'src/actions/chat';
 
@@ -15,8 +15,8 @@ import { EmptyContent } from 'src/components/empty-content';
 
 import { useMockedUser } from 'src/auth/hooks';
 
-import { Layout } from '../layout';
 import { ChatNav } from '../chat-nav';
+import { ChatLayout } from '../layout';
 import { ChatRoom } from '../chat-room';
 import { ChatMessageList } from '../chat-message-list';
 import { ChatMessageInput } from '../chat-message-input';
@@ -34,36 +34,36 @@ export function ChatView() {
   const { contacts } = useGetContacts();
 
   const searchParams = useSearchParams();
-
   const selectedConversationId = searchParams.get('id') || '';
+
+  const { conversations, conversationsLoading } = useGetConversations();
+  const { conversation, conversationError, conversationLoading } =
+    useGetConversation(selectedConversationId);
+
+  const roomNav = useCollapseNav();
+  const conversationsNav = useCollapseNav();
 
   const [recipients, setRecipients] = useState<IChatParticipant[]>([]);
 
-  const { conversations, conversationsLoading } = useGetConversations();
-
-  const { conversation, conversationError, conversationLoading } = useGetConversation(
-    `${selectedConversationId}`
-  );
-
-  const roomNav = useCollapseNav();
-
-  const conversationsNav = useCollapseNav();
-
-  const participants: IChatParticipant[] = conversation
-    ? conversation.participants.filter(
-        (participant: IChatParticipant) => participant.id !== `${user?.id}`
-      )
-    : [];
-
   useEffect(() => {
-    if (conversationError || !selectedConversationId) {
-      router.push(paths.dashboard.chat);
+    if (!selectedConversationId) {
+      startTransition(() => {
+        router.push(paths.dashboard.chat);
+      });
     }
   }, [conversationError, router, selectedConversationId]);
 
   const handleAddRecipients = useCallback((selected: IChatParticipant[]) => {
     setRecipients(selected);
   }, []);
+
+  const filteredParticipants: IChatParticipant[] = conversation
+    ? conversation.participants.filter(
+        (participant: IChatParticipant) => participant.id !== `${user?.id}`
+      )
+    : [];
+
+  const hasConversation = selectedConversationId && conversation;
 
   return (
     <DashboardContent
@@ -74,20 +74,12 @@ export function ChatView() {
         Chat
       </Typography>
 
-      <Layout
-        sx={{
-          minHeight: 0,
-          flex: '1 1 0',
-          borderRadius: 2,
-          position: 'relative',
-          bgcolor: 'background.paper',
-          boxShadow: (theme) => theme.customShadows.card,
-        }}
+      <ChatLayout
         slots={{
-          header: selectedConversationId ? (
+          header: hasConversation ? (
             <ChatHeaderDetail
               collapseNav={roomNav}
-              participants={participants}
+              participants={filteredParticipants}
               loading={conversationLoading}
             />
           ) : (
@@ -97,24 +89,31 @@ export function ChatView() {
             <ChatNav
               contacts={contacts}
               conversations={conversations}
-              loading={conversationsLoading}
               selectedConversationId={selectedConversationId}
               collapseNav={conversationsNav}
+              loading={conversationsLoading}
             />
           ),
           main: (
             <>
               {selectedConversationId ? (
-                <ChatMessageList
-                  messages={conversation?.messages ?? []}
-                  participants={participants}
-                  loading={conversationLoading}
-                />
+                conversationError ? (
+                  <EmptyContent
+                    title={conversationError.message}
+                    imgUrl={`${CONFIG.assetsDir}/assets/icons/empty/ic-chat-empty.svg`}
+                  />
+                ) : (
+                  <ChatMessageList
+                    messages={conversation?.messages ?? []}
+                    participants={filteredParticipants}
+                    loading={conversationLoading}
+                  />
+                )
               ) : (
                 <EmptyContent
-                  imgUrl={`${CONFIG.assetsDir}/assets/icons/empty/ic-chat-active.svg`}
                   title="Good morning!"
                   description="Write something awesome..."
+                  imgUrl={`${CONFIG.assetsDir}/assets/icons/empty/ic-chat-active.svg`}
                 />
               )}
 
@@ -126,10 +125,10 @@ export function ChatView() {
               />
             </>
           ),
-          details: selectedConversationId && (
+          details: hasConversation && (
             <ChatRoom
               collapseNav={roomNav}
-              participants={participants}
+              participants={filteredParticipants}
               loading={conversationLoading}
               messages={conversation?.messages ?? []}
             />

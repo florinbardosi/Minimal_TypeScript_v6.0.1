@@ -6,8 +6,8 @@ import Card from '@mui/material/Card';
 import Tabs from '@mui/material/Tabs';
 
 import { paths } from 'src/routes/paths';
-
-import { useTabs } from 'src/hooks/use-tabs';
+import { RouterLink } from 'src/routes/components';
+import { usePathname, useSearchParams } from 'src/routes/hooks';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { _userAbout, _userFeeds, _userFriends, _userGallery, _userFollowers } from 'src/_mock';
@@ -25,33 +25,50 @@ import { ProfileFollowers } from '../profile-followers';
 
 // ----------------------------------------------------------------------
 
-const TABS = [
-  { value: 'profile', label: 'Profile', icon: <Iconify icon="solar:user-id-bold" width={24} /> },
-  { value: 'followers', label: 'Followers', icon: <Iconify icon="solar:heart-bold" width={24} /> },
+const NAV_ITEMS = [
+  {
+    value: '',
+    label: 'Profile',
+    icon: <Iconify width={24} icon="solar:user-id-bold" />,
+  },
+  {
+    value: 'followers',
+    label: 'Followers',
+    icon: <Iconify width={24} icon="solar:heart-bold" />,
+  },
   {
     value: 'friends',
     label: 'Friends',
-    icon: <Iconify icon="solar:users-group-rounded-bold" width={24} />,
+    icon: <Iconify width={24} icon="solar:users-group-rounded-bold" />,
   },
   {
     value: 'gallery',
     label: 'Gallery',
-    icon: <Iconify icon="solar:gallery-wide-bold" width={24} />,
+    icon: <Iconify width={24} icon="solar:gallery-wide-bold" />,
   },
 ];
 
 // ----------------------------------------------------------------------
 
+const TAB_PARAM = 'tab';
+
 export function UserProfileView() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const selectedTab = searchParams.get(TAB_PARAM) ?? '';
+
   const { user } = useMockedUser();
 
   const [searchFriends, setSearchFriends] = useState('');
 
-  const tabs = useTabs('profile');
-
   const handleSearchFriends = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchFriends(event.target.value);
   }, []);
+
+  const createRedirectPath = (currentPath: string, query: string) => {
+    const queryString = new URLSearchParams({ [TAB_PARAM]: query }).toString();
+    return query ? `${currentPath}?${queryString}` : currentPath;
+  };
 
   return (
     <DashboardContent>
@@ -74,30 +91,37 @@ export function UserProfileView() {
         />
 
         <Box
-          display="flex"
-          justifyContent={{ xs: 'center', md: 'flex-end' }}
           sx={{
             width: 1,
             bottom: 0,
             zIndex: 9,
             px: { md: 3 },
+            display: 'flex',
             position: 'absolute',
             bgcolor: 'background.paper',
+            justifyContent: { xs: 'center', md: 'flex-end' },
           }}
         >
-          <Tabs value={tabs.value} onChange={tabs.onChange}>
-            {TABS.map((tab) => (
-              <Tab key={tab.value} value={tab.value} icon={tab.icon} label={tab.label} />
+          <Tabs value={selectedTab}>
+            {NAV_ITEMS.map((tab) => (
+              <Tab
+                component={RouterLink}
+                key={tab.value}
+                value={tab.value}
+                icon={tab.icon}
+                label={tab.label}
+                href={createRedirectPath(pathname, tab.value)}
+              />
             ))}
           </Tabs>
         </Box>
       </Card>
 
-      {tabs.value === 'profile' && <ProfileHome info={_userAbout} posts={_userFeeds} />}
+      {selectedTab === '' && <ProfileHome info={_userAbout} posts={_userFeeds} />}
 
-      {tabs.value === 'followers' && <ProfileFollowers followers={_userFollowers} />}
+      {selectedTab === 'followers' && <ProfileFollowers followers={_userFollowers} />}
 
-      {tabs.value === 'friends' && (
+      {selectedTab === 'friends' && (
         <ProfileFriends
           friends={_userFriends}
           searchFriends={searchFriends}
@@ -105,7 +129,7 @@ export function UserProfileView() {
         />
       )}
 
-      {tabs.value === 'gallery' && <ProfileGallery gallery={_userGallery} />}
+      {selectedTab === 'gallery' && <ProfileGallery gallery={_userGallery} />}
     </DashboardContent>
   );
 }

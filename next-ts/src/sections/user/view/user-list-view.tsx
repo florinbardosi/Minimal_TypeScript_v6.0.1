@@ -1,8 +1,11 @@
 'use client';
 
+import type { TableHeadCellProps } from 'src/components/table';
 import type { IUserItem, IUserTableFilters } from 'src/types/user';
 
 import { useState, useCallback } from 'react';
+import { varAlpha } from 'minimal-shared/utils';
+import { useBoolean, useSetState } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
@@ -15,13 +18,8 @@ import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
 
 import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
-import { useBoolean } from 'src/hooks/use-boolean';
-import { useSetState } from 'src/hooks/use-set-state';
-
-import { varAlpha } from 'src/theme/styles';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { _roles, _userList, USER_STATUS_OPTIONS } from 'src/_mock';
 
@@ -51,7 +49,7 @@ import { UserTableFiltersResult } from '../user-table-filters-result';
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'All' }, ...USER_STATUS_OPTIONS];
 
-const TABLE_HEAD = [
+const TABLE_HEAD: TableHeadCellProps[] = [
   { id: 'name', label: 'Name' },
   { id: 'phoneNumber', label: 'Phone number', width: 180 },
   { id: 'company', label: 'Company', width: 220 },
@@ -65,24 +63,23 @@ const TABLE_HEAD = [
 export function UserListView() {
   const table = useTable();
 
-  const router = useRouter();
-
-  const confirm = useBoolean();
+  const confirmDialog = useBoolean();
 
   const [tableData, setTableData] = useState<IUserItem[]>(_userList);
 
   const filters = useSetState<IUserTableFilters>({ name: '', role: [], status: 'all' });
+  const { state: currentFilters, setState: updateFilters } = filters;
 
   const dataFiltered = applyFilter({
     inputData: tableData,
     comparator: getComparator(table.order, table.orderBy),
-    filters: filters.state,
+    filters: currentFilters,
   });
 
   const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
 
   const canReset =
-    !!filters.state.name || filters.state.role.length > 0 || filters.state.status !== 'all';
+    !!currentFilters.name || currentFilters.role.length > 0 || currentFilters.status !== 'all';
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
@@ -106,25 +103,40 @@ export function UserListView() {
 
     setTableData(deleteRows);
 
-    table.onUpdatePageDeleteRows({
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
+    table.onUpdatePageDeleteRows(dataInPage.length, dataFiltered.length);
   }, [dataFiltered.length, dataInPage.length, table, tableData]);
-
-  const handleEditRow = useCallback(
-    (id: string) => {
-      router.push(paths.dashboard.user.edit(id));
-    },
-    [router]
-  );
 
   const handleFilterStatus = useCallback(
     (event: React.SyntheticEvent, newValue: string) => {
       table.onResetPage();
-      filters.setState({ status: newValue });
+      updateFilters({ status: newValue });
     },
-    [filters, table]
+    [updateFilters, table]
+  );
+
+  const renderConfirmDialog = () => (
+    <ConfirmDialog
+      open={confirmDialog.value}
+      onClose={confirmDialog.onFalse}
+      title="Delete"
+      content={
+        <>
+          Are you sure want to delete <strong> {table.selected.length} </strong> items?
+        </>
+      }
+      action={
+        <Button
+          variant="contained"
+          color="error"
+          onClick={() => {
+            handleDeleteRows();
+            confirmDialog.onFalse();
+          }}
+        >
+          Delete
+        </Button>
+      }
+    />
   );
 
   return (
@@ -152,13 +164,14 @@ export function UserListView() {
 
         <Card>
           <Tabs
-            value={filters.state.status}
+            value={currentFilters.status}
             onChange={handleFilterStatus}
-            sx={{
-              px: 2.5,
-              boxShadow: (theme) =>
-                `inset 0 -2px 0 0 ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}`,
-            }}
+            sx={[
+              (theme) => ({
+                px: 2.5,
+                boxShadow: `inset 0 -2px 0 0 ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}`,
+              }),
+            ]}
           >
             {STATUS_OPTIONS.map((tab) => (
               <Tab
@@ -169,7 +182,7 @@ export function UserListView() {
                 icon={
                   <Label
                     variant={
-                      ((tab.value === 'all' || tab.value === filters.state.status) && 'filled') ||
+                      ((tab.value === 'all' || tab.value === currentFilters.status) && 'filled') ||
                       'soft'
                     }
                     color={
@@ -216,7 +229,7 @@ export function UserListView() {
               }
               action={
                 <Tooltip title="Delete">
-                  <IconButton color="primary" onClick={confirm.onTrue}>
+                  <IconButton color="primary" onClick={confirmDialog.onTrue}>
                     <Iconify icon="solar:trash-bin-trash-bold" />
                   </IconButton>
                 </Tooltip>
@@ -228,7 +241,7 @@ export function UserListView() {
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
+                  headCells={TABLE_HEAD}
                   rowCount={dataFiltered.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
@@ -253,7 +266,7 @@ export function UserListView() {
                         selected={table.selected.includes(row.id)}
                         onSelectRow={() => table.onSelectRow(row.id)}
                         onDeleteRow={() => handleDeleteRow(row.id)}
-                        onEditRow={() => handleEditRow(row.id)}
+                        editHref={paths.dashboard.user.edit(row.id)}
                       />
                     ))}
 
@@ -280,28 +293,7 @@ export function UserListView() {
         </Card>
       </DashboardContent>
 
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content={
-          <>
-            Are you sure want to delete <strong> {table.selected.length} </strong> items?
-          </>
-        }
-        action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              handleDeleteRows();
-              confirm.onFalse();
-            }}
-          >
-            Delete
-          </Button>
-        }
-      />
+      {renderConfirmDialog()}
     </>
   );
 }
@@ -328,9 +320,7 @@ function applyFilter({ inputData, comparator, filters }: ApplyFilterProps) {
   inputData = stabilizedThis.map((el) => el[0]);
 
   if (name) {
-    inputData = inputData.filter(
-      (user) => user.name.toLowerCase().indexOf(name.toLowerCase()) !== -1
-    );
+    inputData = inputData.filter((user) => user.name.toLowerCase().includes(name.toLowerCase()));
   }
 
   if (status !== 'all') {

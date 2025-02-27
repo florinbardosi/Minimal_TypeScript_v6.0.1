@@ -1,6 +1,8 @@
 import type { IPaymentCard } from 'src/types/common';
 import type { PaperProps } from '@mui/material/Paper';
 
+import { usePopover } from 'minimal-shared/hooks';
+
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import MenuList from '@mui/material/MenuList';
@@ -10,7 +12,7 @@ import Typography from '@mui/material/Typography';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
-import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import { CustomPopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
@@ -19,12 +21,48 @@ type PaymentItemProps = PaperProps & {
 };
 
 export function PaymentCardItem({ card, sx, ...other }: PaymentItemProps) {
-  const popover = usePopover();
+  const menuActions = usePopover();
+
+  const renderMenuActions = () => (
+    <CustomPopover
+      open={menuActions.open}
+      anchorEl={menuActions.anchorEl}
+      onClose={menuActions.onClose}
+    >
+      <MenuList>
+        <MenuItem onClick={menuActions.onClose}>
+          <Iconify icon="eva:star-fill" />
+          Set as primary
+        </MenuItem>
+
+        <MenuItem onClick={menuActions.onClose}>
+          <Iconify icon="solar:pen-bold" />
+          Edit
+        </MenuItem>
+
+        <MenuItem onClick={menuActions.onClose} sx={{ color: 'error.main' }}>
+          <Iconify icon="solar:trash-bin-trash-bold" />
+          Delete
+        </MenuItem>
+      </MenuList>
+    </CustomPopover>
+  );
 
   return (
     <>
-      <Paper variant="outlined" sx={{ p: 2.5, width: 1, position: 'relative', ...sx }} {...other}>
-        <Box gap={1} display="flex" alignItems="center" sx={{ mb: 1 }}>
+      <Paper
+        variant="outlined"
+        sx={[{ p: 2.5, width: 1, position: 'relative' }, ...(Array.isArray(sx) ? sx : [sx])]}
+        {...other}
+      >
+        <Box
+          sx={{
+            mb: 1,
+            gap: 1,
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
           <Iconify
             width={36}
             icon={(card.cardType === 'visa' && 'logos:visa') || 'logos:mastercard'}
@@ -35,29 +73,12 @@ export function PaymentCardItem({ card, sx, ...other }: PaymentItemProps) {
 
         <Typography variant="subtitle2">{card.cardNumber}</Typography>
 
-        <IconButton onClick={popover.onOpen} sx={{ top: 8, right: 8, position: 'absolute' }}>
+        <IconButton onClick={menuActions.onOpen} sx={{ top: 8, right: 8, position: 'absolute' }}>
           <Iconify icon="eva:more-vertical-fill" />
         </IconButton>
       </Paper>
 
-      <CustomPopover open={popover.open} anchorEl={popover.anchorEl} onClose={popover.onClose}>
-        <MenuList>
-          <MenuItem onClick={popover.onClose}>
-            <Iconify icon="eva:star-fill" />
-            Set as primary
-          </MenuItem>
-
-          <MenuItem onClick={popover.onClose}>
-            <Iconify icon="solar:pen-bold" />
-            Edit
-          </MenuItem>
-
-          <MenuItem onClick={popover.onClose} sx={{ color: 'error.main' }}>
-            <Iconify icon="solar:trash-bin-trash-bold" />
-            Delete
-          </MenuItem>
-        </MenuList>
-      </CustomPopover>
+      {renderMenuActions()}
     </>
   );
 }

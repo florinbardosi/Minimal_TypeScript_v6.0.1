@@ -1,20 +1,18 @@
 import type { MotionProps } from 'framer-motion';
 import type { BoxProps } from '@mui/material/Box';
-import type { ColorType } from 'src/theme/core/palette';
+import type { PaletteColorKey } from 'src/theme/core';
 import type { Theme, SxProps } from '@mui/material/styles';
 
 import { m } from 'framer-motion';
 
 import Box from '@mui/material/Box';
 
-import { stylesMode } from 'src/theme/styles';
-
 import { varFade } from 'src/components/animate';
 
 // ----------------------------------------------------------------------
 
 export function Lines({ strokeCount }: { strokeCount: number }) {
-  const draw = {
+  const drawVariants = {
     x: {
       hidden: { x2: 0, strokeOpacity: 0 },
       visible: (i: number) => {
@@ -24,12 +22,7 @@ export function Lines({ strokeCount }: { strokeCount: number }) {
           strokeOpacity: 1,
           transition: {
             strokeOpacity: { delay, duration: 0.01 },
-            x2: {
-              delay,
-              bounce: 0,
-              duration: 1.5,
-              type: 'spring',
-            },
+            x2: { delay, bounce: 0, duration: 1.5, type: 'spring' },
           },
         };
       },
@@ -43,12 +36,7 @@ export function Lines({ strokeCount }: { strokeCount: number }) {
           strokeOpacity: 1,
           transition: {
             strokeOpacity: { delay, duration: 0.01 },
-            y2: {
-              delay,
-              bounce: 0,
-              duration: 1.5,
-              type: 'spring',
-            },
+            y2: { delay, bounce: 0, duration: 1.5, type: 'spring' },
           },
         };
       },
@@ -62,14 +50,14 @@ export function Lines({ strokeCount }: { strokeCount: number }) {
 
   const linesX = (
     <>
-      {[...Array(strokeCount)].map((_, index) => (
+      {Array.from({ length: strokeCount }, (_, index) => (
         <m.line
           key={index}
           x1="0"
           x2="100%"
           y1="50%"
           y2="50%"
-          variants={draw.x}
+          variants={drawVariants.x}
           style={{
             transform: translateY(index),
             stroke: 'var(--hero-line-stroke-color)',
@@ -88,14 +76,14 @@ export function Lines({ strokeCount }: { strokeCount: number }) {
 
   const linesY = (
     <>
-      {[...Array(strokeCount)].map((_, index) => (
+      {Array.from({ length: strokeCount }, (_, index) => (
         <m.line
           key={index}
           x1="50%"
           x2="50%"
           y1="0%"
           y2="100%"
-          variants={draw.y}
+          variants={drawVariants.y}
           style={{
             transform: translateX(index),
             stroke: 'var(--hero-line-stroke-color)',
@@ -174,12 +162,7 @@ export function PlusIcon() {
         pathLength: 1,
         transition: {
           opacity: { delay, duration: 0.01 },
-          pathLength: {
-            delay,
-            bounce: 0,
-            duration: 1.5,
-            type: 'spring',
-          },
+          pathLength: { delay, bounce: 0, duration: 1.5, type: 'spring' },
         },
       };
     },
@@ -206,38 +189,41 @@ export function PlusIcon() {
 
 // ----------------------------------------------------------------------
 
-export function Texts({ sx, ...other }: BoxProps) {
+export function Texts({ sx, ...other }: BoxProps & MotionProps) {
   return (
     <Box
       component={m.div}
-      variants={varFade().in}
-      sx={{
-        left: 0,
-        width: 1,
-        bottom: 0,
-        zIndex: 99,
-        height: 200,
-        position: 'absolute',
-        ...sx,
-      }}
+      variants={varFade('in')}
+      sx={[
+        () => ({
+          left: 0,
+          width: 1,
+          bottom: 0,
+          height: 200,
+          position: 'absolute',
+        }),
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...other}
     >
       <Box
         component="svg"
-        width="100%"
-        height="100%"
-        sx={{
-          '& text': {
-            fill: 'none',
-            fontSize: 200,
-            fontWeight: 800,
-            strokeDasharray: 4,
-            textTransform: 'uppercase',
-            stroke: 'var(--hero-text-stroke-color)',
-            strokeWidth: 'var(--hero-text-stroke-width)',
-            fontFamily: (theme) => theme.typography.fontSecondaryFamily,
-          },
-        }}
+        sx={[
+          (theme) => ({
+            width: 1,
+            height: 1,
+            '& text': {
+              fill: 'none',
+              fontSize: 200,
+              fontWeight: 800,
+              strokeDasharray: 4,
+              textTransform: 'uppercase',
+              stroke: 'var(--hero-text-stroke-color)',
+              strokeWidth: 'var(--hero-text-stroke-width)',
+              fontFamily: theme.typography.fontSecondaryFamily,
+            },
+          }),
+        ]}
       >
         <m.text
           x="0"
@@ -255,11 +241,9 @@ export function Texts({ sx, ...other }: BoxProps) {
 
 // ----------------------------------------------------------------------
 
-type DotProps = {
-  color?: ColorType;
+type DotProps = Pick<MotionProps, 'animate' | 'transition'> & {
   sx?: SxProps<Theme>;
-  animate: MotionProps['animate'];
-  transition?: MotionProps['transition'];
+  color?: PaletteColorKey;
 };
 
 function Dot({ color = 'primary', animate, transition, sx, ...other }: DotProps) {
@@ -270,14 +254,16 @@ function Dot({ color = 'primary', animate, transition, sx, ...other }: DotProps)
         initial: { opacity: 0 },
         animate: { opacity: 1, transition: { duration: 0.64, ease: [0.43, 0.13, 0.23, 0.96] } },
       }}
-      sx={{
-        width: 12,
-        height: 12,
-        top: '50%',
-        left: '50%',
-        position: 'absolute',
-        ...sx,
-      }}
+      sx={[
+        () => ({
+          width: 12,
+          height: 12,
+          top: '50%',
+          left: '50%',
+          position: 'absolute',
+        }),
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...other}
     >
       <Box
@@ -291,18 +277,19 @@ function Dot({ color = 'primary', animate, transition, sx, ...other }: DotProps)
             repeatType: 'reverse',
           }
         }
-        sx={{
-          width: 1,
-          height: 1,
-          borderRadius: '50%',
-          boxShadow: (theme) => `0px -2px 4px 0px ${theme.vars.palette[color].main} inset`,
-          background: (theme) =>
-            `linear-gradient(135deg, ${theme.vars.palette[color].lighter}, ${theme.vars.palette[color].light})`,
-          [stylesMode.dark]: {
-            boxShadow: (theme) => `0px -2px 4px 0px ${theme.vars.palette[color].dark} inset`,
-          },
-          ...sx,
-        }}
+        sx={[
+          (theme) => ({
+            width: 1,
+            height: 1,
+            borderRadius: '50%',
+            boxShadow: `0px -2px 4px 0px ${theme.vars.palette[color].main} inset`,
+            background: `linear-gradient(135deg, ${theme.vars.palette[color].lighter}, ${theme.vars.palette[color].light})`,
+            ...theme.applyStyles('dark', {
+              boxShadow: `0px -2px 4px 0px ${theme.vars.palette[color].dark} inset`,
+            }),
+          }),
+          ...(Array.isArray(sx) ? sx : [sx]),
+        ]}
       />
     </Box>
   );
