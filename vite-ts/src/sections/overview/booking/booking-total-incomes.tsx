@@ -7,7 +7,7 @@ import { useTheme, alpha as hexAlpha } from '@mui/material/styles';
 
 import { fPercent, fCurrency } from 'src/utils/format-number';
 
-import { CONFIG } from 'src/config-global';
+import { CONFIG } from 'src/global-config';
 
 import { Iconify } from 'src/components/iconify';
 import { SvgColor } from 'src/components/svg-color';
@@ -50,18 +50,36 @@ export function BookingTotalIncomes({ title, total, percent, chart, sx, ...other
     tooltip: {
       y: { formatter: (value: number) => fCurrency(value), title: { formatter: () => '' } },
     },
+    markers: {
+      strokeColors: theme.vars.palette.primary.darker,
+    },
     ...chart.options,
   });
 
-  const renderTrending = (
-    <Box gap={0.5} display="flex" alignItems="flex-end" flexDirection="column">
-      <Box sx={{ gap: 0.5, display: 'flex', alignItems: 'center', typography: 'subtitle2' }}>
+  const renderTrending = () => (
+    <Box
+      sx={{
+        gap: 0.5,
+        display: 'flex',
+        alignItems: 'flex-end',
+        flexDirection: 'column',
+      }}
+    >
+      <Box
+        sx={{
+          gap: 0.5,
+          display: 'flex',
+          alignItems: 'center',
+          typography: 'subtitle2',
+        }}
+      >
         <Iconify icon={percent >= 0 ? 'eva:trending-up-fill' : 'eva:trending-down-fill'} />
         <Box component="span">
           {percent > 0 && '+'}
           {fPercent(percent)}
         </Box>
       </Box>
+
       <Box component="span" sx={{ opacity: 0.64, typography: 'body2' }}>
         last month
       </Box>
@@ -70,26 +88,29 @@ export function BookingTotalIncomes({ title, total, percent, chart, sx, ...other
 
   return (
     <Card
-      sx={{
-        p: 3,
-        borderRadius: 2,
-        boxShadow: 'none',
-        color: 'primary.lighter',
-        bgcolor: 'primary.darker',
-        ...sx,
-      }}
+      sx={[
+        () => ({
+          p: 3,
+          borderRadius: 2,
+          boxShadow: 'none',
+          color: 'primary.lighter',
+          bgcolor: 'primary.darker',
+        }),
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...other}
     >
       <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between' }}>
         <div>
           <Box sx={{ mb: 1, typography: 'subtitle2' }}>{title}</Box>
+
           <Box sx={{ typography: 'h3' }}>{fCurrency(total)}</Box>
         </div>
 
-        {renderTrending}
+        {renderTrending()}
       </Box>
 
-      <Chart type="line" series={chart.series} options={chartOptions} height={120} />
+      <Chart type="line" series={chart.series} options={chartOptions} sx={{ height: 120 }} />
 
       <SvgColor
         src={`${CONFIG.assetsDir}/assets/background/shape-square.svg`}

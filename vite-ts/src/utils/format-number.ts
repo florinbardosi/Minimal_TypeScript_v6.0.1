@@ -9,7 +9,7 @@ import { formatNumberLocale } from 'src/locales';
 
 export type InputNumberValue = string | number | null | undefined;
 
-type Options = Intl.NumberFormatOptions | undefined;
+type Options = Intl.NumberFormatOptions;
 
 const DEFAULT_LOCALE = { code: 'en-US', currency: 'USD' };
 

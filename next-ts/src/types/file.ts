@@ -5,8 +5,8 @@ import type { IDateValue, IDatePickerControl } from './common';
 export type IFileFilters = {
   name: string;
   type: string[];
-  startDate: IDatePickerControl;
   endDate: IDatePickerControl;
+  startDate: IDatePickerControl;
 };
 
 export type IFileShared = {
@@ -19,29 +19,29 @@ export type IFileShared = {
 
 export type IFolderManager = {
   id: string;
+  url: string;
   name: string;
   size: number;
   type: string;
-  url: string;
   tags: string[];
   totalFiles?: number;
   isFavorited: boolean;
-  shared: IFileShared[] | null;
   createdAt: IDateValue;
   modifiedAt: IDateValue;
+  shared: IFileShared[] | null;
 };
 
 export type IFileManager = {
   id: string;
+  url: string;
   name: string;
   size: number;
   type: string;
-  url: string;
   tags: string[];
   isFavorited: boolean;
-  shared: IFileShared[] | null;
   createdAt: IDateValue;
   modifiedAt: IDateValue;
+  shared: IFileShared[] | null;
 };
 
 export type IFile = IFileManager | IFolderManager;

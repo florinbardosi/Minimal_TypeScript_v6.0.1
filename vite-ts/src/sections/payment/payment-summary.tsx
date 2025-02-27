@@ -13,8 +13,8 @@ import { Iconify } from 'src/components/iconify';
 // ----------------------------------------------------------------------
 
 export function PaymentSummary({ sx, ...other }: BoxProps) {
-  const renderPrice = (
-    <Stack direction="row" justifyContent="flex-end">
+  const renderPrice = () => (
+    <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
       <Typography variant="h4">$</Typography>
 
       <Typography variant="h2">9.99</Typography>
@@ -30,17 +30,19 @@ export function PaymentSummary({ sx, ...other }: BoxProps) {
       >
         / mo
       </Typography>
-    </Stack>
+    </Box>
   );
 
   return (
     <Box
-      sx={{
-        p: 5,
-        borderRadius: 2,
-        bgcolor: 'background.neutral',
-        ...sx,
-      }}
+      sx={[
+        () => ({
+          p: 5,
+          borderRadius: 2,
+          bgcolor: 'background.neutral',
+        }),
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...other}
     >
       <Typography variant="h6" sx={{ mb: 5 }}>
@@ -48,30 +50,36 @@ export function PaymentSummary({ sx, ...other }: BoxProps) {
       </Typography>
 
       <Stack spacing={2.5}>
-        <Stack direction="row" justifyContent="space-between">
+        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
             Subscription
           </Typography>
 
           <Label color="error">PREMIUM</Label>
-        </Stack>
+        </Box>
 
-        <Stack direction="row" justifyContent="space-between">
+        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
             Billed monthly
           </Typography>
-          <Switch defaultChecked />
-        </Stack>
+          <Switch
+            defaultChecked
+            inputProps={{
+              id: 'monthly-billed-switch',
+              'aria-label': 'Monthly billed switch',
+            }}
+          />
+        </Box>
 
-        {renderPrice}
+        {renderPrice()}
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 
-        <Stack direction="row" alignItems="center" justifyContent="space-between">
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Typography variant="subtitle1">Total billed</Typography>
 
           <Typography variant="subtitle1">$9.99*</Typography>
-        </Stack>
+        </Box>
 
         <Divider sx={{ borderStyle: 'dashed' }} />
       </Stack>
@@ -85,10 +93,10 @@ export function PaymentSummary({ sx, ...other }: BoxProps) {
       </Button>
 
       <Stack alignItems="center" spacing={1}>
-        <Stack direction="row" alignItems="center" spacing={1}>
+        <Box sx={{ gap: 1, display: 'flex', alignItems: 'center' }}>
           <Iconify icon="solar:shield-check-bold" sx={{ color: 'success.main' }} />
           <Typography variant="subtitle2">Secure credit card payment</Typography>
-        </Stack>
+        </Box>
 
         <Typography variant="caption" sx={{ color: 'text.disabled', textAlign: 'center' }}>
           This is a secure 128-bit SSL encrypted payment

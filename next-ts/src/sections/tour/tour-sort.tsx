@@ -1,10 +1,12 @@
+import { usePopover } from 'minimal-shared/hooks';
+
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import MenuList from '@mui/material/MenuList';
 import MenuItem from '@mui/material/MenuItem';
 
 import { Iconify } from 'src/components/iconify';
-import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import { CustomPopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
@@ -18,17 +20,40 @@ type Props = {
 };
 
 export function TourSort({ sort, onSort, sortOptions }: Props) {
-  const popover = usePopover();
+  const menuActions = usePopover();
+
+  const renderMenuActions = () => (
+    <CustomPopover
+      open={menuActions.open}
+      anchorEl={menuActions.anchorEl}
+      onClose={menuActions.onClose}
+    >
+      <MenuList>
+        {sortOptions.map((option) => (
+          <MenuItem
+            key={option.value}
+            selected={option.value === sort}
+            onClick={() => {
+              menuActions.onClose();
+              onSort(option.value);
+            }}
+          >
+            {option.label}
+          </MenuItem>
+        ))}
+      </MenuList>
+    </CustomPopover>
+  );
 
   return (
     <>
       <Button
         disableRipple
         color="inherit"
-        onClick={popover.onOpen}
+        onClick={menuActions.onOpen}
         endIcon={
           <Iconify
-            icon={popover.open ? 'eva:arrow-ios-upward-fill' : 'eva:arrow-ios-downward-fill'}
+            icon={menuActions.open ? 'eva:arrow-ios-upward-fill' : 'eva:arrow-ios-downward-fill'}
           />
         }
         sx={{ fontWeight: 'fontWeightSemiBold' }}
@@ -42,22 +67,7 @@ export function TourSort({ sort, onSort, sortOptions }: Props) {
         </Box>
       </Button>
 
-      <CustomPopover open={popover.open} anchorEl={popover.anchorEl} onClose={popover.onClose}>
-        <MenuList>
-          {sortOptions.map((option) => (
-            <MenuItem
-              key={option.value}
-              selected={option.value === sort}
-              onClick={() => {
-                popover.onClose();
-                onSort(option.value);
-              }}
-            >
-              {option.label}
-            </MenuItem>
-          ))}
-        </MenuList>
-      </CustomPopover>
+      {renderMenuActions()}
     </>
   );
 }

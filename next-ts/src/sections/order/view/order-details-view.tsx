@@ -4,18 +4,23 @@ import type { IOrderItem } from 'src/types/order';
 
 import { useState, useCallback } from 'react';
 
-import Stack from '@mui/material/Stack';
-import Grid from '@mui/material/Unstable_Grid2';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import Grid from '@mui/material/Grid2';
+import Divider from '@mui/material/Divider';
 
 import { paths } from 'src/routes/paths';
 
 import { ORDER_STATUS_OPTIONS } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
 
-import { OrderDetailsInfo } from '../order-details-info';
-import { OrderDetailsItems } from '../order-details-item';
+import { OrderDetailsItems } from '../order-details-items';
 import { OrderDetailsToolbar } from '../order-details-toolbar';
 import { OrderDetailsHistory } from '../order-details-history';
+import { OrderDetailsPayment } from '../order-details-payment';
+import { OrderDetailsCustomer } from '../order-details-customer';
+import { OrderDetailsDelivery } from '../order-details-delivery';
+import { OrderDetailsShipping } from '../order-details-shipping';
 
 // ----------------------------------------------------------------------
 
@@ -33,17 +38,19 @@ export function OrderDetailsView({ order }: Props) {
   return (
     <DashboardContent>
       <OrderDetailsToolbar
-        backLink={paths.dashboard.order.root}
-        orderNumber={order?.orderNumber}
-        createdAt={order?.createdAt}
         status={status}
+        createdAt={order?.createdAt}
+        orderNumber={order?.orderNumber}
+        backHref={paths.dashboard.order.root}
         onChangeStatus={handleChangeStatus}
         statusOptions={ORDER_STATUS_OPTIONS}
       />
 
       <Grid container spacing={3}>
-        <Grid xs={12} md={8}>
-          <Stack spacing={3} direction={{ xs: 'column-reverse', md: 'column' }}>
+        <Grid size={{ xs: 12, md: 8 }}>
+          <Box
+            sx={{ gap: 3, display: 'flex', flexDirection: { xs: 'column-reverse', md: 'column' } }}
+          >
             <OrderDetailsItems
               items={order?.items}
               taxes={order?.taxes}
@@ -54,16 +61,22 @@ export function OrderDetailsView({ order }: Props) {
             />
 
             <OrderDetailsHistory history={order?.history} />
-          </Stack>
+          </Box>
         </Grid>
 
-        <Grid xs={12} md={4}>
-          <OrderDetailsInfo
-            customer={order?.customer}
-            delivery={order?.delivery}
-            payment={order?.payment}
-            shippingAddress={order?.shippingAddress}
-          />
+        <Grid size={{ xs: 12, md: 4 }}>
+          <Card>
+            <OrderDetailsCustomer customer={order?.customer} />
+
+            <Divider sx={{ borderStyle: 'dashed' }} />
+            <OrderDetailsDelivery delivery={order?.delivery} />
+
+            <Divider sx={{ borderStyle: 'dashed' }} />
+            <OrderDetailsShipping shippingAddress={order?.shippingAddress} />
+
+            <Divider sx={{ borderStyle: 'dashed' }} />
+            <OrderDetailsPayment payment={order?.payment} />
+          </Card>
         </Grid>
       </Grid>
     </DashboardContent>

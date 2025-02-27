@@ -1,5 +1,7 @@
+import type { RouteObject } from 'react-router';
+
+import { Outlet } from 'react-router';
 import { lazy, Suspense } from 'react';
-import { Outlet } from 'react-router-dom';
 
 import { AuthSplitLayout } from 'src/layouts/auth-split';
 
@@ -24,7 +26,11 @@ const authJwt = {
       path: 'sign-in',
       element: (
         <GuestGuard>
-          <AuthSplitLayout section={{ title: 'Hi, Welcome back' }}>
+          <AuthSplitLayout
+            slotProps={{
+              section: { title: 'Hi, Welcome back' },
+            }}
+          >
             <Jwt.SignInPage />
           </AuthSplitLayout>
         </GuestGuard>
@@ -45,7 +51,7 @@ const authJwt = {
 
 // ----------------------------------------------------------------------
 
-export const authRoutes = [
+export const authRoutes: RouteObject[] = [
   {
     path: 'auth',
     element: (

@@ -1,16 +1,14 @@
 import type { BoxProps } from '@mui/material/Box';
 
 import { useState, useCallback } from 'react';
+import { uuidv4 } from 'minimal-shared/utils';
+import { useBoolean } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import { inputBaseClasses } from '@mui/material/InputBase';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
-
-import { useBoolean } from 'src/hooks/use-boolean';
-
-import { uuidv4 } from 'src/utils/uuidv4';
 
 import { createColumn } from 'src/actions/kanban';
 
@@ -57,7 +55,16 @@ export function KanbanColumnAdd({ sx, ...other }: BoxProps) {
 
   return (
     <>
-      <Box sx={{ width: 'var(--column-width)', flex: '0 0 auto', ...sx }} {...other}>
+      <Box
+        sx={[
+          () => ({
+            flex: '0 0 auto',
+            width: 'var(--column-width)',
+          }),
+          ...(Array.isArray(sx) ? sx : [sx]),
+        ]}
+        {...other}
+      >
         {openAddColumn.value ? (
           <ClickAwayListener onClickAway={handleCancel}>
             <TextField

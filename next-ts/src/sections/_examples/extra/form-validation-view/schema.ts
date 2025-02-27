@@ -7,9 +7,9 @@ import { schemaHelper } from 'src/components/hook-form';
 
 // ----------------------------------------------------------------------
 
-export type FormSchemaType = zod.infer<typeof FormSchema>;
+export type FieldsSchemaType = zod.infer<typeof FieldsSchema>;
 
-export const FormSchema = zod
+export const FieldsSchema = zod
   .object({
     fullName: zod
       .string()
@@ -20,52 +20,55 @@ export const FormSchema = zod
       .string()
       .min(1, { message: 'Email is required!' })
       .email({ message: 'Email must be a valid email address!' }),
-    phoneNumber: schemaHelper.phoneNumber({ isValidPhoneNumber }),
-    editor: schemaHelper
-      .editor()
-      .min(100, { message: 'Content must be at least 100 characters' })
-      .max(200, { message: 'Content must be less than 200 characters' }),
-    age: zod
-      .number()
-      .min(1, { message: 'Age is required!' })
-      .min(18, { message: 'Age must be between 18 and 100' })
-      .max(100, { message: 'Age must be between 18 and 100' }),
-    startDate: schemaHelper.date({ message: { required_error: 'Start date is required!' } }),
-    endDate: schemaHelper.date({ message: { required_error: 'End date is required!' } }),
+    age: schemaHelper.nullableInput(
+      zod
+        .number({ coerce: true })
+        .int()
+        .min(1, { message: 'Age is required!' })
+        .max(80, { message: 'Age must be between 1 and 80' }),
+      // message for null value
+      { message: 'Age is required!' }
+    ),
+    price: schemaHelper.nullableInput(
+      // handle null value and undefined value
+      zod.number({ coerce: true }).min(1, { message: 'Price is required!' }).optional(),
+      // message for null value
+      { message: 'Price is required!' }
+    ),
+    quantity: schemaHelper.nullableInput(
+      zod
+        .number({ coerce: true })
+        .min(1, { message: 'Quantity is required!' })
+        .max(99, { message: 'Quantity must be between 1 and 99' }),
+      // message for null value
+      { message: 'Quantity is required!' }
+    ),
+    // phone
+    phoneNumber: schemaHelper.phoneNumber({ isValid: isValidPhoneNumber }),
+    // code
+    code: zod
+      .string()
+      .min(1, { message: 'Code is required!' })
+      .min(6, { message: 'Code must be at least 6 characters!' }),
+    // date
+    startDate: schemaHelper.date({ message: { required: 'Start date is required!' } }),
+    endDate: schemaHelper.date({ message: { required: 'End date is required!' } }),
+    // password
     password: zod
       .string()
       .min(1, { message: 'Password is required!' })
       .min(6, { message: 'Password is too short!' }),
     confirmPassword: zod.string().min(1, { message: 'Confirm password is required!' }),
-    autocomplete: schemaHelper.objectOrNull<{
-      value: string;
-      label: string;
-    } | null>({ message: { required_error: 'Autocomplete is required!' } }),
+    // autocomplete
+    autocomplete: schemaHelper.nullableInput(zod.custom<{ value: string; label: string }>(), {
+      message: 'Autocomplete is required!',
+    }),
+    // country
     singleCountry: zod.string().min(1, { message: 'Single country is required!' }),
     multiCountry: zod.string().array().min(2, { message: 'Must have at least 2 items!' }),
-    //
+    // select
     singleSelect: zod.string().min(1, { message: 'Single select is required!' }),
     multiSelect: zod.string().array().min(2, { message: 'Must have at least 2 items!' }),
-    //
-    rating: zod.number().min(1, { message: 'Rating is required!' }),
-    radioGroup: zod.string().min(1, { message: 'Choose at least one option!' }),
-    //
-    checkbox: schemaHelper.boolean({ message: { required_error: 'Checkbox is required!' } }),
-    switch: schemaHelper.boolean({ message: { required_error: 'Switch is required!' } }),
-    //
-    multiCheckbox: zod.string().array().nonempty({ message: 'Choose at least one option!' }),
-    multiSwitch: zod.string().array().nonempty({ message: 'Choose at least one option!' }),
-    //
-    slider: zod.number().min(10, { message: 'Mininum value is >= 10' }),
-    sliderRange: zod
-      .number()
-      .array()
-      .refine((data) => data[0] >= 20 && data[1] <= 80, {
-        message: 'Range must be between 20 and 80',
-      }),
-    //
-    singleUpload: schemaHelper.file({ message: { required_error: 'Single upload is required!' } }),
-    multiUpload: schemaHelper.files({ message: { required_error: 'Multi upload is required!' } }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Passwords do not match!',
@@ -75,3 +78,39 @@ export const FormSchema = zod
     message: 'End date cannot be earlier than start date!',
     path: ['endDate'],
   });
+
+// ----------------------------------------------------------------------
+
+export type ControlsSchemaType = zod.infer<typeof ControlsSchema>;
+
+export const ControlsSchema = zod.object({
+  // rating
+  rating: zod.number().min(1, { message: 'Rating is required!' }),
+  // radio
+  radioGroup: zod.string().min(1, { message: 'Choose at least one option!' }),
+  // checkbox
+  checkbox: schemaHelper.boolean({ message: 'Checkbox is required!' }),
+  multiCheckbox: zod.string().array().min(1, { message: 'Choose at least one option!' }),
+  // switch
+  switch: schemaHelper.boolean({ message: 'Switch is required!' }),
+  multiSwitch: zod.string().array().min(1, { message: 'Choose at least one option!' }),
+  // slider
+  slider: zod.number().min(10, { message: 'Mininum value is >= 10' }),
+  sliderRange: schemaHelper.sliderRange({
+    min: 20,
+    max: 80,
+  }),
+});
+
+// ----------------------------------------------------------------------
+
+export type OtherSchemaType = zod.infer<typeof OtherSchema>;
+
+export const OtherSchema = zod.object({
+  editor: schemaHelper
+    .editor()
+    .min(100, { message: 'Content must be at least 100 characters' })
+    .max(500, { message: 'Content must be less than 500 characters' }),
+  singleUpload: schemaHelper.file({ message: 'Single upload is required!' }),
+  multiUpload: schemaHelper.files({ message: 'Multi upload is required!' }),
+});

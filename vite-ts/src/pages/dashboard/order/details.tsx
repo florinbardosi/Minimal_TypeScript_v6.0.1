@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { useParams } from 'src/routes/hooks';
 
 import { _orders } from 'src/_mock/_order';
-import { CONFIG } from 'src/config-global';
+import { CONFIG } from 'src/global-config';
 
 import { OrderDetailsView } from 'src/sections/order/view';
 

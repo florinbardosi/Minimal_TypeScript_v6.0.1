@@ -1,6 +1,8 @@
 import type { BoxProps } from '@mui/material/Box';
 import type { CardProps } from '@mui/material/Card';
 
+import { useTabs } from 'minimal-shared/hooks';
+
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import Card from '@mui/material/Card';
@@ -10,8 +12,6 @@ import Avatar from '@mui/material/Avatar';
 import CardHeader from '@mui/material/CardHeader';
 import Typography from '@mui/material/Typography';
 import { svgIconClasses } from '@mui/material/SvgIcon';
-
-import { useTabs } from 'src/hooks/use-tabs';
 
 import { fData, fCurrency, fShortenNumber } from 'src/utils/format-number';
 
@@ -45,10 +45,10 @@ type Props = CardProps & {
   }[];
 };
 
-export function AppTopRelated({ title, subheader, list, ...other }: Props) {
+export function AppTopRelated({ title, subheader, list, sx, ...other }: Props) {
   const tabs = useTabs('7days');
 
-  const renderTabs = (
+  const renderTabs = () => (
     <CustomTabs
       value={tabs.value}
       onChange={tabs.onChange}
@@ -62,13 +62,21 @@ export function AppTopRelated({ title, subheader, list, ...other }: Props) {
   );
 
   return (
-    <Card {...other}>
+    <Card sx={sx} {...other}>
       <CardHeader title={title} subheader={subheader} sx={{ mb: 3 }} />
 
-      {renderTabs}
+      {renderTabs()}
 
       <Scrollbar sx={{ minHeight: 384 }}>
-        <Box sx={{ p: 3, gap: 3, minWidth: 360, display: 'flex', flexDirection: 'column' }}>
+        <Box
+          sx={{
+            p: 3,
+            gap: 3,
+            minWidth: 360,
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
           {list.map((item) => (
             <Item key={item.id} item={item} />
           ))}
@@ -86,7 +94,10 @@ type ItemProps = BoxProps & {
 
 function Item({ item, sx, ...other }: ItemProps) {
   return (
-    <Box sx={{ gap: 2, display: 'flex', alignItems: 'center', ...sx }} {...other}>
+    <Box
+      sx={[{ gap: 2, display: 'flex', alignItems: 'center' }, ...(Array.isArray(sx) ? sx : [sx])]}
+      {...other}
+    >
       <Avatar
         variant="rounded"
         src={item.shortcut}
@@ -99,7 +110,14 @@ function Item({ item, sx, ...other }: ItemProps) {
       />
 
       <div>
-        <Box sx={{ mb: 1, gap: 1, display: 'flex', alignItems: 'center' }}>
+        <Box
+          sx={{
+            mb: 1,
+            gap: 1,
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
           <Typography variant="subtitle2" noWrap>
             {item.name}
           </Typography>
@@ -110,13 +128,22 @@ function Item({ item, sx, ...other }: ItemProps) {
         </Box>
 
         <Stack
-          spacing={1}
-          direction="row"
-          alignItems="center"
           divider={
-            <Box sx={{ width: 4, height: 4, borderRadius: '50%', bgcolor: 'text.disabled' }} />
+            <Box
+              sx={{
+                width: 4,
+                height: 4,
+                borderRadius: '50%',
+                bgcolor: 'text.disabled',
+              }}
+            />
           }
-          sx={{ typography: 'caption' }}
+          sx={{
+            gap: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            typography: 'caption',
+          }}
         >
           <Box sx={{ gap: 0.5, display: 'flex', alignItems: 'center' }}>
             <Iconify width={16} icon="solar:download-bold" sx={{ color: 'text.disabled' }} />

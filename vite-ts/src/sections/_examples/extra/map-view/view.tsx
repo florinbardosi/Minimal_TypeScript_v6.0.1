@@ -1,34 +1,22 @@
-import { styled } from '@mui/material/styles';
-
-import { paths } from 'src/routes/paths';
+import type { MapProps } from 'src/components/map';
+import type { Theme, SxProps } from '@mui/material/styles';
 
 import { cities as CITIES } from 'src/_mock/_map/cities';
 import { countries as COUNTRIES } from 'src/_mock/_map/countries';
 
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-
 import { MapHeatmap } from './heatmap';
-import { MapClusters } from './clusters';
+import { MapClusters } from './map-clusters';
 import { MapInteraction } from './interaction';
 import { MapSideBySide } from './side-by-side';
+import { ComponentLayout } from '../../layout';
 import { MapChangeTheme } from './change-theme';
-import { ComponentHero } from '../../component-hero';
 import { MapMarkersPopups } from './map-markers-popups';
 import { MapDraggableMarkers } from './draggable-markers';
 import { MapViewportAnimation } from './viewport-animation';
 import { MapGeoJSONAnimation } from './map-geo-json-animation';
-import { ScrollToViewTemplate } from '../../component-template';
 import { MapHighlightByFilter } from './map-highlight-by-filter';
 
 // ----------------------------------------------------------------------
-
-const StyledContainer = styled('div')(({ theme }) => ({
-  zIndex: 0,
-  height: 480,
-  overflow: 'hidden',
-  position: 'relative',
-  borderRadius: theme.shape.borderRadius,
-}));
 
 const THEMES = {
   streets: 'mapbox://styles/mapbox/streets-v11',
@@ -39,92 +27,66 @@ const THEMES = {
   satelliteStreets: 'mapbox://styles/mapbox/satellite-streets-v11',
 };
 
-const baseSettings = { minZoom: 1 };
+const baseSettings: MapProps = {
+  minZoom: 1,
+};
 
-const DEMO = [
+const mapStyles: SxProps<Theme> = {
+  height: 480,
+  borderRadius: 1,
+};
+
+const DEMO_COMPONENTS = [
   {
     name: 'Change theme',
-    component: (
-      <StyledContainer>
-        <MapChangeTheme {...baseSettings} themes={THEMES} />
-      </StyledContainer>
-    ),
+    component: <MapChangeTheme {...baseSettings} themes={THEMES} sx={mapStyles} />,
   },
   {
     name: 'Markers & popups',
     component: (
-      <StyledContainer>
-        <MapMarkersPopups {...baseSettings} data={COUNTRIES} mapStyle={THEMES.light} />
-      </StyledContainer>
+      <MapMarkersPopups {...baseSettings} data={COUNTRIES} mapStyle={THEMES.light} sx={mapStyles} />
     ),
   },
   {
     name: 'Draggable markers',
-    component: (
-      <StyledContainer>
-        <MapDraggableMarkers {...baseSettings} mapStyle={THEMES.light} />
-      </StyledContainer>
-    ),
+    component: <MapDraggableMarkers {...baseSettings} mapStyle={THEMES.light} sx={mapStyles} />,
   },
   {
     name: 'Geojson animation',
     component: (
-      <StyledContainer>
-        <MapGeoJSONAnimation {...baseSettings} mapStyle={THEMES.satelliteStreets} />
-      </StyledContainer>
+      <MapGeoJSONAnimation {...baseSettings} mapStyle={THEMES.satelliteStreets} sx={mapStyles} />
     ),
   },
   {
-    name: 'clusters',
-    component: (
-      <StyledContainer>
-        <MapClusters {...baseSettings} mapStyle={THEMES.light} />
-      </StyledContainer>
-    ),
+    name: 'Clusters',
+    component: <MapClusters {...baseSettings} mapStyle={THEMES.light} sx={mapStyles} />,
   },
   {
     name: 'Interaction',
-    component: (
-      <StyledContainer>
-        <MapInteraction {...baseSettings} mapStyle={THEMES.light} />
-      </StyledContainer>
-    ),
+    component: <MapInteraction {...baseSettings} mapStyle={THEMES.light} sx={mapStyles} />,
   },
   {
     name: 'Viewport animation',
     component: (
-      <StyledContainer>
-        <MapViewportAnimation
-          {...baseSettings}
-          data={CITIES.filter((city) => city.state === 'Texas')}
-          mapStyle={THEMES.light}
-        />
-      </StyledContainer>
+      <MapViewportAnimation
+        {...baseSettings}
+        data={CITIES.filter((city) => city.state === 'Texas')}
+        mapStyle={THEMES.light}
+        sx={mapStyles}
+      />
     ),
   },
   {
     name: 'Highlight by filter',
-    component: (
-      <StyledContainer>
-        <MapHighlightByFilter {...baseSettings} mapStyle={THEMES.light} />
-      </StyledContainer>
-    ),
+    component: <MapHighlightByFilter {...baseSettings} mapStyle={THEMES.light} sx={mapStyles} />,
   },
   {
     name: 'Heatmap',
-    component: (
-      <StyledContainer>
-        <MapHeatmap {...baseSettings} mapStyle={THEMES.light} />
-      </StyledContainer>
-    ),
+    component: <MapHeatmap {...baseSettings} mapStyle={THEMES.light} sx={mapStyles} />,
   },
   {
     name: 'Side by side',
-    component: (
-      <StyledContainer>
-        <MapSideBySide {...baseSettings} />
-      </StyledContainer>
-    ),
+    component: <MapSideBySide {...baseSettings} sx={mapStyles} />,
   },
 ];
 
@@ -132,19 +94,15 @@ const DEMO = [
 
 export function MapView() {
   return (
-    <>
-      <ComponentHero>
-        <CustomBreadcrumbs
-          heading="Map"
-          links={[{ name: 'Components', href: paths.components }, { name: 'Map' }]}
-          moreLink={[
-            'http://visgl.github.io/react-map-gl',
-            'http://visgl.github.io/react-map-gl/examples',
-          ]}
-        />
-      </ComponentHero>
-
-      <ScrollToViewTemplate data={DEMO} />
-    </>
+    <ComponentLayout
+      sectionData={DEMO_COMPONENTS}
+      heroProps={{
+        heading: 'Map',
+        moreLinks: [
+          'http://visgl.github.io/react-map-gl',
+          'http://visgl.github.io/react-map-gl/examples',
+        ],
+      }}
+    />
   );
 }

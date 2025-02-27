@@ -27,7 +27,7 @@ type Props = CardProps & {
   };
 };
 
-export function BankingExpensesCategories({ title, subheader, chart, ...other }: Props) {
+export function BankingExpensesCategories({ title, subheader, chart, sx, ...other }: Props) {
   const theme = useTheme();
 
   const chartColors = chart.colors ?? [
@@ -55,7 +55,7 @@ export function BankingExpensesCategories({ title, subheader, chart, ...other }:
   });
 
   return (
-    <Card {...other}>
+    <Card sx={sx} {...other}>
       <CardHeader title={title} subheader={subheader} />
 
       <Box
@@ -74,8 +74,8 @@ export function BankingExpensesCategories({ title, subheader, chart, ...other }:
           type="polarArea"
           series={chartSeries}
           options={chartOptions}
-          width={{ xs: 240, md: 280 }}
-          height={{ xs: 240, md: 280 }}
+          slotProps={{ loading: { p: 3 } }}
+          sx={{ width: { xs: 240, md: 280 }, height: { xs: 240, md: 280 } }}
         />
 
         <ChartLegends
@@ -88,11 +88,13 @@ export function BankingExpensesCategories({ title, subheader, chart, ...other }:
       </Box>
 
       <Divider sx={{ borderStyle: 'dashed' }} />
-
       <Box
-        display="grid"
-        gridTemplateColumns="repeat(2, 1fr)"
-        sx={{ textAlign: 'center', typography: 'h4' }}
+        sx={{
+          display: 'grid',
+          typography: 'h4',
+          textAlign: 'center',
+          gridTemplateColumns: 'repeat(2, 1fr)',
+        }}
       >
         <Box sx={{ py: 2, borderRight: `dashed 1px ${theme.vars.palette.divider}` }}>
           <Box sx={{ mb: 1, typography: 'body2', color: 'text.secondary' }}>Categories</Box>9

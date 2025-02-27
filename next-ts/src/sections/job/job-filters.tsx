@@ -1,5 +1,5 @@
 import type { IJobFilters } from 'src/types/job';
-import type { UseSetStateReturn } from 'src/hooks/use-set-state';
+import type { UseSetStateReturn } from 'minimal-shared/hooks';
 
 import { useCallback } from 'react';
 
@@ -40,58 +40,68 @@ type Props = {
 };
 
 export function JobFilters({ open, canReset, onOpen, onClose, filters, options }: Props) {
+  const { state: currentFilters, setState: updateFilters, resetState: resetFilters } = filters;
+
   const handleFilterEmploymentTypes = useCallback(
     (newValue: string) => {
-      const checked = filters.state.employmentTypes.includes(newValue)
-        ? filters.state.employmentTypes.filter((value) => value !== newValue)
-        : [...filters.state.employmentTypes, newValue];
+      const checked = currentFilters.employmentTypes.includes(newValue)
+        ? currentFilters.employmentTypes.filter((value) => value !== newValue)
+        : [...currentFilters.employmentTypes, newValue];
 
-      filters.setState({ employmentTypes: checked });
+      updateFilters({ employmentTypes: checked });
     },
-    [filters]
+    [updateFilters, currentFilters.employmentTypes]
   );
 
   const handleFilterExperience = useCallback(
     (newValue: string) => {
-      filters.setState({ experience: newValue });
+      updateFilters({ experience: newValue });
     },
-    [filters]
+    [updateFilters]
   );
 
   const handleFilterRoles = useCallback(
     (newValue: string[]) => {
-      filters.setState({ roles: newValue });
+      updateFilters({ roles: newValue });
     },
-    [filters]
+    [updateFilters]
   );
 
   const handleFilterLocations = useCallback(
     (newValue: string[]) => {
-      filters.setState({ locations: newValue });
+      updateFilters({ locations: newValue });
     },
-    [filters]
+    [updateFilters]
   );
 
   const handleFilterBenefits = useCallback(
     (newValue: string) => {
-      const checked = filters.state.benefits.includes(newValue)
-        ? filters.state.benefits.filter((value) => value !== newValue)
-        : [...filters.state.benefits, newValue];
+      const checked = currentFilters.benefits.includes(newValue)
+        ? currentFilters.benefits.filter((value) => value !== newValue)
+        : [...currentFilters.benefits, newValue];
 
-      filters.setState({ benefits: checked });
+      updateFilters({ benefits: checked });
     },
-    [filters]
+    [updateFilters, currentFilters.benefits]
   );
 
-  const renderHead = (
+  const renderHead = () => (
     <>
-      <Box display="flex" alignItems="center" sx={{ py: 2, pr: 1, pl: 2.5 }}>
+      <Box
+        sx={{
+          py: 2,
+          pr: 1,
+          pl: 2.5,
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
           Filters
         </Typography>
 
         <Tooltip title="Reset">
-          <IconButton onClick={filters.onResetState}>
+          <IconButton onClick={() => resetFilters()}>
             <Badge color="error" variant="dot" invisible={!canReset}>
               <Iconify icon="solar:restart-bold" />
             </Badge>
@@ -107,8 +117,8 @@ export function JobFilters({ open, canReset, onOpen, onClose, filters, options }
     </>
   );
 
-  const renderEmploymentTypes = (
-    <Box display="flex" flexDirection="column">
+  const renderEmploymentTypes = () => (
+    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       <Typography variant="subtitle2" sx={{ mb: 1 }}>
         Employment types
       </Typography>
@@ -117,7 +127,7 @@ export function JobFilters({ open, canReset, onOpen, onClose, filters, options }
           key={option}
           control={
             <Checkbox
-              checked={filters.state.employmentTypes.includes(option)}
+              checked={currentFilters.employmentTypes.includes(option)}
               onClick={() => handleFilterEmploymentTypes(option)}
             />
           }
@@ -127,8 +137,8 @@ export function JobFilters({ open, canReset, onOpen, onClose, filters, options }
     </Box>
   );
 
-  const renderExperience = (
-    <Box display="flex" flexDirection="column">
+  const renderExperience = () => (
+    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       <Typography variant="subtitle2" sx={{ mb: 1 }}>
         Experience
       </Typography>
@@ -137,7 +147,7 @@ export function JobFilters({ open, canReset, onOpen, onClose, filters, options }
           key={option}
           control={
             <Radio
-              checked={option === filters.state.experience}
+              checked={option === currentFilters.experience}
               onClick={() => handleFilterExperience(option)}
             />
           }
@@ -148,8 +158,8 @@ export function JobFilters({ open, canReset, onOpen, onClose, filters, options }
     </Box>
   );
 
-  const renderRoles = (
-    <Box display="flex" flexDirection="column">
+  const renderRoles = () => (
+    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       <Typography variant="subtitle2" sx={{ mb: 1.5 }}>
         Roles
       </Typography>
@@ -158,7 +168,7 @@ export function JobFilters({ open, canReset, onOpen, onClose, filters, options }
         disableCloseOnSelect
         options={options.roles.map((option) => option)}
         getOptionLabel={(option) => option}
-        value={filters.state.roles}
+        value={currentFilters.roles}
         onChange={(event, newValue) => handleFilterRoles(newValue)}
         renderInput={(params) => <TextField placeholder="Select Roles" {...params} />}
         renderOption={(props, option) => (
@@ -181,8 +191,8 @@ export function JobFilters({ open, canReset, onOpen, onClose, filters, options }
     </Box>
   );
 
-  const renderLocations = (
-    <Box display="flex" flexDirection="column">
+  const renderLocations = () => (
+    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       <Typography variant="subtitle2" sx={{ mb: 1.5 }}>
         Locations
       </Typography>
@@ -191,15 +201,15 @@ export function JobFilters({ open, canReset, onOpen, onClose, filters, options }
         id="multiple-locations"
         multiple
         fullWidth
-        placeholder={filters.state.locations.length ? '+ Locations' : 'Select Locations'}
-        value={filters.state.locations}
+        placeholder={currentFilters.locations.length ? '+ Locations' : 'Select Locations'}
+        value={currentFilters.locations}
         onChange={(event, newValue) => handleFilterLocations(newValue)}
       />
     </Box>
   );
 
-  const renderBenefits = (
-    <Box display="flex" flexDirection="column">
+  const renderBenefits = () => (
+    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       <Typography variant="subtitle2" sx={{ mb: 1 }}>
         Benefits
       </Typography>
@@ -208,7 +218,7 @@ export function JobFilters({ open, canReset, onOpen, onClose, filters, options }
           key={option}
           control={
             <Checkbox
-              checked={filters.state.benefits.includes(option)}
+              checked={currentFilters.benefits.includes(option)}
               onClick={() => handleFilterBenefits(option)}
             />
           }
@@ -240,15 +250,15 @@ export function JobFilters({ open, canReset, onOpen, onClose, filters, options }
         slotProps={{ backdrop: { invisible: true } }}
         PaperProps={{ sx: { width: 320 } }}
       >
-        {renderHead}
+        {renderHead()}
 
         <Scrollbar sx={{ px: 2.5, py: 3 }}>
           <Stack spacing={3}>
-            {renderEmploymentTypes}
-            {renderExperience}
-            {renderRoles}
-            {renderLocations}
-            {renderBenefits}
+            {renderEmploymentTypes()}
+            {renderExperience()}
+            {renderRoles()}
+            {renderLocations()}
+            {renderBenefits()}
           </Stack>
         </Scrollbar>
       </Drawer>

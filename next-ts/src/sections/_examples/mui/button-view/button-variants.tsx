@@ -1,10 +1,9 @@
-import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
 import LoadingButton from '@mui/lab/LoadingButton';
-import Button, { buttonClasses } from '@mui/material/Button';
 
 import { Iconify } from 'src/components/iconify';
 
-import { ComponentBlock } from '../../component-block';
+import { ComponentBox } from '../../layout';
 
 // ----------------------------------------------------------------------
 
@@ -20,16 +19,8 @@ type Props = {
 
 export function ButtonVariants({ variant = 'text' }: Props) {
   return (
-    <Stack
-      sx={{
-        rowGap: 5,
-        columnGap: 3,
-        display: 'grid',
-        gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
-        [`& .${buttonClasses.root}`]: { textTransform: 'capitalize' },
-      }}
-    >
-      <ComponentBlock title="Base" sx={{ gap: 1 }}>
+    <>
+      <ComponentBox title="Base" sx={{ gap: 1 }}>
         <Button variant={variant} color="inherit">
           Default
         </Button>
@@ -43,17 +34,17 @@ export function ButtonVariants({ variant = 'text' }: Props) {
           Disabled
         </Button>
         <Button variant={variant}>Link</Button>
-      </ComponentBlock>
+      </ComponentBox>
 
-      <ComponentBlock title="Colors" sx={{ gap: 1 }}>
+      <ComponentBox title="Colors" sx={{ gap: 1 }}>
         {COLORS.map((color) => (
           <Button key={color} variant={variant} color={color}>
             {color === 'inherit' ? 'default' : color}
           </Button>
         ))}
-      </ComponentBlock>
+      </ComponentBox>
 
-      <ComponentBlock title="With icon & loading" sx={{ gap: 1 }}>
+      <ComponentBox title="With icon & loading" sx={{ gap: 1 }}>
         <Button
           color="error"
           variant={variant}
@@ -93,9 +84,9 @@ export function ButtonVariants({ variant = 'text' }: Props) {
         >
           End
         </LoadingButton>
-      </ComponentBlock>
+      </ComponentBox>
 
-      <ComponentBlock title="Sizes" sx={{ gap: 1 }}>
+      <ComponentBox title="Sizes" sx={{ gap: 1 }}>
         {SIZES.map((size) => (
           <Button key={size} variant={variant} color="info" size={size}>
             {size}
@@ -127,7 +118,7 @@ export function ButtonVariants({ variant = 'text' }: Props) {
             {size}
           </LoadingButton>
         ))}
-      </ComponentBlock>
-    </Stack>
+      </ComponentBox>
+    </>
   );
 }

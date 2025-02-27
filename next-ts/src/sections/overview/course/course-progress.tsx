@@ -25,7 +25,7 @@ type Props = CardProps & {
   };
 };
 
-export function CourseProgress({ title, subheader, chart, ...other }: Props) {
+export function CourseProgress({ title, subheader, chart, sx, ...other }: Props) {
   const theme = useTheme();
 
   const chartColors = chart.colors ?? [
@@ -71,16 +71,19 @@ export function CourseProgress({ title, subheader, chart, ...other }: Props) {
   });
 
   return (
-    <Card {...other}>
+    <Card sx={sx} {...other}>
       <CardHeader title={title} subheader={subheader} />
 
       <Chart
         type="donut"
         series={chartSeries}
         options={chartOptions}
-        width={{ xs: 220, xl: 240 }}
-        height={{ xs: 220, xl: 240 }}
-        sx={{ mx: 'auto', my: 5 }}
+        sx={{
+          my: 5,
+          mx: 'auto',
+          width: { xs: 220, xl: 240 },
+          height: { xs: 220, xl: 240 },
+        }}
       />
 
       <Divider sx={{ borderStyle: 'dashed' }} />

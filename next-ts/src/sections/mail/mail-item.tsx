@@ -2,7 +2,6 @@ import type { IMail } from 'src/types/mail';
 import type { ListItemButtonProps } from '@mui/material/ListItemButton';
 
 import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
@@ -22,13 +21,15 @@ export function MailItem({ mail, selected, sx, ...other }: Props) {
     <Box component="li" sx={{ display: 'flex' }}>
       <ListItemButton
         disableGutters
-        sx={{
-          p: 1,
-          gap: 2,
-          borderRadius: 1,
-          ...(selected && { bgcolor: 'action.selected' }),
-          ...sx,
-        }}
+        sx={[
+          {
+            p: 1,
+            gap: 2,
+            borderRadius: 1,
+            ...(selected && { bgcolor: 'action.selected' }),
+          },
+          ...(Array.isArray(sx) ? sx : [sx]),
+        ]}
         {...other}
       >
         <Avatar alt={mail.from.name} src={mail.from.avatarUrl ?? ''}>
@@ -37,17 +38,29 @@ export function MailItem({ mail, selected, sx, ...other }: Props) {
 
         <ListItemText
           primary={mail.from.name}
-          primaryTypographyProps={{ noWrap: true, component: 'span', variant: 'subtitle2' }}
           secondary={mail.message}
-          secondaryTypographyProps={{
-            noWrap: true,
-            component: 'span',
-            variant: mail.isUnread ? 'subtitle2' : 'body2',
-            color: mail.isUnread ? 'text.primary' : 'text.secondary',
+          slotProps={{
+            primary: { noWrap: true },
+            secondary: {
+              noWrap: true,
+              sx: {
+                ...(mail.isUnread && {
+                  color: 'text.primary',
+                  fontWeight: 'fontWeightSemiBold',
+                }),
+              },
+            },
           }}
         />
 
-        <Stack alignItems="flex-end" sx={{ alignSelf: 'stretch' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignSelf: 'stretch',
+            alignItems: 'flex-end',
+            flexDirection: 'column',
+          }}
+        >
           <Typography
             noWrap
             variant="body2"
@@ -59,6 +72,7 @@ export function MailItem({ mail, selected, sx, ...other }: Props) {
 
           {!!mail.isUnread && (
             <Box
+              component="span"
               sx={{
                 width: 8,
                 height: 8,
@@ -67,7 +81,7 @@ export function MailItem({ mail, selected, sx, ...other }: Props) {
               }}
             />
           )}
-        </Stack>
+        </Box>
       </ListItemButton>
     </Box>
   );

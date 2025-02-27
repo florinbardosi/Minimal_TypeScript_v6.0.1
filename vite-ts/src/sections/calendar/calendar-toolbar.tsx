@@ -1,7 +1,9 @@
 import type { IDateValue } from 'src/types/common';
 import type { ICalendarView } from 'src/types/calendar';
 
-import Stack from '@mui/material/Stack';
+import { usePopover } from 'minimal-shared/hooks';
+
+import Box from '@mui/material/Box';
 import Badge from '@mui/material/Badge';
 import Button from '@mui/material/Button';
 import MenuList from '@mui/material/MenuList';
@@ -11,7 +13,7 @@ import Typography from '@mui/material/Typography';
 import LinearProgress from '@mui/material/LinearProgress';
 
 import { Iconify } from 'src/components/iconify';
-import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import { CustomPopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
@@ -47,22 +49,51 @@ export function CalendarToolbar({
   onChangeView,
   onOpenFilters,
 }: Props) {
-  const popover = usePopover();
+  const menuActions = usePopover();
 
   const selectedItem = VIEW_OPTIONS.filter((item) => item.value === view)[0];
 
+  const renderMenuActions = () => (
+    <CustomPopover
+      open={menuActions.open}
+      anchorEl={menuActions.anchorEl}
+      onClose={menuActions.onClose}
+      slotProps={{ arrow: { placement: 'top-left' } }}
+    >
+      <MenuList>
+        {VIEW_OPTIONS.map((viewOption) => (
+          <MenuItem
+            key={viewOption.value}
+            selected={viewOption.value === view}
+            onClick={() => {
+              menuActions.onClose();
+              onChangeView(viewOption.value);
+            }}
+          >
+            <Iconify icon={viewOption.icon} />
+            {viewOption.label}
+          </MenuItem>
+        ))}
+      </MenuList>
+    </CustomPopover>
+  );
+
   return (
     <>
-      <Stack
-        direction="row"
-        alignItems="center"
-        justifyContent="space-between"
-        sx={{ p: 2.5, pr: 2, position: 'relative' }}
+      <Box
+        sx={{
+          p: 2.5,
+          pr: 2,
+          display: 'flex',
+          position: 'relative',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
       >
         <Button
           size="small"
           color="inherit"
-          onClick={popover.onOpen}
+          onClick={menuActions.onOpen}
           startIcon={<Iconify icon={selectedItem.icon} />}
           endIcon={<Iconify icon="eva:arrow-ios-downward-fill" sx={{ ml: -0.5 }} />}
           sx={{ display: { xs: 'none', sm: 'inline-flex' } }}
@@ -70,7 +101,7 @@ export function CalendarToolbar({
           {selectedItem.label}
         </Button>
 
-        <Stack direction="row" alignItems="center" spacing={1}>
+        <Box sx={{ gap: 1, display: 'flex', alignItems: 'center' }}>
           <IconButton onClick={onPrevDate}>
             <Iconify icon="eva:arrow-ios-back-fill" />
           </IconButton>
@@ -80,9 +111,9 @@ export function CalendarToolbar({
           <IconButton onClick={onNextDate}>
             <Iconify icon="eva:arrow-ios-forward-fill" />
           </IconButton>
-        </Stack>
+        </Box>
 
-        <Stack direction="row" alignItems="center" spacing={1}>
+        <Box sx={{ gap: 1, display: 'flex', alignItems: 'center' }}>
           <Button size="small" color="error" variant="contained" onClick={onToday}>
             Today
           </Button>
@@ -92,7 +123,7 @@ export function CalendarToolbar({
               <Iconify icon="ic:round-filter-list" />
             </Badge>
           </IconButton>
-        </Stack>
+        </Box>
 
         {loading && (
           <LinearProgress
@@ -107,30 +138,9 @@ export function CalendarToolbar({
             }}
           />
         )}
-      </Stack>
+      </Box>
 
-      <CustomPopover
-        open={popover.open}
-        anchorEl={popover.anchorEl}
-        onClose={popover.onClose}
-        slotProps={{ arrow: { placement: 'top-left' } }}
-      >
-        <MenuList>
-          {VIEW_OPTIONS.map((viewOption) => (
-            <MenuItem
-              key={viewOption.value}
-              selected={viewOption.value === view}
-              onClick={() => {
-                popover.onClose();
-                onChangeView(viewOption.value);
-              }}
-            >
-              <Iconify icon={viewOption.icon} />
-              {viewOption.label}
-            </MenuItem>
-          ))}
-        </MenuList>
-      </CustomPopover>
+      {renderMenuActions()}
     </>
   );
 }

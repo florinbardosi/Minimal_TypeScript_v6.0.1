@@ -1,25 +1,21 @@
 import type { BoxProps } from '@mui/material/Box';
 import type { NavSectionProps } from 'src/components/nav-section';
 
-import { useState, useCallback } from 'react';
 import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
+import { varAlpha } from 'minimal-shared/utils';
+import { useBoolean } from 'minimal-shared/hooks';
+import { useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import SvgIcon from '@mui/material/SvgIcon';
-import InputBase from '@mui/material/InputBase';
+import MenuList from '@mui/material/MenuList';
 import { useTheme } from '@mui/material/styles';
+import InputBase from '@mui/material/InputBase';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import Dialog, { dialogClasses } from '@mui/material/Dialog';
-
-import { useRouter } from 'src/routes/hooks';
-import { isExternalLink } from 'src/routes/utils';
-
-import { useBoolean } from 'src/hooks/use-boolean';
-import { useEventListener } from 'src/hooks/use-event-listener';
-
-import { varAlpha } from 'src/theme/styles';
+import MenuItem, { menuItemClasses } from '@mui/material/MenuItem';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
@@ -27,7 +23,7 @@ import { Scrollbar } from 'src/components/scrollbar';
 import { SearchNotFound } from 'src/components/search-not-found';
 
 import { ResultItem } from './result-item';
-import { groupItems, applyFilter, getAllItems } from './utils';
+import { applyFilter, flattenNavSections } from './utils';
 
 // ----------------------------------------------------------------------
 
@@ -38,90 +34,68 @@ export type SearchbarProps = BoxProps & {
 export function Searchbar({ data: navItems = [], sx, ...other }: SearchbarProps) {
   const theme = useTheme();
 
-  const router = useRouter();
-
-  const search = useBoolean();
-
+  const { value: open, onFalse: onClose, onTrue: onOpen, onToggle } = useBoolean();
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleClose = useCallback(() => {
-    search.onFalse();
+    onClose();
     setSearchQuery('');
-  }, [search]);
+  }, [onClose]);
 
-  const handleKeyDown = (event: KeyboardEvent) => {
-    if (event.key === 'k' && event.metaKey) {
-      search.onToggle();
-      setSearchQuery('');
-    }
-  };
-
-  useEventListener('keydown', handleKeyDown);
-
-  const handleClick = useCallback(
-    (path: string) => {
-      if (isExternalLink(path)) {
-        window.open(path);
-      } else {
-        router.push(path);
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === 'k' && event.metaKey) {
+        onToggle();
+        setSearchQuery('');
       }
-      handleClose();
     },
-    [handleClose, router]
+    [onToggle]
   );
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleKeyDown]);
 
   const handleSearch = useCallback((event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setSearchQuery(event.target.value);
   }, []);
 
+  const formattedNavItems = flattenNavSections(navItems);
+
   const dataFiltered = applyFilter({
-    inputData: getAllItems({ data: navItems }),
+    inputData: formattedNavItems,
     query: searchQuery,
   });
 
   const notFound = searchQuery && !dataFiltered.length;
 
-  const renderItems = () => {
-    const dataGroups = groupItems(dataFiltered);
-
-    return Object.keys(dataGroups)
-      .sort((a, b) => -b.localeCompare(a))
-      .map((group, index) => (
-        <Box component="ul" key={`${group}-${index}`}>
-          {dataGroups[group].map((item) => {
-            const { title, path } = item;
-
-            const partsTitle = parse(title, match(title, searchQuery));
-
-            const partsPath = parse(path, match(path, searchQuery));
-
-            return (
-              <Box component="li" key={`${title}${path}`} sx={{ display: 'flex' }}>
-                <ResultItem
-                  path={partsPath}
-                  title={partsTitle}
-                  groupLabel={searchQuery && group}
-                  onClickItem={() => handleClick(path)}
-                />
-              </Box>
-            );
-          })}
-        </Box>
-      ));
-  };
-
-  const renderButton = (
+  const renderButton = () => (
     <Box
-      display="flex"
-      alignItems="center"
-      onClick={search.onTrue}
-      sx={{
-        pr: { sm: 1 },
-        borderRadius: { sm: 1.5 },
-        cursor: { sm: 'pointer' },
-        bgcolor: { sm: varAlpha(theme.vars.palette.grey['500Channel'], 0.08) },
-        ...sx,
-      }}
+      onClick={onOpen}
+      sx={[
+        () => ({
+          display: 'flex',
+          alignItems: 'center',
+          pr: { sm: 1 },
+          borderRadius: { sm: 1.5 },
+          cursor: { sm: 'pointer' },
+          bgcolor: { sm: varAlpha(theme.vars.palette.grey['500Channel'], 0.08) },
+          transition: theme.transitions.create('background-color', {
+            easing: theme.transitions.easing.easeInOut,
+            duration: theme.transitions.duration.shortest,
+          }),
+          '&:hover': {
+            bgcolor: {
+              sm: varAlpha(theme.vars.palette.grey['500Channel'], 0.16),
+            },
+          },
+        }),
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...other}
     >
       <IconButton disableRipple>
@@ -136,10 +110,11 @@ export function Searchbar({ data: navItems = [], sx, ...other }: SearchbarProps)
 
       <Label
         sx={{
-          fontSize: 12,
           color: 'grey.800',
+          cursor: 'inherit',
           bgcolor: 'common.white',
-          boxShadow: theme.customShadows.z1,
+          fontSize: theme.typography.pxToRem(12),
+          boxShadow: theme.vars.customShadows.z1,
           display: { xs: 'none', sm: 'inline-flex' },
         }}
       >
@@ -148,24 +123,60 @@ export function Searchbar({ data: navItems = [], sx, ...other }: SearchbarProps)
     </Box>
   );
 
+  const renderList = () => (
+    <MenuList
+      disablePadding
+      sx={{
+        [`& .${menuItemClasses.root}`]: {
+          p: 0,
+          mb: 0,
+          '&:hover': { bgcolor: 'transparent' },
+        },
+      }}
+    >
+      {dataFiltered.map((item) => {
+        const partsTitle = parse(item.title, match(item.title, searchQuery));
+        const partsPath = parse(item.path, match(item.path, searchQuery));
+
+        return (
+          <MenuItem disableRipple key={`${item.title}${item.path}`}>
+            <ResultItem
+              path={partsPath}
+              title={partsTitle}
+              href={item.path}
+              labels={item.group.split('.')}
+              onClick={handleClose}
+            />
+          </MenuItem>
+        );
+      })}
+    </MenuList>
+  );
+
   return (
     <>
-      {renderButton}
+      {renderButton()}
 
       <Dialog
         fullWidth
-        disableRestoreFocus
+        closeAfterTransition
         maxWidth="sm"
-        open={search.value}
+        open={open}
         onClose={handleClose}
         transitionDuration={{ enter: theme.transitions.duration.shortest, exit: 0 }}
         PaperProps={{ sx: { mt: 15, overflow: 'unset' } }}
-        sx={{ [`& .${dialogClasses.container}`]: { alignItems: 'flex-start' } }}
+        sx={[
+          () => ({
+            [`& .${dialogClasses.container}`]: {
+              alignItems: 'flex-start',
+            },
+          }),
+        ]}
       >
         <Box sx={{ p: 3, borderBottom: `solid 1px ${theme.vars.palette.divider}` }}>
           <InputBase
             fullWidth
-            autoFocus
+            autoFocus={open}
             placeholder="Search..."
             value={searchQuery}
             onChange={handleSearch}
@@ -175,14 +186,23 @@ export function Searchbar({ data: navItems = [], sx, ...other }: SearchbarProps)
               </InputAdornment>
             }
             endAdornment={<Label sx={{ letterSpacing: 1, color: 'text.secondary' }}>esc</Label>}
-            inputProps={{ sx: { typography: 'h6' } }}
+            inputProps={{ id: 'search-input', sx: { typography: 'h6' } }}
           />
         </Box>
 
         {notFound ? (
           <SearchNotFound query={searchQuery} sx={{ py: 15 }} />
         ) : (
-          <Scrollbar sx={{ px: 3, pb: 3, pt: 2, height: 400 }}>{renderItems()}</Scrollbar>
+          <Scrollbar
+            sx={{
+              px: 3,
+              pb: 3,
+              pt: 2,
+              height: 400,
+            }}
+          >
+            {renderList()}
+          </Scrollbar>
         )}
       </Dialog>
     </>

@@ -1,6 +1,6 @@
-import type { Theme, SxProps } from '@mui/material/styles';
 import type { IInvoiceTableFilters } from 'src/types/invoice';
-import type { UseSetStateReturn } from 'src/hooks/use-set-state';
+import type { UseSetStateReturn } from 'minimal-shared/hooks';
+import type { FiltersResultProps } from 'src/components/filters-result';
 
 import { useCallback } from 'react';
 
@@ -12,51 +12,51 @@ import { chipProps, FiltersBlock, FiltersResult } from 'src/components/filters-r
 
 // ----------------------------------------------------------------------
 
-type Props = {
-  totalResults: number;
-  sx?: SxProps<Theme>;
+type Props = FiltersResultProps & {
   onResetPage: () => void;
   filters: UseSetStateReturn<IInvoiceTableFilters>;
 };
 
 export function InvoiceTableFiltersResult({ filters, totalResults, onResetPage, sx }: Props) {
+  const { state: currentFilters, setState: updateFilters, resetState: resetFilters } = filters;
+
   const handleRemoveKeyword = useCallback(() => {
     onResetPage();
-    filters.setState({ name: '' });
-  }, [filters, onResetPage]);
+    updateFilters({ name: '' });
+  }, [onResetPage, updateFilters]);
 
   const handleRemoveService = useCallback(
     (inputValue: string) => {
-      const newValue = filters.state.service.filter((item) => item !== inputValue);
+      const newValue = currentFilters.service.filter((item) => item !== inputValue);
 
       onResetPage();
-      filters.setState({ service: newValue });
+      updateFilters({ service: newValue });
     },
-    [filters, onResetPage]
+    [onResetPage, updateFilters, currentFilters.service]
   );
 
   const handleRemoveStatus = useCallback(() => {
     onResetPage();
-    filters.setState({ status: 'all' });
-  }, [filters, onResetPage]);
+    updateFilters({ status: 'all' });
+  }, [onResetPage, updateFilters]);
 
   const handleRemoveDate = useCallback(() => {
     onResetPage();
-    filters.setState({ startDate: null, endDate: null });
-  }, [filters, onResetPage]);
+    updateFilters({ startDate: null, endDate: null });
+  }, [onResetPage, updateFilters]);
 
   return (
-    <FiltersResult totalResults={totalResults} onReset={filters.onResetState} sx={sx}>
-      <FiltersBlock label="Service:" isShow={!!filters.state.service.length}>
-        {filters.state.service.map((item) => (
+    <FiltersResult totalResults={totalResults} onReset={() => resetFilters()} sx={sx}>
+      <FiltersBlock label="Service:" isShow={!!currentFilters.service.length}>
+        {currentFilters.service.map((item) => (
           <Chip {...chipProps} key={item} label={item} onDelete={() => handleRemoveService(item)} />
         ))}
       </FiltersBlock>
 
-      <FiltersBlock label="Status:" isShow={filters.state.status !== 'all'}>
+      <FiltersBlock label="Status:" isShow={currentFilters.status !== 'all'}>
         <Chip
           {...chipProps}
-          label={filters.state.status}
+          label={currentFilters.status}
           onDelete={handleRemoveStatus}
           sx={{ textTransform: 'capitalize' }}
         />
@@ -64,17 +64,17 @@ export function InvoiceTableFiltersResult({ filters, totalResults, onResetPage, 
 
       <FiltersBlock
         label="Date:"
-        isShow={Boolean(filters.state.startDate && filters.state.endDate)}
+        isShow={Boolean(currentFilters.startDate && currentFilters.endDate)}
       >
         <Chip
           {...chipProps}
-          label={fDateRangeShortLabel(filters.state.startDate, filters.state.endDate)}
+          label={fDateRangeShortLabel(currentFilters.startDate, currentFilters.endDate)}
           onDelete={handleRemoveDate}
         />
       </FiltersBlock>
 
-      <FiltersBlock label="Keyword:" isShow={!!filters.state.name}>
-        <Chip {...chipProps} label={filters.state.name} onDelete={handleRemoveKeyword} />
+      <FiltersBlock label="Keyword:" isShow={!!currentFilters.name}>
+        <Chip {...chipProps} label={currentFilters.name} onDelete={handleRemoveKeyword} />
       </FiltersBlock>
     </FiltersResult>
   );

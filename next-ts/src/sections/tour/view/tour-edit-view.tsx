@@ -21,6 +21,7 @@ export function TourEditView({ tour }: Props) {
     <DashboardContent>
       <CustomBreadcrumbs
         heading="Edit"
+        backHref={paths.dashboard.tour.root}
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'Tour', href: paths.dashboard.tour.root },

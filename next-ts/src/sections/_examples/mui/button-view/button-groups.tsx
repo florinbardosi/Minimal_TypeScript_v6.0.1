@@ -1,8 +1,7 @@
-import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
 
-import { ComponentBlock } from '../../component-block';
+import { ComponentBox } from '../../layout';
 
 // ----------------------------------------------------------------------
 
@@ -16,12 +15,8 @@ const VARIANTS = ['contained', 'outlined', 'text', 'soft'] as const;
 
 export function ButtonGroups() {
   return (
-    <Stack
-      gap={2.5}
-      display="grid"
-      gridTemplateColumns={{ xs: 'repeat(1, 1fr)', lg: 'repeat(2, 1fr)' }}
-    >
-      <ComponentBlock title="Contained">
+    <>
+      <ComponentBox title="Contained">
         {COLORS.map((color) => (
           <ButtonGroup key={color} variant="contained" color={color}>
             <Button>One</Button>
@@ -35,9 +30,9 @@ export function ButtonGroups() {
           <Button>Two</Button>
           <Button>Three</Button>
         </ButtonGroup>
-      </ComponentBlock>
+      </ComponentBox>
 
-      <ComponentBlock title="Outlined">
+      <ComponentBox title="Outlined">
         {COLORS.map((color) => (
           <ButtonGroup key={color} variant="outlined" color={color}>
             <Button>One</Button>
@@ -51,9 +46,9 @@ export function ButtonGroups() {
           <Button>Two</Button>
           <Button>Three</Button>
         </ButtonGroup>
-      </ComponentBlock>
+      </ComponentBox>
 
-      <ComponentBlock title="Text">
+      <ComponentBox title="Text">
         {COLORS.map((color) => (
           <ButtonGroup key={color} variant="text" color={color}>
             <Button>One</Button>
@@ -67,9 +62,9 @@ export function ButtonGroups() {
           <Button>Two</Button>
           <Button>Three</Button>
         </ButtonGroup>
-      </ComponentBlock>
+      </ComponentBox>
 
-      <ComponentBlock title="Soft">
+      <ComponentBox title="Soft">
         {COLORS.map((color) => (
           <ButtonGroup key={color} variant="soft" color={color}>
             <Button>One</Button>
@@ -83,9 +78,9 @@ export function ButtonGroups() {
           <Button>Two</Button>
           <Button>Three</Button>
         </ButtonGroup>
-      </ComponentBlock>
+      </ComponentBox>
 
-      <ComponentBlock title="Sizes">
+      <ComponentBox title="Sizes">
         {SIZES.map((size) => (
           <ButtonGroup key={size} size={size} variant="contained">
             <Button>One</Button>
@@ -93,9 +88,9 @@ export function ButtonGroups() {
             <Button>Three</Button>
           </ButtonGroup>
         ))}
-      </ComponentBlock>
+      </ComponentBox>
 
-      <ComponentBlock title="Orientation">
+      <ComponentBox title="Orientation">
         {VARIANTS.map((variant) => (
           <ButtonGroup key={variant} variant={variant} orientation="vertical">
             <Button>One</Button>
@@ -109,7 +104,7 @@ export function ButtonGroups() {
           <Button>Two</Button>
           <Button>Three</Button>
         </ButtonGroup>
-      </ComponentBlock>
-    </Stack>
+      </ComponentBox>
+    </>
   );
 }

@@ -1,8 +1,7 @@
 import dynamic from 'next/dynamic';
+import { varAlpha } from 'minimal-shared/utils';
 
 import { useTheme } from '@mui/material/styles';
-
-import { varAlpha } from 'src/theme/styles';
 
 import { WalktourTooltip } from './walktour-tooltip';
 
@@ -10,9 +9,7 @@ import type { WalktourProps } from './types';
 
 // ----------------------------------------------------------------------
 
-const Joyride = dynamic(() => import('react-joyride').then((mod) => mod.default), {
-  ssr: false,
-});
+const Joyride = dynamic(() => import('react-joyride').then((mod) => mod.default), { ssr: false });
 
 export function Walktour({
   locale,
@@ -29,18 +26,22 @@ export function Walktour({
     width: 20,
     height: 10,
     color: theme.vars.palette.background.paper,
-  };
+  } as const;
 
   return (
     <Joyride
       scrollOffset={100}
-      locale={{ last: 'Done', ...locale }}
       continuous={continuous}
       showProgress={showProgress}
       showSkipButton={showSkipButton}
       scrollDuration={scrollDuration}
       tooltipComponent={WalktourTooltip}
       disableOverlayClose={disableOverlayClose}
+      locale={{
+        last: 'Done',
+        nextLabelWithProgress: 'Next ({step}/{steps})',
+        ...locale,
+      }}
       floaterProps={{
         styles: {
           floater: { filter: 'none' },

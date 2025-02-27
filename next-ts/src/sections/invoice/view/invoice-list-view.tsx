@@ -1,8 +1,12 @@
 'use client';
 
+import type { TableHeadCellProps } from 'src/components/table';
 import type { IInvoice, IInvoiceTableFilters } from 'src/types/invoice';
 
+import { sumBy } from 'es-toolkit';
 import { useState, useCallback } from 'react';
+import { varAlpha } from 'minimal-shared/utils';
+import { useBoolean, useSetState } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
@@ -18,16 +22,10 @@ import { useTheme } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
 
 import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
 
-import { useBoolean } from 'src/hooks/use-boolean';
-import { useSetState } from 'src/hooks/use-set-state';
-
-import { sumBy } from 'src/utils/helper';
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
-import { varAlpha } from 'src/theme/styles';
 import { DashboardContent } from 'src/layouts/dashboard';
 import { _invoices, INVOICE_SERVICE_OPTIONS } from 'src/_mock';
 
@@ -56,7 +54,7 @@ import { InvoiceTableFiltersResult } from '../invoice-table-filters-result';
 
 // ----------------------------------------------------------------------
 
-const TABLE_HEAD = [
+const TABLE_HEAD: TableHeadCellProps[] = [
   { id: 'invoiceNumber', label: 'Customer' },
   { id: 'createDate', label: 'Create' },
   { id: 'dueDate', label: 'Due' },
@@ -71,11 +69,9 @@ const TABLE_HEAD = [
 export function InvoiceListView() {
   const theme = useTheme();
 
-  const router = useRouter();
-
   const table = useTable({ defaultOrderBy: 'createDate' });
 
-  const confirm = useBoolean();
+  const confirmDialog = useBoolean();
 
   const [tableData, setTableData] = useState<IInvoice[]>(_invoices);
 
@@ -86,23 +82,24 @@ export function InvoiceListView() {
     startDate: null,
     endDate: null,
   });
+  const { state: currentFilters, setState: updateFilters } = filters;
 
-  const dateError = fIsAfter(filters.state.startDate, filters.state.endDate);
+  const dateError = fIsAfter(currentFilters.startDate, currentFilters.endDate);
 
   const dataFiltered = applyFilter({
     inputData: tableData,
     comparator: getComparator(table.order, table.orderBy),
-    filters: filters.state,
+    filters: currentFilters,
     dateError,
   });
 
   const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
 
   const canReset =
-    !!filters.state.name ||
-    filters.state.service.length > 0 ||
-    filters.state.status !== 'all' ||
-    (!!filters.state.startDate && !!filters.state.endDate);
+    !!currentFilters.name ||
+    currentFilters.service.length > 0 ||
+    currentFilters.status !== 'all' ||
+    (!!currentFilters.startDate && !!currentFilters.endDate);
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
@@ -171,32 +168,40 @@ export function InvoiceListView() {
 
     setTableData(deleteRows);
 
-    table.onUpdatePageDeleteRows({
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
+    table.onUpdatePageDeleteRows(dataInPage.length, dataFiltered.length);
   }, [dataFiltered.length, dataInPage.length, table, tableData]);
-
-  const handleEditRow = useCallback(
-    (id: string) => {
-      router.push(paths.dashboard.invoice.edit(id));
-    },
-    [router]
-  );
-
-  const handleViewRow = useCallback(
-    (id: string) => {
-      router.push(paths.dashboard.invoice.details(id));
-    },
-    [router]
-  );
 
   const handleFilterStatus = useCallback(
     (event: React.SyntheticEvent, newValue: string) => {
       table.onResetPage();
-      filters.setState({ status: newValue });
+      updateFilters({ status: newValue });
     },
-    [filters, table]
+    [updateFilters, table]
+  );
+
+  const renderConfirmDialog = () => (
+    <ConfirmDialog
+      open={confirmDialog.value}
+      onClose={confirmDialog.onFalse}
+      title="Delete"
+      content={
+        <>
+          Are you sure want to delete <strong> {table.selected.length} </strong> items?
+        </>
+      }
+      action={
+        <Button
+          variant="contained"
+          color="error"
+          onClick={() => {
+            handleDeleteRows();
+            confirmDialog.onFalse();
+          }}
+        >
+          Delete
+        </Button>
+      }
+    />
   );
 
   return (
@@ -225,9 +230,8 @@ export function InvoiceListView() {
         <Card sx={{ mb: { xs: 3, md: 5 } }}>
           <Scrollbar sx={{ minHeight: 108 }}>
             <Stack
-              direction="row"
               divider={<Divider orientation="vertical" flexItem sx={{ borderStyle: 'dashed' }} />}
-              sx={{ py: 2 }}
+              sx={{ py: 2, flexDirection: 'row' }}
             >
               <InvoiceAnalytic
                 title="Total"
@@ -279,7 +283,7 @@ export function InvoiceListView() {
 
         <Card>
           <Tabs
-            value={filters.state.status}
+            value={currentFilters.status}
             onChange={handleFilterStatus}
             sx={{
               px: 2.5,
@@ -295,7 +299,7 @@ export function InvoiceListView() {
                 icon={
                   <Label
                     variant={
-                      ((tab.value === 'all' || tab.value === filters.state.status) && 'filled') ||
+                      ((tab.value === 'all' || tab.value === currentFilters.status) && 'filled') ||
                       'soft'
                     }
                     color={tab.color}
@@ -335,7 +339,7 @@ export function InvoiceListView() {
                 );
               }}
               action={
-                <Stack direction="row">
+                <Box sx={{ display: 'flex' }}>
                   <Tooltip title="Sent">
                     <IconButton color="primary">
                       <Iconify icon="iconamoon:send-fill" />
@@ -355,11 +359,11 @@ export function InvoiceListView() {
                   </Tooltip>
 
                   <Tooltip title="Delete">
-                    <IconButton color="primary" onClick={confirm.onTrue}>
+                    <IconButton color="primary" onClick={confirmDialog.onTrue}>
                       <Iconify icon="solar:trash-bin-trash-bold" />
                     </IconButton>
                   </Tooltip>
-                </Stack>
+                </Box>
               }
             />
 
@@ -368,7 +372,7 @@ export function InvoiceListView() {
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
+                  headCells={TABLE_HEAD}
                   rowCount={dataFiltered.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
@@ -392,9 +396,9 @@ export function InvoiceListView() {
                         row={row}
                         selected={table.selected.includes(row.id)}
                         onSelectRow={() => table.onSelectRow(row.id)}
-                        onViewRow={() => handleViewRow(row.id)}
-                        onEditRow={() => handleEditRow(row.id)}
                         onDeleteRow={() => handleDeleteRow(row.id)}
+                        editHref={paths.dashboard.invoice.edit(row.id)}
+                        detailsHref={paths.dashboard.invoice.details(row.id)}
                       />
                     ))}
 
@@ -421,28 +425,7 @@ export function InvoiceListView() {
         </Card>
       </DashboardContent>
 
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content={
-          <>
-            Are you sure want to delete <strong> {table.selected.length} </strong> items?
-          </>
-        }
-        action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              handleDeleteRows();
-              confirm.onFalse();
-            }}
-          >
-            Delete
-          </Button>
-        }
-      />
+      {renderConfirmDialog()}
     </>
   );
 }
@@ -470,10 +453,10 @@ function applyFilter({ inputData, comparator, filters, dateError }: ApplyFilterP
   inputData = stabilizedThis.map((el) => el[0]);
 
   if (name) {
-    inputData = inputData.filter(
-      (invoice) =>
-        invoice.invoiceNumber.toLowerCase().indexOf(name.toLowerCase()) !== -1 ||
-        invoice.invoiceTo.name.toLowerCase().indexOf(name.toLowerCase()) !== -1
+    inputData = inputData.filter(({ invoiceNumber, invoiceTo }) =>
+      [invoiceNumber, invoiceTo.name, invoiceTo.company, invoiceTo.phoneNumber].some((field) =>
+        field?.toLowerCase().includes(name.toLowerCase())
+      )
     );
   }
 

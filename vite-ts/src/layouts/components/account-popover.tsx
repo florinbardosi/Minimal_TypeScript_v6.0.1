@@ -1,16 +1,20 @@
 import type { IconButtonProps } from '@mui/material/IconButton';
 
+import { usePopover } from 'minimal-shared/hooks';
+
 import Box from '@mui/material/Box';
+import Link from '@mui/material/Link';
 import Divider from '@mui/material/Divider';
 import MenuList from '@mui/material/MenuList';
 import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
 
 import { paths } from 'src/routes/paths';
-import { useRouter, usePathname } from 'src/routes/hooks';
+import { usePathname } from 'src/routes/hooks';
+import { RouterLink } from 'src/routes/components';
 
 import { Label } from 'src/components/label';
-import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import { CustomPopover } from 'src/components/custom-popover';
 
 import { useMockedUser } from 'src/auth/hooks';
 
@@ -29,62 +33,51 @@ export type AccountPopoverProps = IconButtonProps & {
 };
 
 export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps) {
-  const router = useRouter();
-
-  const popover = usePopover();
-
   const pathname = usePathname();
+
+  const { open, anchorEl, onClose, onOpen } = usePopover();
 
   const { user } = useMockedUser();
 
-  const handleClickItem = (path: string) => {
-    popover.onClose();
-    router.push(path);
-  };
+  const renderMenuActions = () => (
+    <CustomPopover
+      open={open}
+      anchorEl={anchorEl}
+      onClose={onClose}
+      slotProps={{ paper: { sx: { p: 0, width: 200 } }, arrow: { offset: 20 } }}
+    >
+      <Box sx={{ p: 2, pb: 1.5 }}>
+        <Typography variant="subtitle2" noWrap>
+          {user?.displayName}
+        </Typography>
 
-  return (
-    <>
-      <AccountButton
-        onClick={popover.onOpen}
-        photoURL={user?.photoURL}
-        displayName={user?.displayName}
-        sx={sx}
-        {...other}
-      />
+        <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
+          {user?.email}
+        </Typography>
+      </Box>
 
-      <CustomPopover
-        open={popover.open}
-        anchorEl={popover.anchorEl}
-        onClose={popover.onClose}
-        slotProps={{
-          paper: { sx: { p: 0, width: 200 } },
-          arrow: { offset: 20 },
-        }}
-      >
-        <Box sx={{ p: 2, pb: 1.5 }}>
-          <Typography variant="subtitle2" noWrap>
-            {user?.displayName}
-          </Typography>
+      <Divider sx={{ borderStyle: 'dashed' }} />
 
-          <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-            {user?.email}
-          </Typography>
-        </Box>
+      <MenuList sx={{ p: 1, my: 1, '& li': { p: 0 } }}>
+        {data.map((option) => {
+          const rootLabel = pathname.includes('/dashboard') ? 'Home' : 'Dashboard';
+          const rootHref = pathname.includes('/dashboard') ? '/' : paths.dashboard.root;
 
-        <Divider sx={{ borderStyle: 'dashed' }} />
-
-        <MenuList sx={{ p: 1, my: 1 }}>
-          {data.map((option) => {
-            const rootLabel = pathname.includes('/dashboard') ? 'Home' : 'Dashboard';
-
-            const rootHref = pathname.includes('/dashboard') ? '/' : paths.dashboard.root;
-
-            return (
-              <MenuItem
-                key={option.label}
-                onClick={() => handleClickItem(option.label === 'Home' ? rootHref : option.href)}
+          return (
+            <MenuItem key={option.label}>
+              <Link
+                component={RouterLink}
+                href={option.label === 'Home' ? rootHref : option.href}
+                color="inherit"
+                underline="none"
+                onClick={onClose}
                 sx={{
-                  py: 1,
+                  px: 1,
+                  py: 0.75,
+                  width: 1,
+                  display: 'flex',
+                  typography: 'body2',
+                  alignItems: 'center',
                   color: 'text.secondary',
                   '& svg': { width: 24, height: 24 },
                   '&:hover': { color: 'text.primary' },
@@ -92,29 +85,45 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
               >
                 {option.icon}
 
-                <Box component="span">{option.label === 'Home' ? rootLabel : option.label}</Box>
+                <Box component="span" sx={{ ml: 2 }}>
+                  {option.label === 'Home' ? rootLabel : option.label}
+                </Box>
 
                 {option.info && (
                   <Label color="error" sx={{ ml: 1 }}>
                     {option.info}
                   </Label>
                 )}
-              </MenuItem>
-            );
-          })}
-        </MenuList>
+              </Link>
+            </MenuItem>
+          );
+        })}
+      </MenuList>
 
-        <Divider sx={{ borderStyle: 'dashed' }} />
+      <Divider sx={{ borderStyle: 'dashed' }} />
 
-        <Box sx={{ p: 1 }}>
-          <SignOutButton
-            size="medium"
-            variant="text"
-            onClose={popover.onClose}
-            sx={{ display: 'block', textAlign: 'left' }}
-          />
-        </Box>
-      </CustomPopover>
+      <Box sx={{ p: 1 }}>
+        <SignOutButton
+          size="medium"
+          variant="text"
+          onClose={onClose}
+          sx={{ display: 'block', textAlign: 'left' }}
+        />
+      </Box>
+    </CustomPopover>
+  );
+
+  return (
+    <>
+      <AccountButton
+        onClick={onOpen}
+        photoURL={user?.photoURL}
+        displayName={user?.displayName}
+        sx={sx}
+        {...other}
+      />
+
+      {renderMenuActions()}
     </>
   );
 }

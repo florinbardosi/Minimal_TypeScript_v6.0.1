@@ -1,11 +1,9 @@
 import type { IInvoice } from 'src/types/invoice';
 
-import { useCallback } from 'react';
-import { PDFViewer, PDFDownloadLink } from '@react-pdf/renderer';
+import dynamic from 'next/dynamic';
+import { useBoolean } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
-import NoSsr from '@mui/material/NoSsr';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import Tooltip from '@mui/material/Tooltip';
@@ -13,18 +11,23 @@ import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import DialogActions from '@mui/material/DialogActions';
-import CircularProgress from '@mui/material/CircularProgress';
 
 import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
-
-import { useBoolean } from 'src/hooks/use-boolean';
+import { RouterLink } from 'src/routes/components';
 
 import { Iconify } from 'src/components/iconify';
 
-import { InvoicePDF } from './invoice-pdf';
-
 // ----------------------------------------------------------------------
+
+const InvoicePDFDownload = dynamic(
+  () => import('./invoice-pdf').then((mod) => mod.InvoicePDFDownload),
+  { ssr: false }
+);
+
+const InvoicePDFViewer = dynamic(
+  () => import('./invoice-pdf').then((mod) => mod.InvoicePDFViewer),
+  { ssr: false }
+);
 
 type Props = {
   invoice?: IInvoice;
@@ -34,60 +37,61 @@ type Props = {
 };
 
 export function InvoiceToolbar({ invoice, currentStatus, statusOptions, onChangeStatus }: Props) {
-  const router = useRouter();
+  const { value: open, onFalse: onClose, onTrue: onOpen } = useBoolean();
 
-  const view = useBoolean();
+  const renderDownloadButton = () =>
+    invoice ? <InvoicePDFDownload invoice={invoice} currentStatus={currentStatus} /> : null;
 
-  const handleEdit = useCallback(() => {
-    router.push(paths.dashboard.invoice.edit(`${invoice?.id}`));
-  }, [invoice?.id, router]);
-
-  const renderDownload = (
-    <NoSsr>
-      <PDFDownloadLink
-        document={
-          invoice ? <InvoicePDF invoice={invoice} currentStatus={currentStatus} /> : <span />
-        }
-        fileName={invoice?.invoiceNumber}
-        style={{ textDecoration: 'none' }}
-      >
-        {({ loading }) => (
-          <Tooltip title="Download">
-            <IconButton>
-              {loading ? (
-                <CircularProgress size={24} color="inherit" />
-              ) : (
-                <Iconify icon="eva:cloud-download-fill" />
-              )}
-            </IconButton>
-          </Tooltip>
-        )}
-      </PDFDownloadLink>
-    </NoSsr>
+  const renderDetailsDialog = () => (
+    <Dialog fullScreen open={open}>
+      <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
+        <DialogActions sx={{ p: 1.5 }}>
+          <Button color="inherit" variant="contained" onClick={onClose}>
+            Close
+          </Button>
+        </DialogActions>
+        <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
+          {invoice && <InvoicePDFViewer invoice={invoice} currentStatus={currentStatus} />}
+        </Box>
+      </Box>
+    </Dialog>
   );
 
   return (
     <>
-      <Stack
-        spacing={3}
-        direction={{ xs: 'column', sm: 'row' }}
-        alignItems={{ xs: 'flex-end', sm: 'center' }}
-        sx={{ mb: { xs: 3, md: 5 } }}
+      <Box
+        sx={{
+          gap: 3,
+          display: 'flex',
+          mb: { xs: 3, md: 5 },
+          flexDirection: { xs: 'column', sm: 'row' },
+          alignItems: { xs: 'flex-end', sm: 'center' },
+        }}
       >
-        <Stack direction="row" spacing={1} flexGrow={1} sx={{ width: 1 }}>
+        <Box
+          sx={{
+            gap: 1,
+            width: 1,
+            flexGrow: 1,
+            display: 'flex',
+          }}
+        >
           <Tooltip title="Edit">
-            <IconButton onClick={handleEdit}>
+            <IconButton
+              component={RouterLink}
+              href={paths.dashboard.invoice.edit(`${invoice?.id}`)}
+            >
               <Iconify icon="solar:pen-bold" />
             </IconButton>
           </Tooltip>
 
           <Tooltip title="View">
-            <IconButton onClick={view.onTrue}>
+            <IconButton onClick={onOpen}>
               <Iconify icon="solar:eye-bold" />
             </IconButton>
           </Tooltip>
 
-          {renderDownload}
+          {renderDownloadButton()}
 
           <Tooltip title="Print">
             <IconButton>
@@ -106,7 +110,7 @@ export function InvoiceToolbar({ invoice, currentStatus, statusOptions, onChange
               <Iconify icon="solar:share-bold" />
             </IconButton>
           </Tooltip>
-        </Stack>
+        </Box>
 
         <TextField
           fullWidth
@@ -114,9 +118,11 @@ export function InvoiceToolbar({ invoice, currentStatus, statusOptions, onChange
           label="Status"
           value={currentStatus}
           onChange={onChangeStatus}
-          inputProps={{ id: `status-select-label` }}
-          InputLabelProps={{ htmlFor: `status-select-label` }}
           sx={{ maxWidth: 160 }}
+          slotProps={{
+            htmlInput: { id: 'status-select' },
+            inputLabel: { htmlFor: 'status-select' },
+          }}
         >
           {statusOptions.map((option) => (
             <MenuItem key={option.value} value={option.value}>
@@ -124,23 +130,9 @@ export function InvoiceToolbar({ invoice, currentStatus, statusOptions, onChange
             </MenuItem>
           ))}
         </TextField>
-      </Stack>
+      </Box>
 
-      <Dialog fullScreen open={view.value}>
-        <Box sx={{ height: 1, display: 'flex', flexDirection: 'column' }}>
-          <DialogActions sx={{ p: 1.5 }}>
-            <Button color="inherit" variant="contained" onClick={view.onFalse}>
-              Close
-            </Button>
-          </DialogActions>
-
-          <Box sx={{ flexGrow: 1, height: 1, overflow: 'hidden' }}>
-            <PDFViewer width="100%" height="100%" style={{ border: 'none' }}>
-              {invoice && <InvoicePDF invoice={invoice} currentStatus={currentStatus} />}
-            </PDFViewer>
-          </Box>
-        </Box>
-      </Dialog>
+      {renderDetailsDialog()}
     </>
   );
 }

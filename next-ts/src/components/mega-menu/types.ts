@@ -1,98 +1,97 @@
-import type { BoxProps } from '@mui/material/Box';
 import type { LinkProps } from '@mui/material/Link';
-import type { StackProps } from '@mui/material/Stack';
+import type { MasonryProps } from '@mui/lab/Masonry';
 import type { ButtonBaseProps } from '@mui/material/ButtonBase';
 import type { Theme, SxProps, CSSObject } from '@mui/material/styles';
 
+import type { CarouselOptions } from '../carousel';
+
 // ----------------------------------------------------------------------
 
+/**
+ * Item
+ */
 export type NavItemRenderProps = {
   navIcon?: Record<string, React.ReactNode>;
   navInfo?: (val: string) => Record<string, React.ReactElement>;
 };
 
+export type NavItemStateProps = {
+  open?: boolean;
+  active?: boolean;
+  disabled?: boolean;
+};
+
 export type NavItemSlotProps = {
   sx?: SxProps<Theme>;
   icon?: SxProps<Theme>;
+  texts?: SxProps<Theme>;
   title?: SxProps<Theme>;
+  caption?: SxProps<Theme>;
   info?: SxProps<Theme>;
   arrow?: SxProps<Theme>;
 };
 
-export type SlotProps = {
-  rootItem?: NavItemSlotProps;
+export type NavSlotProps = {
+  rootItem?: Pick<NavItemSlotProps, 'sx' | 'icon' | 'title' | 'info' | 'arrow'>;
   subItem?: SxProps<Theme>;
   subheader?: SxProps<Theme>;
-  paper?: SxProps<Theme>;
+  dropdown?: SxProps<Theme>;
   tags?: SxProps<Theme>;
   moreLink?: SxProps<Theme>;
+  masonry?: Omit<MasonryProps<'ul'>, 'ref' | 'children'>;
   carousel?: {
-    sx: SxProps<Theme>;
-    displayCount?: number;
+    sx?: SxProps<Theme>;
+    options?: CarouselOptions;
   };
 };
 
-export type SlideProps = {
-  name: string;
-  path: string;
-  coverUrl: string;
-};
+export type NavCarouselProps = React.ComponentProps<'div'> &
+  NavSlotProps['carousel'] & {
+    slides: {
+      name: string;
+      path: string;
+      coverUrl: string;
+    }[];
+  };
 
-export type MenuLink = LinkProps & {
-  path: string;
-  title: string;
-};
-
-export type MenuCarouselProps = {
-  slides: SlideProps[];
-  displayCount?: number;
-  sx?: SxProps<Theme>;
-};
-
-export type MenuTagsProps = BoxProps & {
-  tags: MenuLink[];
-};
-
-export type NavItemStateProps = {
-  open?: boolean;
-  active?: boolean;
+export type NavItemOptionsProps = {
   hasChild?: boolean;
   externalLink?: boolean;
   enabledRootRedirect?: boolean;
-};
-
-export type NavItemBaseProps = {
-  path: string;
-  title: string;
-  disabled?: boolean;
-  moreLink?: MenuLink;
   render?: NavItemRenderProps;
-  tags?: MenuTagsProps['tags'];
-  icon?: string | React.ReactNode;
-  info?: string[] | React.ReactNode;
-  slides?: MenuCarouselProps['slides'];
-  children?: {
-    subheader?: string;
-    items: {
-      title: string;
-      path: string;
-    }[];
-  }[];
   slotProps?: NavItemSlotProps;
 };
 
-export type NavItemProps = ButtonBaseProps & NavItemBaseProps & NavItemStateProps;
-
-export type NavSubItemProps = Pick<NavItemProps, 'title' | 'path' | 'active'> & {
-  slotProps: SlotProps['subItem'];
+export type NavItemDataProps = Pick<NavItemStateProps, 'disabled'> & {
+  path: string;
+  title: string;
+  icon?: string | React.ReactNode;
+  info?: string[] | React.ReactNode;
+  slides?: NavCarouselProps['slides'];
+  moreLink?: { path: string; title: string };
+  tags?: { path: string; title: string }[];
+  children?: {
+    subheader?: string;
+    items: { title: string; path: string }[];
+  }[];
 };
 
-export type NavListProps = {
+export type NavItemProps = ButtonBaseProps &
+  NavItemDataProps &
+  NavItemStateProps &
+  NavItemOptionsProps;
+
+export type NavSubItemProps = LinkProps &
+  Pick<NavItemProps, 'title' | 'path' | 'active'> &
+  Pick<NavSlotProps, 'subItem'>;
+
+/**
+ * List
+ */
+export type NavListProps = Pick<NavItemProps, 'render' | 'enabledRootRedirect'> & {
   cssVars?: CSSObject;
-  slotProps?: SlotProps;
-  data: NavItemBaseProps;
-  render?: NavItemBaseProps['render'];
-  enabledRootRedirect?: NavItemStateProps['enabledRootRedirect'];
+  data: NavItemDataProps;
+  slotProps?: NavSlotProps;
   slots?: {
     button?: React.ReactElement;
     topArea?: React.ReactNode;
@@ -100,17 +99,17 @@ export type NavListProps = {
   };
 };
 
-export type NavSubListProps = StackProps & {
-  title?: string;
-  slotProps?: SlotProps;
-  onCloseMenu?: () => void;
-  data: {
-    subheader?: string;
-    items: { title: string; path: string }[];
-  }[];
+export type NavSubListProps = React.ComponentProps<'li'> & {
+  sx?: SxProps<Theme>;
+  slotProps?: NavSlotProps;
+  data: NavItemDataProps['children'];
 };
 
-export type MegaMenuProps = StackProps &
+/**
+ * Main
+ */
+export type MegaMenuProps = React.ComponentProps<'nav'> &
   Omit<NavListProps, 'data'> & {
-    data: NavItemBaseProps[];
+    sx?: SxProps<Theme>;
+    data: NavItemDataProps[];
   };

@@ -1,58 +1,77 @@
-import type { StackProps } from '@mui/material/Stack';
+import type { Theme, SxProps } from '@mui/material/styles';
 
-import Stack from '@mui/material/Stack';
+import { styled } from '@mui/material/styles';
 
 // ----------------------------------------------------------------------
 
-type Props = StackProps & {
+type MailLayoutProps = React.ComponentProps<'div'> & {
+  sx?: SxProps<Theme>;
   slots: {
-    header: React.ReactNode;
     nav: React.ReactNode;
     list: React.ReactNode;
+    header: React.ReactNode;
     details: React.ReactNode;
+  };
+  slotProps?: {
+    nav?: React.ComponentProps<typeof LayoutNav>;
+    list?: React.ComponentProps<typeof LayoutList>;
+    details?: React.ComponentProps<typeof LayoutDetails>;
+    container?: React.ComponentProps<typeof LayoutContainer>;
   };
 };
 
-export function Layout({ slots, sx, ...other }: Props) {
+export function MailLayout({ slots, slotProps, sx, ...other }: MailLayoutProps) {
   return (
-    <Stack sx={sx} {...other}>
+    <LayoutRoot sx={sx} {...other}>
       {slots.header}
 
-      <Stack spacing={1} direction="row" sx={{ flex: '1 1 auto', overflow: 'hidden' }}>
-        <Stack
-          sx={{
-            flex: '0 0 200px',
-            overflow: 'hidden',
-            display: { xs: 'none', md: 'flex' },
-          }}
-        >
-          {slots.nav}
-        </Stack>
-
-        <Stack
-          sx={{
-            borderRadius: 1.5,
-            flex: '0 0 320px',
-            overflow: 'hidden',
-            bgcolor: 'background.default',
-            display: { xs: 'none', md: 'flex' },
-          }}
-        >
-          {slots.list}
-        </Stack>
-
-        <Stack
-          sx={{
-            minWidth: 0,
-            flex: '1 1 auto',
-            borderRadius: 1.5,
-            overflow: 'hidden',
-            bgcolor: 'background.default',
-          }}
-        >
-          {slots.details}
-        </Stack>
-      </Stack>
-    </Stack>
+      <LayoutContainer {...slotProps?.container}>
+        <LayoutNav {...slotProps?.nav}>{slots.nav}</LayoutNav>
+        <LayoutList {...slotProps?.list}>{slots.list}</LayoutList>
+        <LayoutDetails {...slotProps?.details}>{slots.details}</LayoutDetails>
+      </LayoutContainer>
+    </LayoutRoot>
   );
 }
+
+// ----------------------------------------------------------------------
+
+const LayoutRoot = styled('div')(() => ({
+  display: 'flex',
+  flexDirection: 'column',
+}));
+
+const LayoutContainer = styled('div')(({ theme }) => ({
+  gap: theme.spacing(1),
+  display: 'flex',
+  flex: '1 1 auto',
+  overflow: 'hidden',
+}));
+
+const LayoutNav = styled('div')(({ theme }) => ({
+  display: 'none',
+  flex: '0 0 200px',
+  overflow: 'hidden',
+  flexDirection: 'column',
+  [theme.breakpoints.up('md')]: { display: 'flex' },
+}));
+
+const LayoutList = styled('div')(({ theme }) => ({
+  display: 'none',
+  flex: '0 0 320px',
+  overflow: 'hidden',
+  flexDirection: 'column',
+  borderRadius: theme.shape.borderRadius * 1.5,
+  backgroundColor: theme.vars.palette.background.default,
+  [theme.breakpoints.up('md')]: { display: 'flex' },
+}));
+
+const LayoutDetails = styled('div')(({ theme }) => ({
+  minWidth: 0,
+  display: 'flex',
+  flex: '1 1 auto',
+  overflow: 'hidden',
+  flexDirection: 'column',
+  borderRadius: theme.shape.borderRadius * 1.5,
+  backgroundColor: theme.vars.palette.background.default,
+}));

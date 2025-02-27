@@ -1,6 +1,7 @@
 import type { IAddressItem } from 'src/types/common';
 
 import { useState, useCallback } from 'react';
+import { useBoolean, usePopover } from 'minimal-shared/hooks';
 
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -10,10 +11,8 @@ import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
 import CardHeader from '@mui/material/CardHeader';
 
-import { useBoolean } from 'src/hooks/use-boolean';
-
 import { Iconify } from 'src/components/iconify';
-import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import { CustomPopover } from 'src/components/custom-popover';
 
 import { AddressItem, AddressNewForm } from '../address';
 
@@ -24,11 +23,10 @@ type Props = {
 };
 
 export function AccountBillingAddress({ addressBook }: Props) {
+  const menuActions = usePopover();
+  const newAddressForm = useBoolean();
+
   const [addressId, setAddressId] = useState('');
-
-  const popover = usePopover();
-
-  const addressForm = useBoolean();
 
   const handleAddNewAddress = useCallback((address: IAddressItem) => {
     console.info('ADDRESS', address);
@@ -36,16 +34,61 @@ export function AccountBillingAddress({ addressBook }: Props) {
 
   const handleSelectedId = useCallback(
     (event: React.MouseEvent<HTMLElement>, id: string) => {
-      popover.onOpen(event);
+      menuActions.onOpen(event);
       setAddressId(id);
     },
-    [popover]
+    [menuActions]
   );
 
   const handleClose = useCallback(() => {
-    popover.onClose();
+    menuActions.onClose();
     setAddressId('');
-  }, [popover]);
+  }, [menuActions]);
+
+  const renderMenuActions = () => (
+    <CustomPopover open={menuActions.open} anchorEl={menuActions.anchorEl} onClose={handleClose}>
+      <MenuList>
+        <MenuItem
+          onClick={() => {
+            handleClose();
+            console.info('SET AS PRIMARY', addressId);
+          }}
+        >
+          <Iconify icon="eva:star-fill" />
+          Set as primary
+        </MenuItem>
+
+        <MenuItem
+          onClick={() => {
+            handleClose();
+            console.info('EDIT', addressId);
+          }}
+        >
+          <Iconify icon="solar:pen-bold" />
+          Edit
+        </MenuItem>
+
+        <MenuItem
+          onClick={() => {
+            handleClose();
+            console.info('DELETE', addressId);
+          }}
+          sx={{ color: 'error.main' }}
+        >
+          <Iconify icon="solar:trash-bin-trash-bold" />
+          Delete
+        </MenuItem>
+      </MenuList>
+    </CustomPopover>
+  );
+
+  const renderNewAddressForm = () => (
+    <AddressNewForm
+      open={newAddressForm.value}
+      onClose={newAddressForm.onFalse}
+      onCreate={handleAddNewAddress}
+    />
+  );
 
   return (
     <>
@@ -57,7 +100,7 @@ export function AccountBillingAddress({ addressBook }: Props) {
               size="small"
               color="primary"
               startIcon={<Iconify icon="mingcute:add-line" />}
-              onClick={addressForm.onTrue}
+              onClick={newAddressForm.onTrue}
             >
               Address
             </Button>
@@ -86,46 +129,8 @@ export function AccountBillingAddress({ addressBook }: Props) {
         </Stack>
       </Card>
 
-      <CustomPopover open={popover.open} anchorEl={popover.anchorEl} onClose={handleClose}>
-        <MenuList>
-          <MenuItem
-            onClick={() => {
-              handleClose();
-              console.info('SET AS PRIMARY', addressId);
-            }}
-          >
-            <Iconify icon="eva:star-fill" />
-            Set as primary
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              handleClose();
-              console.info('EDIT', addressId);
-            }}
-          >
-            <Iconify icon="solar:pen-bold" />
-            Edit
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              handleClose();
-              console.info('DELETE', addressId);
-            }}
-            sx={{ color: 'error.main' }}
-          >
-            <Iconify icon="solar:trash-bin-trash-bold" />
-            Delete
-          </MenuItem>
-        </MenuList>
-      </CustomPopover>
-
-      <AddressNewForm
-        open={addressForm.value}
-        onClose={addressForm.onFalse}
-        onCreate={handleAddNewAddress}
-      />
+      {renderMenuActions()}
+      {renderNewAddressForm()}
     </>
   );
 }

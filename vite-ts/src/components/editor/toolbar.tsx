@@ -1,7 +1,11 @@
+import type { StackProps } from '@mui/material/Stack';
+import type { Theme, SxProps } from '@mui/material/styles';
+
+import { varAlpha } from 'minimal-shared/utils';
+
+import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Divider from '@mui/material/Divider';
-
-import { varAlpha } from 'src/theme/styles';
 
 import { editorClasses } from './classes';
 import { LinkBlock } from './components/link-block';
@@ -14,35 +18,51 @@ import type { EditorToolbarProps } from './types';
 // ----------------------------------------------------------------------
 
 /**
+ * Icons
  * https://remixicon.com
  */
 
-export function Toolbar({ editor, fullItem, fullScreen, onToggleFullScreen }: EditorToolbarProps) {
+export function Toolbar({
+  sx,
+  editor,
+  fullItem,
+  fullScreen,
+  onToggleFullScreen,
+  ...other
+}: StackProps & EditorToolbarProps) {
   if (!editor) {
     return null;
   }
 
+  const boxStyles: SxProps<Theme> = {
+    gap: 0.5,
+    display: 'flex',
+  };
+
   return (
     <Stack
-      spacing={1}
-      direction="row"
-      flexWrap="wrap"
-      alignItems="center"
-      divider={<Divider orientation="vertical" flexItem sx={{ height: 16, my: 'auto' }} />}
       className={editorClasses.toolbar.root}
-      sx={{
-        p: 1.25,
-        bgcolor: 'background.paper',
-        borderTopRightRadius: 'inherit',
-        borderTopLeftRadius: 'inherit',
-        borderBottom: (theme) =>
-          `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.2)}`,
-      }}
+      divider={<Divider orientation="vertical" flexItem sx={{ height: 16, my: 'auto' }} />}
+      sx={[
+        (theme) => ({
+          gap: 1,
+          p: 1.25,
+          flexWrap: 'wrap',
+          flexDirection: 'row',
+          alignItems: 'center',
+          bgcolor: 'background.paper',
+          borderTopLeftRadius: 'inherit',
+          borderTopRightRadius: 'inherit',
+          borderBottom: `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.2)}`,
+        }),
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
+      {...other}
     >
       <HeadingBlock editor={editor} />
 
       {/* Text style */}
-      <Stack direction="row" spacing={0.5}>
+      <Box sx={{ ...boxStyles }}>
         <ToolbarItem
           aria-label="Bold"
           active={editor.isActive('bold')}
@@ -77,10 +97,10 @@ export function Toolbar({ editor, fullItem, fullScreen, onToggleFullScreen }: Ed
             <path d="M17.1538 14C17.3846 14.5161 17.5 15.0893 17.5 15.7196C17.5 17.0625 16.9762 18.1116 15.9286 18.867C14.8809 19.6223 13.4335 20 11.5862 20C9.94674 20 8.32335 19.6185 6.71592 18.8555V16.6009C8.23538 17.4783 9.7908 17.917 11.3822 17.917C13.9333 17.917 15.2128 17.1846 15.2208 15.7196C15.2208 15.0939 15.0049 14.5598 14.5731 14.1173C14.5339 14.0772 14.4939 14.0381 14.4531 14H3V12H21V14H17.1538ZM13.076 11H7.62908C7.4566 10.8433 7.29616 10.6692 7.14776 10.4778C6.71592 9.92084 6.5 9.24559 6.5 8.45207C6.5 7.21602 6.96583 6.165 7.89749 5.299C8.82916 4.43299 10.2706 4 12.2219 4C13.6934 4 15.1009 4.32808 16.4444 4.98426V7.13591C15.2448 6.44921 13.9293 6.10587 12.4978 6.10587C10.0187 6.10587 8.77917 6.88793 8.77917 8.45207C8.77917 8.87172 8.99709 9.23796 9.43293 9.55079C9.86878 9.86362 10.4066 10.1135 11.0463 10.3004C11.6665 10.4816 12.3431 10.7148 13.076 11H13.076Z" />
           }
         />
-      </Stack>
+      </Box>
 
       {/* List */}
-      <Stack direction="row" spacing={0.5}>
+      <Box sx={{ ...boxStyles }}>
         <ToolbarItem
           aria-label="Bullet list"
           active={editor.isActive('bulletList')}
@@ -99,10 +119,10 @@ export function Toolbar({ editor, fullItem, fullScreen, onToggleFullScreen }: Ed
             <path d="M8 4H21V6H8V4ZM5 3V6H6V7H3V6H4V4H3V3H5ZM3 14V11.5H5V11H3V10H6V12.5H4V13H6V14H3ZM5 19.5H3V18.5H5V18H3V17H6V21H3V20H5V19.5ZM8 11H21V13H8V11ZM8 18H21V20H8V18Z" />
           }
         />
-      </Stack>
+      </Box>
 
       {/* Text align */}
-      <Stack direction="row" spacing={0.5}>
+      <Box sx={{ ...boxStyles }}>
         <ToolbarItem
           aria-label="Align left"
           active={editor.isActive({ textAlign: 'left' })}
@@ -131,11 +151,11 @@ export function Toolbar({ editor, fullItem, fullScreen, onToggleFullScreen }: Ed
           onClick={() => editor.chain().focus().setTextAlign('justify').run()}
           icon={<path d="M3 4H21V6H3V4ZM3 19H21V21H3V19ZM3 14H21V16H3V14ZM3 9H21V11H3V9Z" />}
         />
-      </Stack>
+      </Box>
 
       {/* Code - Code block */}
       {fullItem && (
-        <Stack direction="row" spacing={0.5}>
+        <Box sx={{ ...boxStyles }}>
           <ToolbarItem
             aria-label="Align justify"
             active={editor.isActive('code')}
@@ -154,12 +174,12 @@ export function Toolbar({ editor, fullItem, fullScreen, onToggleFullScreen }: Ed
               <path d="M3 3H21C21.5523 3 22 3.44772 22 4V20C22 20.5523 21.5523 21 21 21H3C2.44772 21 2 20.5523 2 20V4C2 3.44772 2.44772 3 3 3ZM4 5V19H20V5H4ZM20 12L16.4645 15.5355L15.0503 14.1213L17.1716 12L15.0503 9.87868L16.4645 8.46447L20 12ZM6.82843 12L8.94975 14.1213L7.53553 15.5355L4 12L7.53553 8.46447L8.94975 9.87868L6.82843 12ZM11.2443 17H9.11597L12.7557 7H14.884L11.2443 17Z" />
             }
           />
-        </Stack>
+        </Box>
       )}
 
       {/* Blockquote - Hr line */}
       {fullItem && (
-        <Stack direction="row" spacing={0.5}>
+        <Box sx={{ ...boxStyles }}>
           <ToolbarItem
             aria-label="Blockquote"
             active={editor.isActive('blockquote')}
@@ -175,17 +195,17 @@ export function Toolbar({ editor, fullItem, fullScreen, onToggleFullScreen }: Ed
             onClick={() => editor.chain().focus().setHorizontalRule().run()}
             icon={<path d="M2 11H4V13H2V11ZM6 11H18V13H6V11ZM20 11H22V13H20V11Z" />}
           />
-        </Stack>
+        </Box>
       )}
 
       {/* Link - Image */}
-      <Stack direction="row" spacing={0.5}>
+      <Box sx={{ ...boxStyles }}>
         <LinkBlock editor={editor} />
         <ImageBlock editor={editor} />
-      </Stack>
+      </Box>
 
       {/* HardBreak - Clear */}
-      <Stack direction="row" spacing={0.5}>
+      <Box sx={{ ...boxStyles }}>
         <ToolbarItem
           aria-label="HardBreak"
           onClick={() => editor.chain().focus().setHardBreak().run()}
@@ -202,11 +222,11 @@ export function Toolbar({ editor, fullItem, fullScreen, onToggleFullScreen }: Ed
             <path d="M12.6512 14.0654L11.6047 20H9.57389L10.9247 12.339L3.51465 4.92892L4.92886 3.51471L20.4852 19.0711L19.071 20.4853L12.6512 14.0654ZM11.7727 7.53009L12.0425 5.99999H10.2426L8.24257 3.99999H19.9999V5.99999H14.0733L13.4991 9.25652L11.7727 7.53009Z" />
           }
         />
-      </Stack>
+      </Box>
 
       {/* Undo - Redo */}
       {fullItem && (
-        <Stack direction="row" spacing={0.5}>
+        <Box sx={{ ...boxStyles }}>
           <ToolbarItem
             aria-label="Undo"
             className={editorClasses.toolbar.undo}
@@ -225,12 +245,13 @@ export function Toolbar({ editor, fullItem, fullScreen, onToggleFullScreen }: Ed
               <path d="M16 7H11C7.68629 7 5 9.68629 5 13C5 16.3137 7.68629 19 11 19H20V21H11C6.58172 21 3 17.4183 3 13C3 8.58172 6.58172 5 11 5H16V1L22 6L16 11V7Z" />
             }
           />
-        </Stack>
+        </Box>
       )}
 
-      <Stack direction="row" spacing={0.5}>
+      <Box sx={{ ...boxStyles }}>
         <ToolbarItem
           aria-label="Fullscreen"
+          active={fullScreen}
           className={editorClasses.toolbar.fullscreen}
           onClick={onToggleFullScreen}
           icon={
@@ -241,7 +262,7 @@ export function Toolbar({ editor, fullItem, fullScreen, onToggleFullScreen }: Ed
             )
           }
         />
-      </Stack>
+      </Box>
     </Stack>
   );
 }

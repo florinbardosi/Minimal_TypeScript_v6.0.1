@@ -9,8 +9,8 @@ export type IKanbanComment = {
   name: string;
   message: string;
   avatarUrl: string;
-  messageType: 'image' | 'text';
   createdAt: IDateValue;
+  messageType: 'image' | 'text';
 };
 
 export type IKanbanAssignee = {
@@ -26,11 +26,11 @@ export type IKanbanAssignee = {
 };
 
 export type IKanbanTask = {
-  id: UniqueIdentifier;
   name: string;
   status: string;
   priority: string;
   labels: string[];
+  id: UniqueIdentifier;
   description?: string;
   attachments: string[];
   comments: IKanbanComment[];
@@ -44,11 +44,11 @@ export type IKanbanTask = {
 };
 
 export type IKanbanColumn = {
-  id: UniqueIdentifier;
   name: string;
+  id: UniqueIdentifier;
 };
 
 export type IKanban = {
-  tasks: Record<UniqueIdentifier, IKanbanTask[]>;
   columns: IKanbanColumn[];
+  tasks: Record<UniqueIdentifier, IKanbanTask[]>;
 };

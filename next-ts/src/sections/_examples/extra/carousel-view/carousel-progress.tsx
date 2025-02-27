@@ -21,11 +21,7 @@ type Props = {
 };
 
 export function CarouselProgress({ data }: Props) {
-  const carousel = useCarousel({
-    dragFree: true,
-    slidesToShow: '70%',
-    slideSpacing: '20px',
-  });
+  const carousel = useCarousel({ dragFree: true, slidesToShow: '70%', slideSpacing: '20px' });
 
   return (
     <>
@@ -34,8 +30,14 @@ export function CarouselProgress({ data }: Props) {
           <CarouselItem key={item.id} index={index} item={item} />
         ))}
       </Carousel>
-
-      <Box display="flex" alignItems="center" justifyContent="space-between" sx={{ mt: 3 }}>
+      <Box
+        sx={{
+          mt: 3,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
         <CarouselArrowBasicButtons {...carousel.arrows} options={carousel.options} />
         <CarouselProgressBar {...carousel.progress} />
       </Box>
@@ -59,10 +61,7 @@ function CarouselItem({ item, index }: CarouselItemProps) {
         component="img"
         alt={item.title}
         src={item.coverUrl}
-        sx={{
-          objectFit: 'cover',
-          aspectRatio: { xs: '4/3', sm: '16/10' },
-        }}
+        sx={{ objectFit: 'cover', aspectRatio: { xs: '4/3', sm: '16/10' } }}
       />
     </Box>
   );

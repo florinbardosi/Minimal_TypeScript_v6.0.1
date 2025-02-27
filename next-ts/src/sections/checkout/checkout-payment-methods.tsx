@@ -2,6 +2,8 @@ import type { BoxProps } from '@mui/material/Box';
 import type { CardProps } from '@mui/material/Card';
 import type { ICheckoutCardOption, ICheckoutPaymentOption } from 'src/types/checkout';
 
+import { varAlpha } from 'minimal-shared/utils';
+import { useBoolean } from 'minimal-shared/hooks';
 import { Controller, useFormContext } from 'react-hook-form';
 
 import Box from '@mui/material/Box';
@@ -14,10 +16,6 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import FormHelperText from '@mui/material/FormHelperText';
-
-import { useBoolean } from 'src/hooks/use-boolean';
-
-import { varAlpha } from 'src/theme/styles';
 
 import { Iconify } from 'src/components/iconify';
 
@@ -33,21 +31,28 @@ type Props = CardProps & {
   };
 };
 
-export function CheckoutPaymentMethods({ name, options, ...other }: Props) {
+export function CheckoutPaymentMethods({ name, options, sx, ...other }: Props) {
   const { control } = useFormContext();
 
   const openForm = useBoolean();
 
   return (
     <>
-      <Card {...other}>
+      <Card sx={sx} {...other}>
         <CardHeader title="Payment" />
 
         <Controller
           name={name}
           control={control}
           render={({ field: { value, onChange }, fieldState: { error } }) => (
-            <Box gap={2.5} display="flex" flexDirection="column" sx={{ p: 3 }}>
+            <Box
+              sx={{
+                p: 3,
+                gap: 2.5,
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
               {options.payments.map((option) => {
                 const isSelected = value === option.value;
 
@@ -73,7 +78,6 @@ export function CheckoutPaymentMethods({ name, options, ...other }: Props) {
           )}
         />
       </Card>
-
       <Dialog fullWidth maxWidth="xs" open={openForm.value} onClose={openForm.onFalse}>
         <DialogTitle> Add new card </DialogTitle>
 
@@ -116,28 +120,36 @@ function OptionItem({
 }: OptionItemProps) {
   return (
     <Box
-      sx={{
-        borderRadius: 1.5,
-        border: (theme) => `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.24)}`,
-        transition: (theme) =>
-          theme.transitions.create(['box-shadow'], {
+      sx={[
+        (theme) => ({
+          borderRadius: 1.5,
+          border: `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.24)}`,
+          transition: theme.transitions.create(['box-shadow'], {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.shortest,
           }),
-        ...(selected && {
-          boxShadow: (theme) => `0 0 0 2px ${theme.vars.palette.text.primary}`,
+          ...(selected && { boxShadow: `0 0 0 2px ${theme.vars.palette.text.primary}` }),
         }),
-        ...sx,
-      }}
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...other}
     >
-      <Box display="flex" alignItems="flex-start" sx={{ p: 2.5, cursor: 'pointer' }}>
+      <Box
+        sx={{
+          p: 2.5,
+          display: 'flex',
+          cursor: 'pointer',
+          alignItems: 'flex-start',
+        }}
+      >
         <Box
-          gap={0.5}
-          flexGrow={1}
-          display="flex"
-          flexDirection="column"
-          sx={{ typography: 'subtitle1' }}
+          sx={{
+            gap: 0.5,
+            flexGrow: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            typography: 'subtitle1',
+          }}
         >
           {option.label}
           <Box component="span" sx={{ typography: 'body2', color: 'text.secondary' }}>
@@ -145,7 +157,7 @@ function OptionItem({
           </Box>
         </Box>
 
-        <Box gap={1} display="flex" alignItems="center">
+        <Box sx={{ gap: 1, display: 'flex', alignItems: 'center' }}>
           {option.value === 'creditcard' && (
             <>
               <Iconify icon="logos:mastercard" width={24} />
@@ -159,7 +171,7 @@ function OptionItem({
 
       {isCredit && (
         <Box sx={{ px: 3 }}>
-          <TextField select fullWidth label="Card" SelectProps={{ native: true }}>
+          <TextField select fullWidth label="Card" slotProps={{ select: { native: true } }}>
             {cardOptions.map((card) => (
               <option key={card.value} value={card.value}>
                 {card.label}

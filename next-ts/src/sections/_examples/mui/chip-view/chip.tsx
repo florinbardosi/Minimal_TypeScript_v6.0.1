@@ -1,3 +1,4 @@
+import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
@@ -6,7 +7,7 @@ import { _mock } from 'src/_mock';
 
 import { Iconify } from 'src/components/iconify';
 
-import { ComponentBlock } from '../../component-block';
+import { ComponentBox } from '../../layout';
 
 // ----------------------------------------------------------------------
 
@@ -14,13 +15,13 @@ type Props = {
   variant?: 'filled' | 'outlined' | 'soft';
 };
 
-export function Chips({ variant = 'filled' }: Props) {
+export function Chips({ variant }: Props) {
   const handleDelete = () => {
     console.info('You clicked the delete icon.');
   };
 
   return (
-    <Stack
+    <Box
       sx={{
         rowGap: 5,
         columnGap: 3,
@@ -28,7 +29,7 @@ export function Chips({ variant = 'filled' }: Props) {
         gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
       }}
     >
-      <ComponentBlock title="Colors" sx={{ gap: 1 }}>
+      <ComponentBox title="Colors" sx={{ gap: 1 }}>
         <Chip
           variant={variant}
           label="Default deletable"
@@ -133,10 +134,10 @@ export function Chips({ variant = 'filled' }: Props) {
           label="Error clickable"
           color="error"
         />
-      </ComponentBlock>
+      </ComponentBox>
 
       <Stack spacing={5}>
-        <ComponentBlock title="Custom icon" sx={{ gap: 1 }}>
+        <ComponentBox title="Custom icon" sx={{ gap: 1 }}>
           <Chip
             variant={variant}
             icon={<Iconify width={24} icon="eva:smiling-face-fill" />}
@@ -153,9 +154,9 @@ export function Chips({ variant = 'filled' }: Props) {
             deleteIcon={<Iconify width={24} icon="eva:checkmark-fill" />}
             color="info"
           />
-        </ComponentBlock>
+        </ComponentBox>
 
-        <ComponentBlock title="Disabled" sx={{ gap: 1 }}>
+        <ComponentBox title="Disabled" sx={{ gap: 1 }}>
           <Chip
             disabled
             variant={variant}
@@ -172,9 +173,9 @@ export function Chips({ variant = 'filled' }: Props) {
             onDelete={handleDelete}
             color="info"
           />
-        </ComponentBlock>
+        </ComponentBox>
 
-        <ComponentBlock title="Sizes" sx={{ gap: 1 }}>
+        <ComponentBox title="Sizes" sx={{ gap: 1 }}>
           <Chip
             variant={variant}
             icon={<Iconify width={24} icon="eva:smiling-face-fill" />}
@@ -191,8 +192,8 @@ export function Chips({ variant = 'filled' }: Props) {
             onDelete={handleDelete}
             color="info"
           />
-        </ComponentBlock>
+        </ComponentBox>
       </Stack>
-    </Stack>
+    </Box>
   );
 }

@@ -1,11 +1,13 @@
+import type { Metadata } from 'next';
+
 import { _jobs } from 'src/_mock/_job';
-import { CONFIG } from 'src/config-global';
+import { CONFIG } from 'src/global-config';
 
 import { JobDetailsView } from 'src/sections/job/view';
 
 // ----------------------------------------------------------------------
 
-export const metadata = { title: `Job details | Dashboard - ${CONFIG.appName}` };
+export const metadata: Metadata = { title: `Job details | Dashboard - ${CONFIG.appName}` };
 
 type Props = {
   params: { id: string };
@@ -24,9 +26,9 @@ export default function Page({ params }: Props) {
 /**
  * [1] Default
  * Remove [1] and [2] if not using [2]
+ * Will remove in Next.js v15
  */
 const dynamic = CONFIG.isStaticExport ? 'auto' : 'force-dynamic';
-
 export { dynamic };
 
 /**

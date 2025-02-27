@@ -2,19 +2,17 @@
 
 import type { IProductItem, IProductFilters } from 'src/types/product';
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
+import { orderBy } from 'es-toolkit';
+import { useBoolean, useSetState } from 'minimal-shared/hooks';
 
+import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 
-import { useBoolean } from 'src/hooks/use-boolean';
-import { useDebounce } from 'src/hooks/use-debounce';
-import { useSetState } from 'src/hooks/use-set-state';
+import { paths } from 'src/routes/paths';
 
-import { orderBy } from 'src/utils/helper';
-
-import { useSearchProducts } from 'src/actions/product';
 import {
   PRODUCT_SORT_OPTIONS,
   PRODUCT_COLOR_OPTIONS,
@@ -25,12 +23,12 @@ import {
 
 import { EmptyContent } from 'src/components/empty-content';
 
+import { CartIcon } from '../cart-icon';
 import { ProductList } from '../product-list';
 import { ProductSort } from '../product-sort';
 import { ProductSearch } from '../product-search';
-import { CartIcon } from '../components/cart-icon';
-import { ProductFilters } from '../product-filters';
 import { useCheckoutContext } from '../../checkout/context';
+import { ProductFiltersDrawer } from '../product-filters-drawer';
 import { ProductFiltersResult } from '../product-filters-result';
 
 // ----------------------------------------------------------------------
@@ -40,15 +38,11 @@ type Props = {
 };
 
 export function ProductShopView({ products }: Props) {
-  const checkout = useCheckoutContext();
+  const { state: checkoutState } = useCheckoutContext();
 
   const openFilters = useBoolean();
 
   const [sortBy, setSortBy] = useState('featured');
-
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const debouncedQuery = useDebounce(searchQuery);
 
   const filters = useSetState<IProductFilters>({
     gender: [],
@@ -57,47 +51,39 @@ export function ProductShopView({ products }: Props) {
     category: 'all',
     priceRange: [0, 200],
   });
+  const { state: currentFilters } = filters;
 
-  const { searchResults, searchLoading } = useSearchProducts(debouncedQuery);
-
-  const dataFiltered = applyFilter({ inputData: products, filters: filters.state, sortBy });
+  const dataFiltered = applyFilter({
+    inputData: products,
+    filters: currentFilters,
+    sortBy,
+  });
 
   const canReset =
-    filters.state.gender.length > 0 ||
-    filters.state.colors.length > 0 ||
-    filters.state.rating !== '' ||
-    filters.state.category !== 'all' ||
-    filters.state.priceRange[0] !== 0 ||
-    filters.state.priceRange[1] !== 200;
+    currentFilters.gender.length > 0 ||
+    currentFilters.colors.length > 0 ||
+    currentFilters.rating !== '' ||
+    currentFilters.category !== 'all' ||
+    currentFilters.priceRange[0] !== 0 ||
+    currentFilters.priceRange[1] !== 200;
 
   const notFound = !dataFiltered.length && canReset;
-
-  const handleSortBy = useCallback((newValue: string) => {
-    setSortBy(newValue);
-  }, []);
-
-  const handleSearch = useCallback((inputValue: string) => {
-    setSearchQuery(inputValue);
-  }, []);
-
   const productsEmpty = !products.length;
 
-  const renderFilters = (
-    <Stack
-      spacing={3}
-      justifyContent="space-between"
-      alignItems={{ xs: 'flex-end', sm: 'center' }}
-      direction={{ xs: 'column', sm: 'row' }}
+  const renderFilters = () => (
+    <Box
+      sx={{
+        gap: 3,
+        display: 'flex',
+        justifyContent: 'space-between',
+        flexDirection: { xs: 'column', sm: 'row' },
+        alignItems: { xs: 'flex-end', sm: 'center' },
+      }}
     >
-      <ProductSearch
-        query={debouncedQuery}
-        results={searchResults}
-        onSearch={handleSearch}
-        loading={searchLoading}
-      />
+      <ProductSearch redirectPath={(id: string) => paths.product.details(id)} />
 
-      <Stack direction="row" spacing={1} flexShrink={0}>
-        <ProductFilters
+      <Box sx={{ gap: 1, flexShrink: 0, display: 'flex' }}>
+        <ProductFiltersDrawer
           filters={filters}
           canReset={canReset}
           open={openFilters.value}
@@ -111,32 +97,35 @@ export function ProductShopView({ products }: Props) {
           }}
         />
 
-        <ProductSort sort={sortBy} onSort={handleSortBy} sortOptions={PRODUCT_SORT_OPTIONS} />
-      </Stack>
-    </Stack>
+        <ProductSort
+          sort={sortBy}
+          onSort={(newValue: string) => setSortBy(newValue)}
+          sortOptions={PRODUCT_SORT_OPTIONS}
+        />
+      </Box>
+    </Box>
   );
 
-  const renderResults = (
+  const renderResults = () => (
     <ProductFiltersResult filters={filters} totalResults={dataFiltered.length} />
   );
 
-  const renderNotFound = <EmptyContent filled sx={{ py: 10 }} />;
+  const renderNotFound = () => <EmptyContent filled sx={{ py: 10 }} />;
 
   return (
     <Container sx={{ mb: 15 }}>
-      <CartIcon totalItems={checkout.totalItems} />
+      <CartIcon totalItems={checkoutState.totalItems} />
 
       <Typography variant="h4" sx={{ my: { xs: 3, md: 5 } }}>
         Shop
       </Typography>
 
       <Stack spacing={2.5} sx={{ mb: { xs: 3, md: 5 } }}>
-        {renderFilters}
-
-        {canReset && renderResults}
+        {renderFilters()}
+        {canReset && renderResults()}
       </Stack>
 
-      {(notFound || productsEmpty) && renderNotFound}
+      {(notFound || productsEmpty) && renderNotFound()}
 
       <ProductList products={dataFiltered} />
     </Container>
@@ -155,7 +144,6 @@ function applyFilter({ inputData, filters, sortBy }: ApplyFilterProps) {
   const { gender, category, colors, priceRange, rating } = filters;
 
   const min = priceRange[0];
-
   const max = priceRange[1];
 
   // Sort by

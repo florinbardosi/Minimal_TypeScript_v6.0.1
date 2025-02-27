@@ -1,5 +1,8 @@
+import type { BoxProps } from '@mui/material/Box';
+
 import { useState } from 'react';
 
+import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Checkbox from '@mui/material/Checkbox';
@@ -7,50 +10,30 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Autocomplete from '@mui/material/Autocomplete';
 
-import { paths } from 'src/routes/paths';
-
 import { CountrySelect } from 'src/components/country-select';
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { ComponentHero } from '../../component-hero';
-import { ComponentBlock, ComponentContainer } from '../../component-block';
+import { ComponentBox, ComponentLayout } from '../../layout';
 
 // ----------------------------------------------------------------------
 
-const options = ['Option 1', 'Option 2'];
+const OPTIONS = ['Option 1', 'Option 2'];
 
 export function AutocompleteView() {
   const [inputValue, setInputValue] = useState('');
 
-  const [value, setValue] = useState<string | null>(options[0]);
+  const [value, setValue] = useState<string | null>(OPTIONS[0]);
 
   const [singleLabel, setSingleLabel] = useState<string | null>('Armenia');
-
-  const [singleCode, setSingleCode] = useState<string | null>('AR');
-
   const [multiLabel, setMultiLabel] = useState<string[]>(['Austria', 'Australia', 'Bulgaria']);
 
+  const [singleCode, setSingleCode] = useState<string | null>('AR');
   const [multiCode, setMultiCode] = useState<string[]>(['BJ', 'BL', 'BM']);
 
-  return (
-    <>
-      <ComponentHero>
-        <CustomBreadcrumbs
-          heading="Autocomplete"
-          links={[{ name: 'Components', href: paths.components }, { name: 'Autocomplete' }]}
-          moreLink={['https://mui.com/components/autocomplete']}
-        />
-      </ComponentHero>
-
-      <ComponentContainer
-        sx={{
-          rowGap: 5,
-          columnGap: 3,
-          display: 'grid',
-          gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
-        }}
-      >
-        <ComponentBlock title="Combo box">
+  const DEMO_COMPONENTS = [
+    {
+      name: 'Combo box',
+      component: (
+        <ComponentBox>
           <Autocomplete
             fullWidth
             options={top100Films}
@@ -62,13 +45,17 @@ export function AutocompleteView() {
               </li>
             )}
           />
-        </ComponentBlock>
-
-        <ComponentBlock title="Controlled states" sx={{ flexDirection: 'column' }}>
+        </ComponentBox>
+      ),
+    },
+    {
+      name: 'Controlled states',
+      component: (
+        <ComponentBox>
           <Autocomplete
             fullWidth
             value={value}
-            options={options}
+            options={OPTIONS}
             onChange={(event, newValue) => {
               setValue(newValue);
             }}
@@ -88,9 +75,13 @@ export function AutocompleteView() {
           <Typography variant="body2">{`value: ${value !== null ? `'${value}'` : 'null'}`}</Typography>
 
           <Typography variant="body2">{`inputValue: '${inputValue}'`}</Typography>
-        </ComponentBlock>
-
-        <ComponentBlock title="Free solo">
+        </ComponentBox>
+      ),
+    },
+    {
+      name: 'Free solo',
+      component: (
+        <ComponentBox>
           <Autocomplete
             fullWidth
             freeSolo
@@ -114,7 +105,7 @@ export function AutocompleteView() {
               <TextField
                 {...params}
                 label="Search input"
-                InputProps={{ ...params.InputProps, type: 'search' }}
+                slotProps={{ input: { ...params.InputProps, type: 'search' } }}
               />
             )}
             renderOption={(props, option) => (
@@ -123,9 +114,13 @@ export function AutocompleteView() {
               </li>
             )}
           />
-        </ComponentBlock>
-
-        <ComponentBlock title="Multiple Values">
+        </ComponentBox>
+      ),
+    },
+    {
+      name: 'Multiple values',
+      component: (
+        <ComponentBox>
           <Autocomplete
             fullWidth
             multiple
@@ -134,7 +129,7 @@ export function AutocompleteView() {
             getOptionLabel={(option) => option.title}
             defaultValue={top100Films.slice(0, 8)}
             renderInput={(params) => (
-              <TextField {...params} label="Multiple Select" placeholder="Favorites" />
+              <TextField {...params} label="Multiple select" placeholder="Favorites" />
             )}
             renderOption={(props, option) => (
               <li {...props} key={option.title}>
@@ -153,9 +148,13 @@ export function AutocompleteView() {
               ))
             }
           />
-        </ComponentBlock>
-
-        <ComponentBlock title="Checkboxes">
+        </ComponentBox>
+      ),
+    },
+    {
+      name: 'Checkboxes',
+      component: (
+        <ComponentBox>
           <Autocomplete
             fullWidth
             multiple
@@ -185,9 +184,13 @@ export function AutocompleteView() {
               ))
             }
           />
-        </ComponentBlock>
-
-        <ComponentBlock title="Sizes">
+        </ComponentBox>
+      ),
+    },
+    {
+      name: 'Sizes',
+      component: (
+        <ComponentBox>
           <Autocomplete
             fullWidth
             options={top100Films}
@@ -231,10 +234,14 @@ export function AutocompleteView() {
               ))
             }
           />
-        </ComponentBlock>
-
-        <ComponentBlock title="Country Select" sx={{ gap: 5 }}>
-          <Stack direction="row" spacing={1.5} sx={{ width: 1 }}>
+        </ComponentBox>
+      ),
+    },
+    {
+      name: 'Country select',
+      component: (
+        <ComponentBox sx={{ gap: 5 }}>
+          <Box sx={{ width: 1, gap: 1.5, display: 'flex' }}>
             <CountrySelect
               id="single-label"
               fullWidth
@@ -243,25 +250,10 @@ export function AutocompleteView() {
               value={singleLabel}
               onChange={(event, newValue) => setSingleLabel(newValue)}
             />
-            <Stack
-              sx={{
-                px: 1,
-                width: 200,
-                borderRadius: 1,
-                textAlign: 'right',
-                typography: 'body2',
-                justifyContent: 'center',
-                bgcolor: 'background.neutral',
-              }}
-            >
-              <small>Output:</small>
-              <strong>
-                <small>{singleLabel ?? '-'}</small>
-              </strong>
-            </Stack>
-          </Stack>
+            <DisplayOutput displayValue={singleLabel} />
+          </Box>
 
-          <Stack direction="row" spacing={1.5} sx={{ width: 1 }}>
+          <Box sx={{ width: 1, gap: 1.5, display: 'flex' }}>
             <CountrySelect
               id="single-code"
               getValue="code"
@@ -271,23 +263,8 @@ export function AutocompleteView() {
               value={singleCode}
               onChange={(event, newValue) => setSingleCode(newValue as string)}
             />
-            <Stack
-              sx={{
-                px: 1,
-                width: 200,
-                borderRadius: 1,
-                textAlign: 'right',
-                typography: 'body2',
-                justifyContent: 'center',
-                bgcolor: 'background.neutral',
-              }}
-            >
-              <small>Output:</small>
-              <strong>
-                <small>{singleCode ?? '-'}</small>
-              </strong>
-            </Stack>
-          </Stack>
+            <DisplayOutput displayValue={singleCode} />
+          </Box>
 
           <Stack spacing={1.5} sx={{ width: 1 }}>
             <CountrySelect
@@ -300,22 +277,7 @@ export function AutocompleteView() {
               value={multiLabel}
               onChange={(event, newValue) => setMultiLabel(newValue)}
             />
-            <Stack
-              sx={{
-                p: 1,
-                width: 1,
-                minHeight: 54,
-                borderRadius: 1,
-                textAlign: 'right',
-                typography: 'body2',
-                bgcolor: 'background.neutral',
-              }}
-            >
-              <small>Output:</small>{' '}
-              <strong>
-                <small>{multiLabel.join(', ') ?? '-'}</small>
-              </strong>
-            </Stack>
+            <DisplayOutput displayValue={multiLabel.join(', ')} sx={{ width: 1 }} />
           </Stack>
 
           <Stack spacing={1.5} sx={{ width: 1 }}>
@@ -330,26 +292,54 @@ export function AutocompleteView() {
               value={multiCode}
               onChange={(event, newValue) => setMultiCode(newValue)}
             />
-            <Stack
-              sx={{
-                p: 1,
-                width: 1,
-                minHeight: 54,
-                borderRadius: 1,
-                textAlign: 'right',
-                typography: 'body2',
-                bgcolor: 'background.neutral',
-              }}
-            >
-              <small>Output:</small>{' '}
-              <strong>
-                <small>{multiCode.join(', ') ?? '-'}</small>
-              </strong>
-            </Stack>
+            <DisplayOutput displayValue={multiCode.join(', ')} sx={{ width: 1 }} />
           </Stack>
-        </ComponentBlock>
-      </ComponentContainer>
-    </>
+        </ComponentBox>
+      ),
+    },
+  ];
+
+  return (
+    <ComponentLayout
+      sectionData={DEMO_COMPONENTS}
+      heroProps={{
+        heading: 'Autocomplete',
+        moreLinks: ['https://mui.com/material-ui/react-autocomplete/'],
+      }}
+    />
+  );
+}
+
+// ----------------------------------------------------------------------
+
+type DisplayOutputProps = BoxProps & {
+  displayValue: string | null;
+};
+
+function DisplayOutput({ displayValue, sx, ...other }: DisplayOutputProps) {
+  return (
+    <Box
+      sx={[
+        {
+          p: 1,
+          width: 200,
+          minHeight: 54,
+          borderRadius: 1,
+          display: 'flex',
+          textAlign: 'right',
+          typography: 'body2',
+          flexDirection: 'column',
+          bgcolor: 'background.neutral',
+        },
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
+      {...other}
+    >
+      <small>Output:</small>{' '}
+      <strong>
+        <small>{displayValue ?? '-'}</small>
+      </strong>
+    </Box>
   );
 }
 

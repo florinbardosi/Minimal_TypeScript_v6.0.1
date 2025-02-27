@@ -1,12 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
-
+import Grid from '@mui/material/Grid2';
 import Container from '@mui/material/Container';
-import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
-
-import { PRODUCT_CHECKOUT_STEPS } from 'src/_mock/_product';
 
 import { CheckoutCart } from '../checkout-cart';
 import { useCheckoutContext } from '../context';
@@ -18,12 +14,7 @@ import { CheckoutBillingAddress } from '../checkout-billing-address';
 // ----------------------------------------------------------------------
 
 export function CheckoutView() {
-  const checkout = useCheckoutContext();
-
-  useEffect(() => {
-    checkout.initialStep();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const { steps, activeStep, completed, onResetCart } = useCheckoutContext();
 
   return (
     <Container sx={{ mb: 10 }}>
@@ -31,21 +22,21 @@ export function CheckoutView() {
         Checkout
       </Typography>
 
-      <Grid container justifyContent={checkout.completed ? 'center' : 'flex-start'}>
-        <Grid xs={12} md={8}>
-          <CheckoutSteps activeStep={checkout.activeStep} steps={PRODUCT_CHECKOUT_STEPS} />
+      <Grid container justifyContent={completed ? 'center' : 'flex-start'}>
+        <Grid size={{ xs: 12, md: 8 }}>
+          <CheckoutSteps steps={steps} activeStep={activeStep ?? 0} />
         </Grid>
       </Grid>
 
       <>
-        {checkout.activeStep === 0 && <CheckoutCart />}
+        {activeStep === 0 && <CheckoutCart />}
 
-        {checkout.activeStep === 1 && <CheckoutBillingAddress />}
+        {activeStep === 1 && <CheckoutBillingAddress />}
 
-        {checkout.activeStep === 2 && <CheckoutPayment />}
+        {activeStep === 2 && <CheckoutPayment />}
 
-        {checkout.completed && (
-          <CheckoutOrderComplete open onReset={checkout.onReset} onDownloadPDF={() => {}} />
+        {completed && (
+          <CheckoutOrderComplete open onResetCart={onResetCart} onDownloadPDF={() => {}} />
         )}
       </>
     </Container>

@@ -1,61 +1,61 @@
 import type { FileRejection } from 'react-dropzone';
-import type { PaperProps } from '@mui/material/Paper';
 
-import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
-import Typography from '@mui/material/Typography';
+import { varAlpha, mergeClasses } from 'minimal-shared/utils';
+
+import { styled } from '@mui/material/styles';
 
 import { fData } from 'src/utils/format-number';
-
-import { varAlpha } from 'src/theme/styles';
 
 import { uploadClasses } from '../classes';
 import { fileData } from '../../file-thumbnail';
 
 // ----------------------------------------------------------------------
 
-type RejectionFilesProps = PaperProps & {
-  files: FileRejection[];
+type RejectionFilesProps = React.ComponentProps<typeof ListRoot> & {
+  files?: readonly FileRejection[];
 };
 
 export function RejectionFiles({ files, sx, className, ...other }: RejectionFilesProps) {
-  if (!files.length) {
-    return null;
-  }
-
   return (
-    <Paper
-      variant="outlined"
-      className={uploadClasses.uploadRejectionFiles.concat(className ? ` ${className}` : '')}
-      sx={{
-        py: 1,
-        px: 2,
-        mt: 3,
-        textAlign: 'left',
-        borderStyle: 'dashed',
-        borderColor: 'error.main',
-        bgcolor: (theme) => varAlpha(theme.vars.palette.error.mainChannel, 0.08),
-        ...sx,
-      }}
+    <ListRoot
+      className={mergeClasses([uploadClasses.uploadRejectionFiles, className])}
+      sx={sx}
       {...other}
     >
-      {files.map(({ file, errors }) => {
+      {files?.map(({ file, errors }) => {
         const { path, size } = fileData(file);
 
         return (
-          <Box key={path} sx={{ my: 1 }}>
-            <Typography variant="subtitle2" noWrap>
+          <ListItem key={path}>
+            <ItemTitle>
               {path} - {size ? fData(size) : ''}
-            </Typography>
+            </ItemTitle>
 
             {errors.map((error) => (
-              <Box key={error.code} component="span" sx={{ typography: 'caption' }}>
-                - {error.message}
-              </Box>
+              <ItemCaption key={error.code}>- {error.message}</ItemCaption>
             ))}
-          </Box>
+          </ListItem>
         );
       })}
-    </Paper>
+    </ListRoot>
   );
 }
+
+// ----------------------------------------------------------------------
+
+const ListRoot = styled('ul')(({ theme }) => ({
+  display: 'flex',
+  gap: theme.spacing(1),
+  flexDirection: 'column',
+  padding: theme.spacing(2),
+  marginTop: theme.spacing(3),
+  borderRadius: theme.shape.borderRadius,
+  border: `dashed 1px ${theme.vars.palette.error.main}`,
+  backgroundColor: varAlpha(theme.vars.palette.error.mainChannel, 0.08),
+}));
+
+const ListItem = styled('li')(() => ({ display: 'flex', flexDirection: 'column' }));
+
+const ItemTitle = styled('span')(({ theme }) => ({ ...theme.typography.subtitle2 }));
+
+const ItemCaption = styled('span')(({ theme }) => ({ ...theme.typography.caption }));

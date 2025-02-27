@@ -4,15 +4,20 @@ import type { ToastT } from 'src/components/snackbar';
 
 import Button from '@mui/material/Button';
 
-import { paths } from 'src/routes/paths';
-
 import { toast } from 'src/components/snackbar';
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { ComponentHero } from '../../component-hero';
-import { ComponentBlock, ComponentContainer } from '../../component-block';
+import { ComponentBox, ComponentLayout } from '../../layout';
 
 // ----------------------------------------------------------------------
+
+const ANCHOR_POSITIONS = [
+  'top-left',
+  'top-center',
+  'top-right',
+  'bottom-left',
+  'bottom-center',
+  'bottom-right',
+] as const;
 
 export function SnackbarView() {
   const onSubmit = async () => {
@@ -32,28 +37,11 @@ export function SnackbarView() {
     }
   };
 
-  return (
-    <>
-      <ComponentHero>
-        <CustomBreadcrumbs
-          heading="Snackbar"
-          links={[{ name: 'Components', href: paths.components }, { name: 'Snackbar' }]}
-          moreLink={['https://sonner.emilkowal.ski/']}
-        />
-      </ComponentHero>
-
-      <ComponentContainer
-        sx={{
-          rowGap: 5,
-          columnGap: 3,
-          display: 'grid',
-          gridTemplateColumns: {
-            xs: 'repeat(1, 1fr)',
-            md: 'repeat(2, 1fr)',
-          },
-        }}
-      >
-        <ComponentBlock title="Simple">
+  const DEMO_COMPONENTS = [
+    {
+      name: 'Simple',
+      component: (
+        <ComponentBox>
           <Button variant="contained" color="inherit" onClick={() => toast('This is an default')}>
             Default
           </Button>
@@ -77,9 +65,13 @@ export function SnackbarView() {
           <Button variant="contained" color="error" onClick={() => toast.error('This is an error')}>
             Error
           </Button>
-        </ComponentBlock>
-
-        <ComponentBlock title="With Action">
+        </ComponentBox>
+      ),
+    },
+    {
+      name: 'With action',
+      component: (
+        <ComponentBox>
           <Button
             variant="contained"
             color="inherit"
@@ -226,34 +218,45 @@ export function SnackbarView() {
           >
             Error
           </Button>
-        </ComponentBlock>
-
-        <ComponentBlock title="anchorOrigin">
-          {[
-            'top-left',
-            'top-center',
-            'top-right',
-            'bottom-left',
-            'bottom-center',
-            'bottom-right',
-          ].map((position) => (
+        </ComponentBox>
+      ),
+    },
+    {
+      name: 'Anchor origin',
+      component: (
+        <ComponentBox>
+          {ANCHOR_POSITIONS.map((position) => (
             <Button
               key={position}
-              variant="text"
+              variant="outlined"
               color="inherit"
               onClick={() => toast(position, { position: position as ToastT['position'] })}
             >
               {position}
             </Button>
           ))}
-        </ComponentBlock>
-
-        <ComponentBlock title="With promise">
+        </ComponentBox>
+      ),
+    },
+    {
+      name: 'With promise',
+      component: (
+        <ComponentBox>
           <Button variant="outlined" onClick={onSubmit}>
             On submit
           </Button>
-        </ComponentBlock>
-      </ComponentContainer>
-    </>
+        </ComponentBox>
+      ),
+    },
+  ];
+
+  return (
+    <ComponentLayout
+      sectionData={DEMO_COMPONENTS}
+      heroProps={{
+        heading: 'Snackbar',
+        moreLinks: ['https://sonner.emilkowal.ski/'],
+      }}
+    />
   );
 }

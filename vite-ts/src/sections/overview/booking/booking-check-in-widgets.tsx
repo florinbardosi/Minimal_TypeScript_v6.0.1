@@ -6,8 +6,7 @@ import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Divider from '@mui/material/Divider';
 import { useTheme } from '@mui/material/styles';
-
-import { useResponsive } from 'src/hooks/use-responsive';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 import { fNumber } from 'src/utils/format-number';
 
@@ -27,10 +26,9 @@ type Props = CardProps & {
   };
 };
 
-export function BookingCheckInWidgets({ chart, ...other }: Props) {
+export function BookingCheckInWidgets({ chart, sx, ...other }: Props) {
   const theme = useTheme();
-
-  const smUp = useResponsive('up', 'sm');
+  const smUp = useMediaQuery(theme.breakpoints.up('sm'));
 
   const chartColors = chart.colors ?? [
     [theme.palette.primary.light, theme.palette.primary.main],
@@ -65,9 +63,8 @@ export function BookingCheckInWidgets({ chart, ...other }: Props) {
   });
 
   return (
-    <Card {...other}>
+    <Card sx={sx} {...other}>
       <Stack
-        direction={{ xs: 'column', sm: 'row' }}
         divider={
           <Divider
             flexItem
@@ -75,6 +72,7 @@ export function BookingCheckInWidgets({ chart, ...other }: Props) {
             sx={{ borderStyle: 'dashed' }}
           />
         }
+        sx={{ flexDirection: { xs: 'column', sm: 'row' } }}
       >
         {chart.series.map((item) => (
           <Box
@@ -106,12 +104,12 @@ export function BookingCheckInWidgets({ chart, ...other }: Props) {
                   },
                 }),
               }}
-              width={80}
-              height={80}
+              sx={{ width: 80, height: 80 }}
             />
 
             <div>
               <Box sx={{ mb: 0.5, typography: 'h5' }}>{fNumber(item.total)}</Box>
+
               <Box sx={{ typography: 'body2', color: 'text.secondary' }}>{item.label}</Box>
             </div>
           </Box>

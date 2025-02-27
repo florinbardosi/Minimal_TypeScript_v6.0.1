@@ -1,9 +1,11 @@
 import type { IJobItem } from 'src/types/job';
+import type { CardProps } from '@mui/material/Card';
+
+import { usePopover } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Card from '@mui/material/Card';
-import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
 import Divider from '@mui/material/Divider';
 import MenuList from '@mui/material/MenuList';
@@ -12,35 +14,70 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
 
-import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
 import { fDate } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
 
 import { Iconify } from 'src/components/iconify';
-import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import { CustomPopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
-type Props = {
+type Props = CardProps & {
   job: IJobItem;
-  onView: () => void;
-  onEdit: () => void;
+  editHref: string;
+  detailsHref: string;
   onDelete: () => void;
 };
 
-export function JobItem({ job, onView, onEdit, onDelete }: Props) {
-  const popover = usePopover();
+export function JobItem({ job, editHref, detailsHref, onDelete, sx, ...other }: Props) {
+  const menuActions = usePopover();
+
+  const renderMenuActions = () => (
+    <CustomPopover
+      open={menuActions.open}
+      anchorEl={menuActions.anchorEl}
+      onClose={menuActions.onClose}
+      slotProps={{ arrow: { placement: 'right-top' } }}
+    >
+      <MenuList>
+        <li>
+          <MenuItem component={RouterLink} href={detailsHref} onClick={() => menuActions.onClose()}>
+            <Iconify icon="solar:eye-bold" />
+            View
+          </MenuItem>
+        </li>
+
+        <li>
+          <MenuItem component={RouterLink} href={editHref} onClick={() => menuActions.onClose()}>
+            <Iconify icon="solar:pen-bold" />
+            Edit
+          </MenuItem>
+        </li>
+
+        <MenuItem
+          onClick={() => {
+            menuActions.onClose();
+            onDelete();
+          }}
+          sx={{ color: 'error.main' }}
+        >
+          <Iconify icon="solar:trash-bin-trash-bold" />
+          Delete
+        </MenuItem>
+      </MenuList>
+    </CustomPopover>
+  );
 
   return (
     <>
-      <Card>
-        <IconButton onClick={popover.onOpen} sx={{ position: 'absolute', top: 8, right: 8 }}>
+      <Card sx={sx} {...other}>
+        <IconButton onClick={menuActions.onOpen} sx={{ position: 'absolute', top: 8, right: 8 }}>
           <Iconify icon="eva:more-vertical-fill" />
         </IconButton>
 
-        <Stack sx={{ p: 3, pb: 2 }}>
+        <Box sx={{ p: 3, pb: 2 }}>
           <Avatar
             alt={job.company.name}
             src={job.company.logo}
@@ -51,38 +88,43 @@ export function JobItem({ job, onView, onEdit, onDelete }: Props) {
           <ListItemText
             sx={{ mb: 1 }}
             primary={
-              <Link
-                component={RouterLink}
-                href={paths.dashboard.job.details(job.id)}
-                color="inherit"
-              >
+              <Link component={RouterLink} href={detailsHref} color="inherit">
                 {job.title}
               </Link>
             }
             secondary={`Posted date: ${fDate(job.createdAt)}`}
-            primaryTypographyProps={{ typography: 'subtitle1' }}
-            secondaryTypographyProps={{
-              mt: 1,
-              component: 'span',
-              typography: 'caption',
-              color: 'text.disabled',
+            slotProps={{
+              primary: { sx: { typography: 'subtitle1' } },
+              secondary: {
+                sx: { mt: 1, typography: 'caption', color: 'text.disabled' },
+              },
             }}
           />
 
-          <Stack
-            spacing={0.5}
-            direction="row"
-            alignItems="center"
-            sx={{ color: 'primary.main', typography: 'caption' }}
+          <Box
+            sx={{
+              gap: 0.5,
+              display: 'flex',
+              alignItems: 'center',
+              color: 'primary.main',
+              typography: 'caption',
+            }}
           >
             <Iconify width={16} icon="solar:users-group-rounded-bold" />
             {job.candidates.length} candidates
-          </Stack>
-        </Stack>
+          </Box>
+        </Box>
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 
-        <Box rowGap={1.5} display="grid" gridTemplateColumns="repeat(2, 1fr)" sx={{ p: 3 }}>
+        <Box
+          sx={{
+            p: 3,
+            rowGap: 1.5,
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+          }}
+        >
           {[
             {
               label: job.experience,
@@ -101,62 +143,27 @@ export function JobItem({ job, onView, onEdit, onDelete }: Props) {
               icon: <Iconify width={16} icon="solar:user-rounded-bold" sx={{ flexShrink: 0 }} />,
             },
           ].map((item) => (
-            <Stack
+            <Box
               key={item.label}
-              spacing={0.5}
-              flexShrink={0}
-              direction="row"
-              alignItems="center"
-              sx={{ color: 'text.disabled', minWidth: 0 }}
+              sx={{
+                gap: 0.5,
+                minWidth: 0,
+                flexShrink: 0,
+                display: 'flex',
+                alignItems: 'center',
+                color: 'text.disabled',
+              }}
             >
               {item.icon}
               <Typography variant="caption" noWrap>
                 {item.label}
               </Typography>
-            </Stack>
+            </Box>
           ))}
         </Box>
       </Card>
 
-      <CustomPopover
-        open={popover.open}
-        anchorEl={popover.anchorEl}
-        onClose={popover.onClose}
-        slotProps={{ arrow: { placement: 'right-top' } }}
-      >
-        <MenuList>
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-              onView();
-            }}
-          >
-            <Iconify icon="solar:eye-bold" />
-            View
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-              onEdit();
-            }}
-          >
-            <Iconify icon="solar:pen-bold" />
-            Edit
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-              onDelete();
-            }}
-            sx={{ color: 'error.main' }}
-          >
-            <Iconify icon="solar:trash-bin-trash-bold" />
-            Delete
-          </MenuItem>
-        </MenuList>
-      </CustomPopover>
+      {renderMenuActions()}
     </>
   );
 }

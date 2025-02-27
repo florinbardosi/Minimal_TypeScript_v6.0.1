@@ -1,8 +1,8 @@
 import type { IDateValue } from 'src/types/common';
 import type { RatingProps } from '@mui/material/Rating';
 import type {
-  GridSlots,
   GridColDef,
+  GridSlotProps,
   GridFilterItem,
   GridFilterOperator,
   GridRowSelectionModel,
@@ -14,7 +14,6 @@ import { useRef, useMemo, useState, useImperativeHandle } from 'react';
 
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
-import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
 import Rating from '@mui/material/Rating';
 import Typography from '@mui/material/Typography';
@@ -49,14 +48,14 @@ const baseColumns: GridColDef[] = [
     minWidth: 160,
     hideable: false,
     renderCell: (params) => (
-      <Stack spacing={2} direction="row" alignItems="center">
+      <Box sx={{ gap: 2, display: 'flex', alignItems: 'center' }}>
         <Avatar alt={params.row.name} sx={{ width: 36, height: 36 }}>
           {params.row.name.charAt(0).toUpperCase()}
         </Avatar>
         <Typography component="span" variant="body2" noWrap>
           {params.row.name}
         </Typography>
-      </Stack>
+      </Box>
     ),
   },
   {
@@ -79,20 +78,23 @@ const baseColumns: GridColDef[] = [
     headerAlign: 'right',
     width: 120,
     renderCell: (params) => (
-      <Stack
-        spacing={0.5}
+      <Box
         sx={{
+          gap: 0.5,
           height: 1,
           lineHeight: 1,
+          display: 'flex',
           textAlign: 'right',
+          flexDirection: 'column',
           justifyContent: 'center',
         }}
       >
         <Box component="span">{fDate(params.row.lastLogin)}</Box>
+
         <Box component="span" sx={{ color: 'text.secondary', typography: 'caption' }}>
           {fTime(params.row.lastLogin)}
         </Box>
-      </Stack>
+      </Box>
     ),
   },
   {
@@ -112,13 +114,13 @@ const baseColumns: GridColDef[] = [
     headerAlign: 'center',
     width: 100,
     editable: true,
-    valueOptions: ['online', 'alway', 'busy'],
+    valueOptions: ['online', 'always', 'busy'],
     renderCell: (params) => (
       <Label
         variant="soft"
         color={
           (params.row.status === 'busy' && 'error') ||
-          (params.row.status === 'alway' && 'warning') ||
+          (params.row.status === 'always' && 'warning') ||
           'success'
         }
       >
@@ -147,7 +149,16 @@ const baseColumns: GridColDef[] = [
     headerAlign: 'center',
     width: 160,
     renderCell: (params) => (
-      <Stack spacing={1} direction="row" alignItems="center" sx={{ px: 1, width: 1, height: 1 }}>
+      <Box
+        sx={{
+          px: 1,
+          gap: 1,
+          width: 1,
+          height: 1,
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
         <LinearProgress
           value={params.row.performance}
           variant="determinate"
@@ -161,7 +172,7 @@ const baseColumns: GridColDef[] = [
         <Typography variant="caption" sx={{ width: 80 }}>
           {fPercent(params.row.performance)}
         </Typography>
-      </Stack>
+      </Box>
     ),
   },
   {
@@ -256,8 +267,10 @@ export function DataGridCustom({ data: rows }: Props) {
       }}
       columnVisibilityModel={columnVisibilityModel}
       onColumnVisibilityModelChange={(newModel) => setColumnVisibilityModel(newModel)}
+      initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+      pageSizeOptions={[5, 10, 20, 50, { value: -1, label: 'All' }]}
       slots={{
-        toolbar: CustomToolbar as GridSlots['toolbar'],
+        toolbar: CustomToolbar,
         noRowsOverlay: () => <EmptyContent />,
         noResultsOverlay: () => <EmptyContent title="No results found" />,
       }}
@@ -266,18 +279,25 @@ export function DataGridCustom({ data: rows }: Props) {
         toolbar: { setFilterButtonEl, showQuickFilter: true },
         columnsManagement: { getTogglableColumns },
       }}
-      sx={{ [`& .${gridClasses.cell}`]: { alignItems: 'center', display: 'inline-flex' } }}
+      sx={{
+        [`& .${gridClasses.cell}`]: {
+          alignItems: 'center',
+          display: 'inline-flex',
+        },
+      }}
     />
   );
 }
 
 // ----------------------------------------------------------------------
 
-interface CustomToolbarProps {
-  setFilterButtonEl: React.Dispatch<React.SetStateAction<HTMLButtonElement | null>>;
+declare module '@mui/x-data-grid' {
+  interface ToolbarPropsOverrides {
+    setFilterButtonEl: React.Dispatch<React.SetStateAction<HTMLButtonElement | null>>;
+  }
 }
 
-function CustomToolbar({ setFilterButtonEl }: CustomToolbarProps) {
+function CustomToolbar({ setFilterButtonEl }: GridSlotProps['toolbar']) {
   return (
     <GridToolbarContainer>
       <GridToolbarQuickFilter />

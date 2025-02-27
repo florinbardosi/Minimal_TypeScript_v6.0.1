@@ -2,7 +2,7 @@ import type { DialogProps } from '@mui/material/Dialog';
 
 import { useState, useEffect, useCallback } from 'react';
 
-import Stack from '@mui/material/Stack';
+import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import TextField from '@mui/material/TextField';
@@ -66,7 +66,7 @@ export function FileManagerNewFolderDialog({
 
   return (
     <Dialog fullWidth maxWidth="sm" open={open} onClose={onClose} {...other}>
-      <DialogTitle sx={{ p: (theme) => theme.spacing(3, 3, 2, 3) }}> {title} </DialogTitle>
+      <DialogTitle sx={[(theme) => ({ p: theme.spacing(3, 3, 2, 3) })]}>{title}</DialogTitle>
 
       <DialogContent dividers sx={{ pt: 1, pb: 0, border: 'none' }}>
         {(onCreate || onUpdate) && (
@@ -98,11 +98,11 @@ export function FileManagerNewFolderDialog({
         )}
 
         {(onCreate || onUpdate) && (
-          <Stack direction="row" justifyContent="flex-end" flexGrow={1}>
+          <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end' }}>
             <Button variant="soft" onClick={onCreate || onUpdate}>
               {onUpdate ? 'Save' : 'Create'}
             </Button>
-          </Stack>
+          </Box>
         )}
       </DialogActions>
     </Dialog>

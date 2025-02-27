@@ -1,16 +1,15 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { useBoolean } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import Typography from '@mui/material/Typography';
 
 import { paths } from 'src/routes/paths';
 
-import { useBoolean } from 'src/hooks/use-boolean';
-
-import { CONFIG } from 'src/config-global';
+import { CONFIG } from 'src/global-config';
 import { _files, _folders } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
 
@@ -38,19 +37,18 @@ export function OverviewFileView() {
 
   const [files, setFiles] = useState<(File | string)[]>([]);
 
-  const upload = useBoolean();
-
-  const newFolder = useBoolean();
+  const newFilesDialog = useBoolean();
+  const newFolderDialog = useBoolean();
 
   const handleChangeFolderName = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setFolderName(event.target.value);
   }, []);
 
   const handleCreateNewFolder = useCallback(() => {
-    newFolder.onFalse();
+    newFolderDialog.onFalse();
     setFolderName('');
     console.info('CREATE NEW FOLDER');
-  }, [newFolder]);
+  }, [newFolderDialog]);
 
   const handleDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -59,7 +57,7 @@ export function OverviewFileView() {
     [files]
   );
 
-  const renderStorageOverview = (
+  const renderStorageOverview = () => (
     <FileStorageOverview
       total={GB}
       chart={{ series: 76 }}
@@ -94,15 +92,30 @@ export function OverviewFileView() {
     />
   );
 
+  const renderNewFilesDialog = () => (
+    <FileManagerNewFolderDialog open={newFilesDialog.value} onClose={newFilesDialog.onFalse} />
+  );
+
+  const renderNewFolderDialog = () => (
+    <FileManagerNewFolderDialog
+      open={newFolderDialog.value}
+      onClose={newFolderDialog.onFalse}
+      title="New Folder"
+      folderName={folderName}
+      onChangeFolderName={handleChangeFolderName}
+      onCreate={handleCreateNewFolder}
+    />
+  );
+
   return (
     <>
       <DashboardContent maxWidth="xl">
         <Grid container spacing={3}>
-          <Grid xs={12} sx={{ display: { xs: 'block', sm: 'none' } }}>
-            {renderStorageOverview}
+          <Grid sx={{ display: { xs: 'block', sm: 'none' } }} size={12}>
+            {renderStorageOverview()}
           </Grid>
 
-          <Grid xs={12} sm={6} md={4}>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
             <FileWidget
               title="Dropbox"
               value={GB / 10}
@@ -111,7 +124,7 @@ export function OverviewFileView() {
             />
           </Grid>
 
-          <Grid xs={12} sm={6} md={4}>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
             <FileWidget
               title="Drive"
               value={GB / 5}
@@ -120,7 +133,7 @@ export function OverviewFileView() {
             />
           </Grid>
 
-          <Grid xs={12} sm={6} md={4}>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
             <FileWidget
               title="OneDrive"
               value={GB / 2}
@@ -129,7 +142,7 @@ export function OverviewFileView() {
             />
           </Grid>
 
-          <Grid xs={12} md={6} lg={8}>
+          <Grid size={{ xs: 12, md: 6, lg: 8 }}>
             <FileDataActivity
               title="Data activity"
               chart={{
@@ -172,7 +185,7 @@ export function OverviewFileView() {
               <FileManagerPanel
                 title="Folders"
                 link={paths.dashboard.fileManager}
-                onOpen={newFolder.onTrue}
+                onOpen={newFolderDialog.onTrue}
               />
 
               <Scrollbar sx={{ mb: 3, minHeight: 186 }}>
@@ -182,7 +195,12 @@ export function OverviewFileView() {
                       key={folder.id}
                       folder={folder}
                       onDelete={() => console.info('DELETE', folder.id)}
-                      sx={{ ...(_folders.length > 3 && { width: 240, flexShrink: 0 }) }}
+                      sx={{
+                        ...(_folders.length > 3 && {
+                          width: 240,
+                          flexShrink: 0,
+                        }),
+                      }}
                     />
                   ))}
                 </Box>
@@ -191,7 +209,7 @@ export function OverviewFileView() {
               <FileManagerPanel
                 title="Recent files"
                 link={paths.dashboard.fileManager}
-                onOpen={upload.onTrue}
+                onOpen={newFilesDialog.onTrue}
               />
 
               <Box sx={{ gap: 2, display: 'flex', flexDirection: 'column' }}>
@@ -206,7 +224,7 @@ export function OverviewFileView() {
             </Box>
           </Grid>
 
-          <Grid xs={12} md={6} lg={4}>
+          <Grid size={{ xs: 12, md: 6, lg: 4 }}>
             <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
               <UploadBox
                 onDrop={handleDrop}
@@ -232,7 +250,7 @@ export function OverviewFileView() {
                 }}
               />
 
-              <Box sx={{ display: { xs: 'none', sm: 'block' } }}>{renderStorageOverview}</Box>
+              <Box sx={{ display: { xs: 'none', sm: 'block' } }}>{renderStorageOverview()}</Box>
 
               <FileUpgrade />
             </Box>
@@ -240,16 +258,8 @@ export function OverviewFileView() {
         </Grid>
       </DashboardContent>
 
-      <FileManagerNewFolderDialog open={upload.value} onClose={upload.onFalse} />
-
-      <FileManagerNewFolderDialog
-        open={newFolder.value}
-        onClose={newFolder.onFalse}
-        title="New Folder"
-        folderName={folderName}
-        onChangeFolderName={handleChangeFolderName}
-        onCreate={handleCreateNewFolder}
-      />
+      {renderNewFilesDialog()}
+      {renderNewFolderDialog()}
     </>
   );
 }

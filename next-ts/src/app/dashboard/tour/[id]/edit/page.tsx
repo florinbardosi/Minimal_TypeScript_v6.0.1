@@ -1,11 +1,13 @@
+import type { Metadata } from 'next';
+
 import { _tours } from 'src/_mock/_tour';
-import { CONFIG } from 'src/config-global';
+import { CONFIG } from 'src/global-config';
 
 import { TourEditView } from 'src/sections/tour/view';
 
 // ----------------------------------------------------------------------
 
-export const metadata = { title: `Tour edit | Dashboard - ${CONFIG.appName}` };
+export const metadata: Metadata = { title: `Tour edit | Dashboard - ${CONFIG.appName}` };
 
 type Props = {
   params: { id: string };
@@ -24,9 +26,9 @@ export default function Page({ params }: Props) {
 /**
  * [1] Default
  * Remove [1] and [2] if not using [2]
+ * Will remove in Next.js v15
  */
 const dynamic = CONFIG.isStaticExport ? 'auto' : 'force-dynamic';
-
 export { dynamic };
 
 /**

@@ -1,3 +1,5 @@
+import type { BadgeProps } from '@mui/material/Badge';
+
 import type { IDateValue } from './common';
 
 // ----------------------------------------------------------------------
@@ -30,7 +32,7 @@ export type IChatParticipant = {
   avatarUrl: string;
   phoneNumber: string;
   lastActivity: IDateValue;
-  status: 'online' | 'offline' | 'alway' | 'busy';
+  status: BadgeProps['variant'];
 };
 
 export type IChatConversation = {
@@ -42,6 +44,6 @@ export type IChatConversation = {
 };
 
 export type IChatConversations = {
-  byId: Record<string, IChatConversation>;
   allIds: string[];
+  byId: Record<string, IChatConversation>;
 };

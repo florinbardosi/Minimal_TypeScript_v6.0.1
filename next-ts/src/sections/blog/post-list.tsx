@@ -1,9 +1,11 @@
 import type { IPostItem } from 'src/types/blog';
 
 import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid2';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import Grid from '@mui/material/Unstable_Grid2';
+
+import { paths } from 'src/routes/paths';
 
 import { Iconify } from 'src/components/iconify';
 
@@ -18,40 +20,61 @@ type Props = {
 };
 
 export function PostList({ posts, loading }: Props) {
-  const renderLoading = (
+  const renderLoading = () => (
     <Box
-      gap={3}
-      display="grid"
-      gridTemplateColumns={{ xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }}
+      sx={{
+        gap: 3,
+        display: 'grid',
+        gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
+      }}
     >
       <PostItemSkeleton />
     </Box>
   );
 
-  const renderList = (
+  const renderList = () => (
     <Grid container spacing={3}>
       {posts.slice(0, 3).map((post, index) => (
         <Grid
           key={post.id}
-          xs={12}
-          sm={6}
-          md={4}
-          lg={index === 0 ? 6 : 3}
           sx={{ display: { xs: 'none', lg: 'block' } }}
+          size={{
+            xs: 12,
+            sm: 6,
+            md: 4,
+            lg: index === 0 ? 6 : 3,
+          }}
         >
-          <PostItemLatest post={post} index={index} />
+          <PostItemLatest post={post} index={index} detailsHref={paths.post.details(post.title)} />
         </Grid>
       ))}
 
       {posts.slice(0, 3).map((post) => (
-        <Grid key={post.id} xs={12} sm={6} md={4} lg={3} sx={{ display: { lg: 'none' } }}>
-          <PostItem post={post} />
+        <Grid
+          key={post.id}
+          sx={{ display: { lg: 'none' } }}
+          size={{
+            xs: 12,
+            sm: 6,
+            md: 4,
+            lg: 3,
+          }}
+        >
+          <PostItem post={post} detailsHref={paths.post.details(post.title)} />
         </Grid>
       ))}
 
       {posts.slice(3, posts.length).map((post) => (
-        <Grid key={post.id} xs={12} sm={6} md={4} lg={3}>
-          <PostItem post={post} />
+        <Grid
+          key={post.id}
+          size={{
+            xs: 12,
+            sm: 6,
+            md: 4,
+            lg: 3,
+          }}
+        >
+          <PostItem post={post} detailsHref={paths.post.details(post.title)} />
         </Grid>
       ))}
     </Grid>
@@ -59,10 +82,10 @@ export function PostList({ posts, loading }: Props) {
 
   return (
     <>
-      {loading ? renderLoading : renderList}
+      {loading ? renderLoading() : renderList()}
 
       {posts.length > 8 && (
-        <Stack alignItems="center" sx={{ mt: 8, mb: { xs: 10, md: 15 } }}>
+        <Stack sx={{ mt: 8, mb: { xs: 10, md: 15 }, alignItems: 'center' }}>
           <Button
             size="large"
             variant="outlined"

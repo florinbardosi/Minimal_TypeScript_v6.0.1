@@ -1,14 +1,13 @@
 import type { IFile } from 'src/types/file';
-import type { TableProps } from 'src/components/table';
+import type { UseTableReturn } from 'src/components/table';
 
+import { useBoolean } from 'minimal-shared/hooks';
 import { useRef, useState, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import Collapse from '@mui/material/Collapse';
-
-import { useBoolean } from 'src/hooks/use-boolean';
 
 import { Iconify } from 'src/components/iconify';
 
@@ -22,7 +21,7 @@ import { FileManagerNewFolderDialog } from './file-manager-new-folder-dialog';
 // ----------------------------------------------------------------------
 
 type Props = {
-  table: TableProps;
+  table: UseTableReturn;
   dataFiltered: IFile[];
   onOpenConfirm: () => void;
   onDeleteItem: (id: string) => void;
@@ -31,20 +30,16 @@ type Props = {
 export function FileManagerGridView({ table, dataFiltered, onDeleteItem, onOpenConfirm }: Props) {
   const { selected, onSelectRow: onSelectItem, onSelectAllRows: onSelectAllItems } = table;
 
-  const share = useBoolean();
-
-  const files = useBoolean();
-
-  const upload = useBoolean();
-
-  const folders = useBoolean();
-
-  const newFolder = useBoolean();
-
   const containerRef = useRef(null);
 
-  const [folderName, setFolderName] = useState('');
+  const shareDialog = useBoolean();
+  const filesCollapse = useBoolean();
+  const foldersCollapse = useBoolean();
 
+  const newFilesDialog = useBoolean();
+  const newFolderDialog = useBoolean();
+
+  const [folderName, setFolderName] = useState('');
   const [inviteEmail, setInviteEmail] = useState('');
 
   const handleChangeInvite = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,142 +50,166 @@ export function FileManagerGridView({ table, dataFiltered, onDeleteItem, onOpenC
     setFolderName(event.target.value);
   }, []);
 
+  const renderShareDialog = () => (
+    <FileManagerShareDialog
+      open={shareDialog.value}
+      inviteEmail={inviteEmail}
+      onChangeInvite={handleChangeInvite}
+      onClose={() => {
+        shareDialog.onFalse();
+        setInviteEmail('');
+      }}
+    />
+  );
+
+  const renderNewFilesDialog = () => (
+    <FileManagerNewFolderDialog open={newFilesDialog.value} onClose={newFilesDialog.onFalse} />
+  );
+
+  const renderNewFolderDialog = () => (
+    <FileManagerNewFolderDialog
+      open={newFolderDialog.value}
+      onClose={newFolderDialog.onFalse}
+      title="New Folder"
+      onCreate={() => {
+        newFolderDialog.onFalse();
+        setFolderName('');
+        console.info('CREATE NEW FOLDER', folderName);
+      }}
+      folderName={folderName}
+      onChangeFolderName={handleChangeFolderName}
+    />
+  );
+
+  const renderFolders = () => (
+    <>
+      <FileManagerPanel
+        title="Folders"
+        subtitle={`${dataFiltered.filter((item) => item.type === 'folder').length} folders`}
+        onOpen={newFolderDialog.onTrue}
+        collapse={foldersCollapse.value}
+        onCollapse={foldersCollapse.onToggle}
+      />
+
+      <Collapse in={!foldersCollapse.value} unmountOnExit>
+        <Box
+          sx={{
+            gap: 3,
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: 'repeat(1, 1fr)',
+              sm: 'repeat(2, 1fr)',
+              md: 'repeat(3, 1fr)',
+              lg: 'repeat(4, 1fr)',
+            },
+          }}
+        >
+          {dataFiltered
+            .filter((i) => i.type === 'folder')
+            .map((folder) => (
+              <FileManagerFolderItem
+                key={folder.id}
+                folder={folder}
+                selected={selected.includes(folder.id)}
+                onSelect={() => onSelectItem(folder.id)}
+                onDelete={() => onDeleteItem(folder.id)}
+              />
+            ))}
+        </Box>
+      </Collapse>
+    </>
+  );
+
+  const renderFiles = () => (
+    <>
+      <FileManagerPanel
+        title="Files"
+        subtitle={`${dataFiltered.filter((item) => item.type !== 'folder').length} files`}
+        onOpen={newFilesDialog.onTrue}
+        collapse={filesCollapse.value}
+        onCollapse={filesCollapse.onToggle}
+      />
+
+      <Collapse in={!filesCollapse.value} unmountOnExit>
+        <Box
+          sx={{
+            gap: 3,
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: 'repeat(1, 1fr)',
+              sm: 'repeat(2, 1fr)',
+              md: 'repeat(3, 1fr)',
+              lg: 'repeat(4, 1fr)',
+            },
+          }}
+        >
+          {dataFiltered
+            .filter((i) => i.type !== 'folder')
+            .map((file) => (
+              <FileManagerFileItem
+                key={file.id}
+                file={file}
+                selected={selected.includes(file.id)}
+                onSelect={() => onSelectItem(file.id)}
+                onDelete={() => onDeleteItem(file.id)}
+              />
+            ))}
+        </Box>
+      </Collapse>
+    </>
+  );
+
+  const renderSelectedActions = () =>
+    !!selected?.length && (
+      <FileManagerActionSelected
+        numSelected={selected.length}
+        rowCount={dataFiltered.length}
+        selected={selected}
+        onSelectAllItems={(checked) =>
+          onSelectAllItems(
+            checked,
+            dataFiltered.map((row) => row.id)
+          )
+        }
+        action={
+          <>
+            <Button
+              size="small"
+              color="error"
+              variant="contained"
+              startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
+              onClick={onOpenConfirm}
+              sx={{ mr: 1 }}
+            >
+              Delete
+            </Button>
+
+            <Button
+              color="primary"
+              size="small"
+              variant="contained"
+              startIcon={<Iconify icon="solar:share-bold" />}
+              onClick={shareDialog.onTrue}
+            >
+              Share
+            </Button>
+          </>
+        }
+      />
+    );
+
   return (
     <>
       <Box ref={containerRef}>
-        <FileManagerPanel
-          title="Folders"
-          subtitle={`${dataFiltered.filter((item) => item.type === 'folder').length} folders`}
-          onOpen={newFolder.onTrue}
-          collapse={folders.value}
-          onCollapse={folders.onToggle}
-        />
-
-        <Collapse in={!folders.value} unmountOnExit>
-          <Box
-            gap={3}
-            display="grid"
-            gridTemplateColumns={{
-              xs: 'repeat(1, 1fr)',
-              sm: 'repeat(2, 1fr)',
-              md: 'repeat(3, 1fr)',
-              lg: 'repeat(4, 1fr)',
-            }}
-          >
-            {dataFiltered
-              .filter((i) => i.type === 'folder')
-              .map((folder) => (
-                <FileManagerFolderItem
-                  key={folder.id}
-                  folder={folder}
-                  selected={selected.includes(folder.id)}
-                  onSelect={() => onSelectItem(folder.id)}
-                  onDelete={() => onDeleteItem(folder.id)}
-                  sx={{ maxWidth: 'auto' }}
-                />
-              ))}
-          </Box>
-        </Collapse>
-
+        {renderFolders()}
         <Divider sx={{ my: 5, borderStyle: 'dashed' }} />
-
-        <FileManagerPanel
-          title="Files"
-          subtitle={`${dataFiltered.filter((item) => item.type !== 'folder').length} files`}
-          onOpen={upload.onTrue}
-          collapse={files.value}
-          onCollapse={files.onToggle}
-        />
-
-        <Collapse in={!files.value} unmountOnExit>
-          <Box
-            display="grid"
-            gridTemplateColumns={{
-              xs: 'repeat(1, 1fr)',
-              sm: 'repeat(2, 1fr)',
-              md: 'repeat(3, 1fr)',
-              lg: 'repeat(4, 1fr)',
-            }}
-            gap={3}
-          >
-            {dataFiltered
-              .filter((i) => i.type !== 'folder')
-              .map((file) => (
-                <FileManagerFileItem
-                  key={file.id}
-                  file={file}
-                  selected={selected.includes(file.id)}
-                  onSelect={() => onSelectItem(file.id)}
-                  onDelete={() => onDeleteItem(file.id)}
-                  sx={{ maxWidth: 'auto' }}
-                />
-              ))}
-          </Box>
-        </Collapse>
-
-        {!!selected?.length && (
-          <FileManagerActionSelected
-            numSelected={selected.length}
-            rowCount={dataFiltered.length}
-            selected={selected}
-            onSelectAllItems={(checked) =>
-              onSelectAllItems(
-                checked,
-                dataFiltered.map((row) => row.id)
-              )
-            }
-            action={
-              <>
-                <Button
-                  size="small"
-                  color="error"
-                  variant="contained"
-                  startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
-                  onClick={onOpenConfirm}
-                  sx={{ mr: 1 }}
-                >
-                  Delete
-                </Button>
-
-                <Button
-                  color="primary"
-                  size="small"
-                  variant="contained"
-                  startIcon={<Iconify icon="solar:share-bold" />}
-                  onClick={share.onTrue}
-                >
-                  Share
-                </Button>
-              </>
-            }
-          />
-        )}
+        {renderFiles()}
+        {renderSelectedActions()}
       </Box>
 
-      <FileManagerShareDialog
-        open={share.value}
-        inviteEmail={inviteEmail}
-        onChangeInvite={handleChangeInvite}
-        onClose={() => {
-          share.onFalse();
-          setInviteEmail('');
-        }}
-      />
-
-      <FileManagerNewFolderDialog open={upload.value} onClose={upload.onFalse} />
-
-      <FileManagerNewFolderDialog
-        open={newFolder.value}
-        onClose={newFolder.onFalse}
-        title="New Folder"
-        onCreate={() => {
-          newFolder.onFalse();
-          setFolderName('');
-          console.info('CREATE NEW FOLDER', folderName);
-        }}
-        folderName={folderName}
-        onChangeFolderName={handleChangeFolderName}
-      />
+      {renderShareDialog()}
+      {renderNewFilesDialog()}
+      {renderNewFolderDialog()}
     </>
   );
 }

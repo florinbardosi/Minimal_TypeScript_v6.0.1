@@ -2,7 +2,6 @@ import type { ITourItem } from 'src/types/tour';
 
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
-import Stack from '@mui/material/Stack';
 import Divider from '@mui/material/Divider';
 import Checkbox from '@mui/material/Checkbox';
 import IconButton from '@mui/material/IconButton';
@@ -34,28 +33,32 @@ export function TourDetailsContent({ tour }: Props) {
     onClose: handleCloseLightbox,
   } = useLightBox(slides);
 
-  const renderGallery = (
+  const renderGallery = () => (
     <>
       <Box
-        gap={1}
-        display="grid"
-        gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
-        sx={{ mb: { xs: 3, md: 5 } }}
+        sx={{
+          gap: 1,
+          display: 'grid',
+          mb: { xs: 3, md: 5 },
+          gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
+        }}
       >
         <Image
           alt={slides[0].src}
           src={slides[0].src}
           ratio="1/1"
           onClick={() => handleOpenLightbox(slides[0].src)}
-          sx={{
-            borderRadius: 2,
-            cursor: 'pointer',
-            transition: (theme) => theme.transitions.create('opacity'),
-            '&:hover': { opacity: 0.8 },
-          }}
+          sx={[
+            (theme) => ({
+              borderRadius: 2,
+              cursor: 'pointer',
+              transition: theme.transitions.create('opacity'),
+              '&:hover': { opacity: 0.8 },
+            }),
+          ]}
         />
 
-        <Box gap={1} display="grid" gridTemplateColumns="repeat(2, 1fr)">
+        <Box sx={{ gap: 1, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
           {slides.slice(1, 5).map((slide) => (
             <Image
               key={slide.src}
@@ -63,12 +66,14 @@ export function TourDetailsContent({ tour }: Props) {
               src={slide.src}
               ratio="1/1"
               onClick={() => handleOpenLightbox(slide.src)}
-              sx={{
-                borderRadius: 2,
-                cursor: 'pointer',
-                transition: (theme) => theme.transitions.create('opacity'),
-                '&:hover': { opacity: 0.8 },
-              }}
+              sx={[
+                (theme) => ({
+                  borderRadius: 2,
+                  cursor: 'pointer',
+                  transition: theme.transitions.create('opacity'),
+                  '&:hover': { opacity: 0.8 },
+                }),
+              ]}
             />
           ))}
         </Box>
@@ -83,9 +88,9 @@ export function TourDetailsContent({ tour }: Props) {
     </>
   );
 
-  const renderHead = (
+  const renderHead = () => (
     <>
-      <Stack direction="row" sx={{ mb: 3 }}>
+      <Box sx={{ mb: 3, display: 'flex' }}>
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
           {tour?.name}
         </Typography>
@@ -101,38 +106,70 @@ export function TourDetailsContent({ tour }: Props) {
           checkedIcon={<Iconify icon="solar:heart-bold" />}
           inputProps={{ id: 'favorite-checkbox', 'aria-label': 'Favorite checkbox' }}
         />
-      </Stack>
+      </Box>
 
-      <Stack spacing={3} direction="row" flexWrap="wrap" alignItems="center">
-        <Stack direction="row" alignItems="center" spacing={0.5} sx={{ typography: 'body2' }}>
+      <Box
+        sx={{
+          gap: 3,
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+        }}
+      >
+        <Box
+          sx={{
+            gap: 0.5,
+            display: 'flex',
+            alignItems: 'center',
+            typography: 'body2',
+          }}
+        >
           <Iconify icon="eva:star-fill" sx={{ color: 'warning.main' }} />
           <Box component="span" sx={{ typography: 'subtitle2' }}>
             {tour?.ratingNumber}
           </Box>
-          <Link sx={{ color: 'text.secondary' }}>(234 reviews)</Link>
-        </Stack>
 
-        <Stack direction="row" alignItems="center" spacing={0.5} sx={{ typography: 'body2' }}>
+          <Link sx={{ color: 'text.secondary' }}>(234 reviews)</Link>
+        </Box>
+
+        <Box
+          sx={{
+            gap: 0.5,
+            display: 'flex',
+            alignItems: 'center',
+            typography: 'body2',
+          }}
+        >
           <Iconify icon="mingcute:location-fill" sx={{ color: 'error.main' }} />
           {tour?.destination}
-        </Stack>
+        </Box>
 
-        <Stack direction="row" alignItems="center" spacing={0.5} sx={{ typography: 'subtitle2' }}>
+        <Box
+          sx={{
+            gap: 0.5,
+            display: 'flex',
+            alignItems: 'center',
+            typography: 'subtitle2',
+          }}
+        >
           <Iconify icon="solar:flag-bold" sx={{ color: 'info.main' }} />
           <Box component="span" sx={{ typography: 'body2', color: 'text.secondary' }}>
             Guide by
           </Box>
+
           {tour?.tourGuides.map((tourGuide) => tourGuide.name).join(', ')}
-        </Stack>
-      </Stack>
+        </Box>
+      </Box>
     </>
   );
 
-  const renderOverview = (
+  const renderOverview = () => (
     <Box
-      gap={3}
-      display="grid"
-      gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
+      sx={{
+        gap: 3,
+        display: 'grid',
+        gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
+      }}
     >
       {[
         {
@@ -156,42 +193,50 @@ export function TourDetailsContent({ tour }: Props) {
           icon: <Iconify icon="solar:phone-bold" />,
         },
       ].map((item) => (
-        <Stack key={item.label} spacing={1.5} direction="row">
+        <Box key={item.label} sx={{ gap: 1.5, display: 'flex' }}>
           {item.icon}
           <ListItemText
             primary={item.label}
             secondary={item.value}
-            primaryTypographyProps={{ mb: 0.5, typography: 'body2', color: 'text.secondary' }}
-            secondaryTypographyProps={{
-              component: 'span',
-              color: 'text.primary',
-              typography: 'subtitle2',
+            slotProps={{
+              primary: {
+                sx: { typography: 'body2', color: 'text.secondary' },
+              },
+              secondary: {
+                sx: { mt: 0.5, color: 'text.primary', typography: 'subtitle2' },
+              },
             }}
           />
-        </Stack>
+        </Box>
       ))}
     </Box>
   );
 
-  const renderContent = (
+  const renderContent = () => (
     <>
       <Markdown children={tour?.content} />
 
-      <Stack spacing={2}>
-        <Typography variant="h6"> Services</Typography>
+      <Box>
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          Services
+        </Typography>
 
         <Box
-          rowGap={2}
-          display="grid"
-          gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
+          sx={{
+            rowGap: 2,
+            display: 'grid',
+            gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
+          }}
         >
           {TOUR_SERVICE_OPTIONS.map((service) => (
-            <Stack
+            <Box
               key={service.label}
-              spacing={1}
-              direction="row"
-              alignItems="center"
-              sx={{ ...(tour?.services.includes(service.label) && { color: 'text.disabled' }) }}
+              sx={{
+                gap: 1,
+                display: 'flex',
+                alignItems: 'center',
+                ...(tour?.services.includes(service.label) && { color: 'text.disabled' }),
+              }}
             >
               <Iconify
                 icon="eva:checkmark-circle-2-outline"
@@ -201,28 +246,28 @@ export function TourDetailsContent({ tour }: Props) {
                 }}
               />
               {service.label}
-            </Stack>
+            </Box>
           ))}
         </Box>
-      </Stack>
+      </Box>
     </>
   );
 
   return (
     <>
-      {renderGallery}
+      {renderGallery()}
 
-      <Stack sx={{ maxWidth: 720, mx: 'auto' }}>
-        {renderHead}
+      <Box sx={{ mx: 'auto', maxWidth: 720 }}>
+        {renderHead()}
 
         <Divider sx={{ borderStyle: 'dashed', my: 5 }} />
 
-        {renderOverview}
+        {renderOverview()}
 
         <Divider sx={{ borderStyle: 'dashed', mt: 5, mb: 2 }} />
 
-        {renderContent}
-      </Stack>
+        {renderContent()}
+      </Box>
     </>
   );
 }

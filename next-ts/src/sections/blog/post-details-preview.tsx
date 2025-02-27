@@ -1,6 +1,6 @@
 import type { FileUploadType } from 'src/components/upload';
 
-import Stack from '@mui/material/Stack';
+import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import Divider from '@mui/material/Divider';
@@ -82,10 +82,10 @@ export function PostDetailsPreview({
         <Scrollbar>
           {(hasHero || previewUrl) && <PostDetailsHero title={title} coverUrl={previewUrl} />}
           <Container sx={{ mt: 5, mb: 10 }}>
-            <Stack sx={{ mx: 'auto', maxWidth: 720 }}>
+            <Box sx={{ mx: 'auto', maxWidth: 720 }}>
               <Typography variant="h6">{description}</Typography>
               <Markdown>{content}</Markdown>
-            </Stack>
+            </Box>
           </Container>
         </Scrollbar>
       ) : (

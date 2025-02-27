@@ -1,19 +1,19 @@
-import { useState, useEffect, useCallback, cloneElement } from 'react';
+import { useEffect, cloneElement } from 'react';
+import { useBoolean } from 'minimal-shared/hooks';
+import { mergeClasses } from 'minimal-shared/utils';
 
-import Stack from '@mui/material/Stack';
-import Drawer from '@mui/material/Drawer';
 import SvgIcon from '@mui/material/SvgIcon';
 import { useTheme } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
+import Drawer, { drawerClasses } from '@mui/material/Drawer';
 
 import { usePathname } from 'src/routes/hooks';
 
 import { Scrollbar } from 'src/components/scrollbar';
 
 import { NavList } from './nav-list';
-import { NavUl } from '../../nav-section';
-import { megaMenuClasses } from '../classes';
-import { megaMenuCssVars } from '../css-vars';
+import { Nav, NavUl } from '../components';
+import { megaMenuVars, megaMenuClasses } from '../styles';
 
 import type { MegaMenuProps } from '../types';
 
@@ -24,6 +24,7 @@ export function MegaMenuMobile({
   data,
   slots,
   render,
+  className,
   slotProps,
   cssVars: overridesVars,
   ...other
@@ -32,32 +33,22 @@ export function MegaMenuMobile({
 
   const pathname = usePathname();
 
-  const [openDrawer, setOpenDrawer] = useState(false);
+  const drawerRootOpen = useBoolean();
 
-  const cssVars = {
-    ...megaMenuCssVars.mobile(theme),
-    ...overridesVars,
-  };
-
-  const handleOpenDrawer = useCallback(() => {
-    setOpenDrawer((prev) => !prev);
-  }, []);
-
-  const handleCloseDrawer = useCallback(() => {
-    setOpenDrawer(false);
-  }, []);
+  const cssVars = { ...megaMenuVars(theme, 'mobile'), ...overridesVars };
 
   useEffect(() => {
-    if (openDrawer) {
-      handleCloseDrawer();
+    // If the pathname changes, close the drawer
+    if (drawerRootOpen.value) {
+      drawerRootOpen.onFalse();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   const renderButton = slots?.button ? (
-    cloneElement(slots.button, { onClick: handleOpenDrawer })
+    cloneElement(slots.button, { onClick: drawerRootOpen.onTrue })
   ) : (
-    <IconButton onClick={handleOpenDrawer}>
+    <IconButton onClick={drawerRootOpen.onTrue}>
       <SvgIcon>
         <path
           opacity="0.32"
@@ -81,21 +72,30 @@ export function MegaMenuMobile({
       {renderButton}
 
       <Drawer
-        open={openDrawer}
-        onClose={handleCloseDrawer}
-        PaperProps={{
-          sx: {
+        open={drawerRootOpen.value}
+        onClose={drawerRootOpen.onFalse}
+        sx={{
+          ...cssVars,
+          [`& .${drawerClasses.paper}`]: {
             display: 'flex',
             flexDirection: 'column',
             width: 'var(--nav-width)',
           },
         }}
-        sx={{ ...cssVars }}
       >
         {slots?.topArea}
 
         <Scrollbar fillContent>
-          <Stack component="nav" className={megaMenuClasses.mobile.root} sx={sx} {...other}>
+          <Nav
+            className={mergeClasses([megaMenuClasses.mobile, className])}
+            sx={[
+              () => ({
+                /* Put styles */
+              }),
+              ...(Array.isArray(sx) ? sx : [sx]),
+            ]}
+            {...other}
+          >
             <NavUl sx={{ gap: 'var(--nav-item-gap)' }}>
               {data.map((list) => (
                 <NavList
@@ -104,10 +104,11 @@ export function MegaMenuMobile({
                   render={render}
                   cssVars={cssVars}
                   slotProps={slotProps}
+                  onCloseDrawerRoot={drawerRootOpen.onFalse}
                 />
               ))}
             </NavUl>
-          </Stack>
+          </Nav>
         </Scrollbar>
 
         {slots?.bottomArea}

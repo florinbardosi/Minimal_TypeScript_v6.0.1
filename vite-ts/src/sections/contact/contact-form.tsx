@@ -14,8 +14,14 @@ export function ContactForm({ sx, ...other }: BoxProps) {
         Feel free to contact us. <br />
         We&apos;ll be glad to hear from you buddy.
       </Typography>
-
-      <Box gap={3} display="flex" flexDirection="column" sx={{ my: 5 }}>
+      <Box
+        sx={{
+          my: 5,
+          gap: 3,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
         <TextField fullWidth label="Name" />
         <TextField fullWidth label="Email" />
         <TextField fullWidth label="Subject" />

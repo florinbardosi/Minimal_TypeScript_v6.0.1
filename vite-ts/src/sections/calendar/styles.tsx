@@ -1,10 +1,10 @@
-import { styled } from '@mui/material/styles';
+import { varAlpha } from 'minimal-shared/utils';
 
-import { varAlpha } from 'src/theme/styles';
+import { styled } from '@mui/material/styles';
 
 // ----------------------------------------------------------------------
 
-export const StyledCalendar = styled('div')(({ theme }) => ({
+export const CalendarRoot = styled('div')(({ theme }) => ({
   width: 'calc(100% + 2px)',
   marginLeft: -1,
   marginBottom: -1,
@@ -78,7 +78,7 @@ export const StyledCalendar = styled('div')(({ theme }) => ({
   '& .fc .fc-popover': {
     border: 0,
     overflow: 'hidden',
-    boxShadow: theme.customShadows.dropdown,
+    boxShadow: theme.vars.customShadows.dropdown,
     borderRadius: theme.shape.borderRadius * 1.5,
     backgroundColor: theme.vars.palette.background.paper,
   },

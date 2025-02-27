@@ -1,20 +1,33 @@
+import type { Theme, SxProps } from '@mui/material/styles';
+
 import { useRef, useState, useEffect } from 'react';
 
-import { paths } from 'src/routes/paths';
+import Box from '@mui/material/Box';
 
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
-
+import { ComponentLayout } from '../../layout';
 import { ProgressLinear } from './progress-linear';
-import { ComponentHero } from '../../component-hero';
 import { ProgressCircular } from './progress-circular';
-import { ScrollToViewTemplate } from '../../component-template';
+
+// ----------------------------------------------------------------------
+
+const circularBoxStyles: SxProps<Theme> = {
+  gap: 5,
+  display: 'flex',
+  flexDirection: 'column',
+};
+
+const linearBoxStyles: SxProps<Theme> = {
+  rowGap: 5,
+  columnGap: 3,
+  display: 'grid',
+  gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
+};
 
 // ----------------------------------------------------------------------
 
 export function ProgressView() {
-  const [progress, setProgress] = useState(0);
-
   const [buffer, setBuffer] = useState(10);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -58,22 +71,32 @@ export function ProgressView() {
     };
   }, []);
 
-  const DEMO = [
-    { name: 'Circular', component: <ProgressCircular progress={progress} /> },
-    { name: 'Linear', component: <ProgressLinear progress={progress} buffer={buffer} /> },
+  const DEMO_COMPONENTS = [
+    {
+      name: 'Circular',
+      component: (
+        <Box sx={circularBoxStyles}>
+          <ProgressCircular progress={progress} />
+        </Box>
+      ),
+    },
+    {
+      name: 'Linear',
+      component: (
+        <Box sx={linearBoxStyles}>
+          <ProgressLinear progress={progress} buffer={buffer} />
+        </Box>
+      ),
+    },
   ];
 
   return (
-    <>
-      <ComponentHero>
-        <CustomBreadcrumbs
-          heading="Progress"
-          links={[{ name: 'Components', href: paths.components }, { name: 'Progress' }]}
-          moreLink={['https://mui.com/components/progress']}
-        />
-      </ComponentHero>
-
-      <ScrollToViewTemplate data={DEMO} />
-    </>
+    <ComponentLayout
+      sectionData={DEMO_COMPONENTS}
+      heroProps={{
+        heading: 'Progress',
+        moreLinks: ['https://mui.com/material-ui/react-progress/'],
+      }}
+    />
   );
 }

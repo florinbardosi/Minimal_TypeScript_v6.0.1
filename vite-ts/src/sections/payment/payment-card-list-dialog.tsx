@@ -2,6 +2,7 @@ import type { IPaymentCard } from 'src/types/common';
 
 import { useState, useCallback } from 'react';
 
+import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -18,8 +19,8 @@ import { PaymentCardItem } from './payment-card-item';
 
 type Props = {
   open: boolean;
-  onClose: () => void;
   list: IPaymentCard[];
+  onClose: () => void;
   selected: (selectedId: string) => boolean;
   onSelect: (card: IPaymentCard | null) => void;
 };
@@ -27,7 +28,10 @@ type Props = {
 export function PaymentCardListDialog({ open, list, onClose, selected, onSelect }: Props) {
   const [searchCard, setSearchCard] = useState('');
 
-  const dataFiltered = applyFilter({ inputData: list, query: searchCard });
+  const dataFiltered = applyFilter({
+    inputData: list,
+    query: searchCard,
+  });
 
   const notFound = !dataFiltered.length && !!searchCard;
 
@@ -44,19 +48,21 @@ export function PaymentCardListDialog({ open, list, onClose, selected, onSelect 
     [onClose, onSelect]
   );
 
-  const renderList = (
+  const renderList = () => (
     <Stack spacing={2.5} sx={{ p: 3 }}>
-      {list.map((card) => (
+      {dataFiltered.map((card) => (
         <PaymentCardItem
           key={card.id}
           card={card}
           onClick={() => handleSelectCard(card)}
-          sx={{
-            cursor: 'pointer',
-            ...(selected(card.id) && {
-              boxShadow: (theme) => `0 0 0 2px ${theme.vars.palette.text.primary}`,
+          sx={[
+            (theme) => ({
+              cursor: 'pointer',
+              ...(selected(card.id) && {
+                boxShadow: `0 0 0 2px ${theme.vars.palette.text.primary}`,
+              }),
             }),
-          }}
+          ]}
         />
       ))}
     </Stack>
@@ -64,13 +70,17 @@ export function PaymentCardListDialog({ open, list, onClose, selected, onSelect 
 
   return (
     <Dialog fullWidth maxWidth="xs" open={open} onClose={onClose}>
-      <Stack
-        direction="row"
-        alignItems="center"
-        justifyContent="space-between"
-        sx={{ p: 3, pr: 1.5 }}
+      <Box
+        sx={{
+          p: 3,
+          pr: 1.5,
+          display: 'flex',
+          alignItems: 'center',
+        }}
       >
-        <Typography variant="h6"> Cards </Typography>
+        <Typography variant="h6" sx={{ flexGrow: 1 }}>
+          Cards
+        </Typography>
 
         <Button
           size="small"
@@ -79,24 +89,30 @@ export function PaymentCardListDialog({ open, list, onClose, selected, onSelect 
         >
           New
         </Button>
-      </Stack>
+      </Box>
 
       <Stack sx={{ px: 3 }}>
         <TextField
           value={searchCard}
           onChange={handleSearchAddress}
           placeholder="Search..."
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                </InputAdornment>
+              ),
+            },
           }}
         />
       </Stack>
 
-      {notFound ? <SearchNotFound query={searchCard} sx={{ px: 3, pt: 5, pb: 10 }} /> : renderList}
+      {notFound ? (
+        <SearchNotFound query={searchCard} sx={{ px: 3, pt: 5, pb: 10 }} />
+      ) : (
+        renderList()
+      )}
     </Dialog>
   );
 }
@@ -109,11 +125,9 @@ type ApplyFilterProps = {
 };
 
 function applyFilter({ inputData, query }: ApplyFilterProps) {
-  if (query) {
-    return inputData.filter(
-      (card) => card.cardNumber.toLowerCase().indexOf(query.toLowerCase()) !== -1
-    );
-  }
+  if (!query) return inputData;
 
-  return inputData;
+  return inputData.filter(({ cardNumber }) =>
+    [cardNumber].some((field) => field?.toLowerCase().includes(query.toLowerCase()))
+  );
 }

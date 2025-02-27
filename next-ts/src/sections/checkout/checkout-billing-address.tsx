@@ -1,8 +1,10 @@
-import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import Grid from '@mui/material/Unstable_Grid2';
+import type { IAddressItem } from 'src/types/common';
 
-import { useBoolean } from 'src/hooks/use-boolean';
+import { useBoolean } from 'minimal-shared/hooks';
+
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid2';
+import Button from '@mui/material/Button';
 
 import { _addressBooks } from 'src/_mock';
 
@@ -15,20 +17,20 @@ import { AddressItem, AddressNewForm } from '../address';
 // ----------------------------------------------------------------------
 
 export function CheckoutBillingAddress() {
-  const checkout = useCheckoutContext();
+  const { onChangeStep, onCreateBillingAddress, state: checkoutState } = useCheckoutContext();
 
   const addressForm = useBoolean();
 
   return (
     <>
       <Grid container spacing={3}>
-        <Grid xs={12} md={8}>
+        <Grid size={{ xs: 12, md: 8 }}>
           {_addressBooks.slice(0, 4).map((address) => (
             <AddressItem
               key={address.id}
               address={address}
               action={
-                <Stack flexDirection="row" flexWrap="wrap" flexShrink={0}>
+                <Box sx={{ flexShrink: 0, display: 'flex', flexWrap: 'wrap' }}>
                   {!address.primary && (
                     <Button size="small" color="error" sx={{ mr: 1 }}>
                       Delete
@@ -37,26 +39,31 @@ export function CheckoutBillingAddress() {
                   <Button
                     variant="outlined"
                     size="small"
-                    onClick={() => checkout.onCreateBilling(address)}
+                    onClick={() => {
+                      onChangeStep('next');
+                      onCreateBillingAddress(address);
+                    }}
                   >
                     Deliver to this address
                   </Button>
-                </Stack>
+                </Box>
               }
-              sx={{
-                p: 3,
-                mb: 3,
-                borderRadius: 2,
-                boxShadow: (theme) => theme.customShadows.card,
-              }}
+              sx={[
+                (theme) => ({
+                  p: 3,
+                  mb: 3,
+                  borderRadius: 2,
+                  boxShadow: theme.vars.customShadows.card,
+                }),
+              ]}
             />
           ))}
 
-          <Stack direction="row" justifyContent="space-between">
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
             <Button
               size="small"
               color="inherit"
-              onClick={checkout.onBackStep}
+              onClick={() => onChangeStep('back')}
               startIcon={<Iconify icon="eva:arrow-ios-back-fill" />}
             >
               Back
@@ -70,22 +77,21 @@ export function CheckoutBillingAddress() {
             >
               New address
             </Button>
-          </Stack>
+          </Box>
         </Grid>
 
-        <Grid xs={12} md={4}>
-          <CheckoutSummary
-            total={checkout.total}
-            subtotal={checkout.subtotal}
-            discount={checkout.discount}
-          />
+        <Grid size={{ xs: 12, md: 4 }}>
+          <CheckoutSummary checkoutState={checkoutState} />
         </Grid>
       </Grid>
 
       <AddressNewForm
         open={addressForm.value}
         onClose={addressForm.onFalse}
-        onCreate={checkout.onCreateBilling}
+        onCreate={(address: IAddressItem) => {
+          onChangeStep('next');
+          onCreateBillingAddress(address);
+        }}
       />
     </>
   );

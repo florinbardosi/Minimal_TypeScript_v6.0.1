@@ -1,6 +1,6 @@
 import { today } from 'src/utils/format-time';
 
-import { CONFIG } from 'src/config-global';
+import { CONFIG } from 'src/global-config';
 
 import { _mock } from './_mock';
 
@@ -35,14 +35,14 @@ export const _appInstalled = ['Germany', 'England', 'France', 'Korean', 'USA'].m
   })
 );
 
-export const _appAuthors = [...Array(3)].map((_, index) => ({
+export const _appAuthors = Array.from({ length: 3 }, (_, index) => ({
   id: _mock.id(index),
   name: _mock.fullName(index),
   avatarUrl: _mock.image.avatar(index),
   totalFavorites: _mock.number.nativeL(index),
 }));
 
-export const _appInvoices = [...Array(5)].map((_, index) => {
+export const _appInvoices = Array.from({ length: 5 }, (_, index) => {
   const category = ['Android', 'Mac', 'Windows', 'Android', 'Mac'][index];
 
   const status = ['paid', 'out of date', 'progress', 'paid', 'paid'][index];
@@ -56,7 +56,7 @@ export const _appInvoices = [...Array(5)].map((_, index) => {
   };
 });
 
-export const _appFeatured = [...Array(3)].map((_, index) => ({
+export const _appFeatured = Array.from({ length: 3 }, (_, index) => ({
   id: _mock.id(index + 3),
   title: _mock.postTitle(index + 3),
   description: _mock.sentence(index + 3),
@@ -66,12 +66,12 @@ export const _appFeatured = [...Array(3)].map((_, index) => ({
 // ANALYTIC
 // ----------------------------------------------------------------------
 
-export const _analyticTasks = [...Array(5)].map((_, index) => ({
+export const _analyticTasks = Array.from({ length: 5 }, (_, index) => ({
   id: _mock.id(index),
   name: _mock.taskNames(index),
 }));
 
-export const _analyticPosts = [...Array(5)].map((_, index) => ({
+export const _analyticPosts = Array.from({ length: 5 }, (_, index) => ({
   id: _mock.id(index),
   postedAt: _mock.time(index),
   title: _mock.postTitle(index),
@@ -79,7 +79,7 @@ export const _analyticPosts = [...Array(5)].map((_, index) => ({
   description: _mock.sentence(index),
 }));
 
-export const _analyticOrderTimeline = [...Array(5)].map((_, index) => {
+export const _analyticOrderTimeline = Array.from({ length: 5 }, (_, index) => {
   const title = [
     '1983, orders, $4220',
     '12 Invoices have been paid',
@@ -130,7 +130,7 @@ export const _ecommerceSalesOverview = ['Total profit', 'Total income', 'Total e
   })
 );
 
-export const _ecommerceBestSalesman = [...Array(5)].map((_, index) => {
+export const _ecommerceBestSalesman = Array.from({ length: 5 }, (_, index) => {
   const category = ['CAP', 'Branded shoes', 'Headphone', 'Cell phone', 'Earings'][index];
 
   return {
@@ -145,7 +145,7 @@ export const _ecommerceBestSalesman = [...Array(5)].map((_, index) => {
   };
 });
 
-export const _ecommerceLatestProducts = [...Array(5)].map((_, index) => {
+export const _ecommerceLatestProducts = Array.from({ length: 5 }, (_, index) => {
   const colors = (index === 0 && ['#2EC4B6', '#E71D36', '#FF9F1C', '#011627']) ||
     (index === 1 && ['#92140C', '#FFCF99']) ||
     (index === 2 && ['#0CECDD', '#FFF338', '#FF67E7', '#C400FF', '#52006A', '#046582']) ||
@@ -161,7 +161,7 @@ export const _ecommerceLatestProducts = [...Array(5)].map((_, index) => {
   };
 });
 
-export const _ecommerceNewProducts = [...Array(4)].map((_, index) => ({
+export const _ecommerceNewProducts = Array.from({ length: 4 }, (_, index) => ({
   id: _mock.id(index),
   name: _mock.productName(index),
   coverUrl: _mock.image.product(index),
@@ -170,7 +170,7 @@ export const _ecommerceNewProducts = [...Array(4)].map((_, index) => ({
 // BANKING
 // ----------------------------------------------------------------------
 
-export const _bankingContacts = [...Array(12)].map((_, index) => ({
+export const _bankingContacts = Array.from({ length: 12 }, (_, index) => ({
   id: _mock.id(index),
   name: _mock.fullName(index),
   email: _mock.email(index),
@@ -265,7 +265,7 @@ export const _bankingRecentTransitions = [
 // BOOKING
 // ----------------------------------------------------------------------
 
-export const _bookings = [...Array(5)].map((_, index) => {
+export const _bookings = Array.from({ length: 5 }, (_, index) => {
   const status = ['Paid', 'Paid', 'Pending', 'Cancelled', 'Paid'][index];
 
   const customer = {
@@ -274,7 +274,7 @@ export const _bookings = [...Array(5)].map((_, index) => {
     phoneNumber: _mock.phoneNumber(index),
   };
 
-  const destination = [...Array(5)].map((__, _index) => ({
+  const destination = Array.from({ length: 5 }, (__, _index) => ({
     name: _mock.tourName(_index + 1),
     coverUrl: _mock.image.travel(_index + 1),
   }))[index];
@@ -289,13 +289,13 @@ export const _bookings = [...Array(5)].map((_, index) => {
   };
 });
 
-export const _bookingsOverview = [...Array(3)].map((_, index) => ({
+export const _bookingsOverview = Array.from({ length: 3 }, (_, index) => ({
   status: ['Pending', 'Canceled', 'Sold'][index],
   quantity: _mock.number.nativeL(index),
   value: _mock.number.percent(index + 5),
 }));
 
-export const _bookingReview = [...Array(5)].map((_, index) => ({
+export const _bookingReview = Array.from({ length: 5 }, (_, index) => ({
   id: _mock.id(index),
   name: _mock.fullName(index),
   postedAt: _mock.time(index),
@@ -305,7 +305,7 @@ export const _bookingReview = [...Array(5)].map((_, index) => ({
   tags: ['Great sevice', 'Recommended', 'Best price'],
 }));
 
-export const _bookingNew = [...Array(8)].map((_, index) => ({
+export const _bookingNew = Array.from({ length: 8 }, (_, index) => ({
   guests: '3-5',
   id: _mock.id(index),
   bookedAt: _mock.time(index),
@@ -320,7 +320,7 @@ export const _bookingNew = [...Array(8)].map((_, index) => ({
 // COURSE
 // ----------------------------------------------------------------------
 
-export const _coursesContinue = [...Array(4)].map((_, index) => ({
+export const _coursesContinue = Array.from({ length: 4 }, (_, index) => ({
   id: _mock.id(index),
   title: _mock.courseNames(index),
   coverUrl: _mock.image.course(index),
@@ -328,7 +328,7 @@ export const _coursesContinue = [...Array(4)].map((_, index) => ({
   currentLesson: index + 7,
 }));
 
-export const _coursesFeatured = [...Array(6)].map((_, index) => ({
+export const _coursesFeatured = Array.from({ length: 6 }, (_, index) => ({
   id: _mock.id(index),
   title: _mock.courseNames(index),
   coverUrl: _mock.image.course(index + 6),
@@ -337,7 +337,7 @@ export const _coursesFeatured = [...Array(6)].map((_, index) => ({
   price: _mock.number.price(index),
 }));
 
-export const _coursesReminder = [...Array(4)].map((_, index) => ({
+export const _coursesReminder = Array.from({ length: 4 }, (_, index) => ({
   id: _mock.id(index),
   title: _mock.courseNames(index),
   totalLesson: 12,

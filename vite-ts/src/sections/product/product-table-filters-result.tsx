@@ -1,61 +1,60 @@
-import type { Theme, SxProps } from '@mui/material/styles';
 import type { IProductTableFilters } from 'src/types/product';
-import type { UseSetStateReturn } from 'src/hooks/use-set-state';
+import type { UseSetStateReturn } from 'minimal-shared/hooks';
+import type { FiltersResultProps } from 'src/components/filters-result';
 
 import { useCallback } from 'react';
+import { upperFirst } from 'es-toolkit';
 
 import Chip from '@mui/material/Chip';
-
-import { sentenceCase } from 'src/utils/change-case';
 
 import { chipProps, FiltersBlock, FiltersResult } from 'src/components/filters-result';
 
 // ----------------------------------------------------------------------
 
-type Props = {
-  totalResults: number;
-  sx?: SxProps<Theme>;
+type Props = FiltersResultProps & {
   filters: UseSetStateReturn<IProductTableFilters>;
 };
 
 export function ProductTableFiltersResult({ filters, totalResults, sx }: Props) {
+  const { state: currentFilters, setState: updateFilters, resetState: resetFilters } = filters;
+
   const handleRemoveStock = useCallback(
     (inputValue: string) => {
-      const newValue = filters.state.stock.filter((item) => item !== inputValue);
+      const newValue = currentFilters.stock.filter((item) => item !== inputValue);
 
-      filters.setState({ stock: newValue });
+      updateFilters({ stock: newValue });
     },
-    [filters]
+    [updateFilters, currentFilters.stock]
   );
 
   const handleRemovePublish = useCallback(
     (inputValue: string) => {
-      const newValue = filters.state.publish.filter((item) => item !== inputValue);
+      const newValue = currentFilters.publish.filter((item) => item !== inputValue);
 
-      filters.setState({ publish: newValue });
+      updateFilters({ publish: newValue });
     },
-    [filters]
+    [updateFilters, currentFilters.publish]
   );
 
   return (
-    <FiltersResult totalResults={totalResults} onReset={filters.onResetState} sx={sx}>
-      <FiltersBlock label="Stock:" isShow={!!filters.state.stock.length}>
-        {filters.state.stock.map((item) => (
+    <FiltersResult totalResults={totalResults} onReset={() => resetFilters()} sx={sx}>
+      <FiltersBlock label="Stock:" isShow={!!currentFilters.stock.length}>
+        {currentFilters.stock.map((item) => (
           <Chip
             {...chipProps}
             key={item}
-            label={sentenceCase(item)}
+            label={upperFirst(item)}
             onDelete={() => handleRemoveStock(item)}
           />
         ))}
       </FiltersBlock>
 
-      <FiltersBlock label="Publish:" isShow={!!filters.state.publish.length}>
-        {filters.state.publish.map((item) => (
+      <FiltersBlock label="Publish:" isShow={!!currentFilters.publish.length}>
+        {currentFilters.publish.map((item) => (
           <Chip
             {...chipProps}
             key={item}
-            label={sentenceCase(item)}
+            label={upperFirst(item)}
             onDelete={() => handleRemovePublish(item)}
           />
         ))}

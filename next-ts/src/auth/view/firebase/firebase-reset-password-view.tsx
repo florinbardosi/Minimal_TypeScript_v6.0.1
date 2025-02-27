@@ -34,7 +34,7 @@ export const ResetPasswordSchema = zod.object({
 export function FirebaseResetPasswordView() {
   const router = useRouter();
 
-  const defaultValues = {
+  const defaultValues: ResetPasswordSchemaType = {
     email: '',
   };
 
@@ -48,27 +48,31 @@ export function FirebaseResetPasswordView() {
     formState: { isSubmitting },
   } = methods;
 
+  const createRedirectPath = (query: string) => {
+    const queryString = new URLSearchParams({ email: query }).toString();
+    return `${paths.auth.firebase.verify}?${queryString}`;
+  };
+
   const onSubmit = handleSubmit(async (data) => {
     try {
       await sendPasswordResetEmail({ email: data.email });
 
-      const searchParams = new URLSearchParams({ email: data.email }).toString();
+      const redirectPath = createRedirectPath(data.email);
 
-      const href = `${paths.auth.firebase.verify}?${searchParams}`;
-      router.push(href);
+      router.push(redirectPath);
     } catch (error) {
       console.error(error);
     }
   });
 
-  const renderForm = (
-    <Box gap={3} display="flex" flexDirection="column">
+  const renderForm = () => (
+    <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
       <Field.Text
         autoFocus
         name="email"
         label="Email address"
         placeholder="example@gmail.com"
-        InputLabelProps={{ shrink: true }}
+        slotProps={{ inputLabel: { shrink: true } }}
       />
 
       <LoadingButton
@@ -93,7 +97,7 @@ export function FirebaseResetPasswordView() {
       />
 
       <Form methods={methods} onSubmit={onSubmit}>
-        {renderForm}
+        {renderForm()}
       </Form>
 
       <FormReturnLink href={paths.auth.firebase.signIn} />

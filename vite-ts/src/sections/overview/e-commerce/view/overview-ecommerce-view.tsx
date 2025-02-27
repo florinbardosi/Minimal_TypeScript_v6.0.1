@@ -1,6 +1,6 @@
+import Grid from '@mui/material/Grid2';
 import Button from '@mui/material/Button';
 import { useTheme } from '@mui/material/styles';
-import Grid from '@mui/material/Unstable_Grid2';
 
 import { DashboardContent } from 'src/layouts/dashboard';
 import { MotivationIllustration } from 'src/assets/illustrations';
@@ -33,7 +33,7 @@ export function OverviewEcommerceView() {
   return (
     <DashboardContent maxWidth="xl">
       <Grid container spacing={3}>
-        <Grid xs={12} md={8}>
+        <Grid size={{ xs: 12, md: 8 }}>
           <EcommerceWelcome
             title={`Congratulations 🎉  \n ${user?.displayName}`}
             description="Best seller of the month you have done 57.6% more sales today."
@@ -46,11 +46,11 @@ export function OverviewEcommerceView() {
           />
         </Grid>
 
-        <Grid xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <EcommerceNewProducts list={_ecommerceNewProducts} />
         </Grid>
 
-        <Grid xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <EcommerceWidgetSummary
             title="Product sold"
             percent={2.6}
@@ -62,33 +62,33 @@ export function OverviewEcommerceView() {
           />
         </Grid>
 
-        <Grid xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <EcommerceWidgetSummary
             title="Total balance"
             percent={-0.1}
             total={18765}
             chart={{
-              colors: [theme.vars.palette.warning.light, theme.vars.palette.warning.main],
+              colors: [theme.palette.warning.light, theme.palette.warning.main],
               categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
               series: [56, 47, 40, 62, 73, 30, 23, 54],
             }}
           />
         </Grid>
 
-        <Grid xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <EcommerceWidgetSummary
             title="Sales profit"
             percent={0.6}
             total={4876}
             chart={{
-              colors: [theme.vars.palette.error.light, theme.vars.palette.error.main],
+              colors: [theme.palette.error.light, theme.palette.error.main],
               categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
               series: [40, 70, 75, 70, 50, 28, 7, 64],
             }}
           />
         </Grid>
 
-        <Grid xs={12} md={6} lg={4}>
+        <Grid size={{ xs: 12, md: 6, lg: 4 }}>
           <EcommerceSaleByGender
             title="Sale by gender"
             total={2324}
@@ -102,7 +102,7 @@ export function OverviewEcommerceView() {
           />
         </Grid>
 
-        <Grid xs={12} md={6} lg={8}>
+        <Grid size={{ xs: 12, md: 6, lg: 8 }}>
           <EcommerceYearlySales
             title="Yearly sales"
             subheader="(+43%) than last year"
@@ -153,11 +153,11 @@ export function OverviewEcommerceView() {
           />
         </Grid>
 
-        <Grid xs={12} md={6} lg={8}>
+        <Grid size={{ xs: 12, md: 6, lg: 8 }}>
           <EcommerceSalesOverview title="Sales overview" data={_ecommerceSalesOverview} />
         </Grid>
 
-        <Grid xs={12} md={6} lg={4}>
+        <Grid size={{ xs: 12, md: 6, lg: 4 }}>
           <EcommerceCurrentBalance
             title="Current balance"
             earning={25500}
@@ -167,11 +167,11 @@ export function OverviewEcommerceView() {
           />
         </Grid>
 
-        <Grid xs={12} md={6} lg={8}>
+        <Grid size={{ xs: 12, md: 6, lg: 8 }}>
           <EcommerceBestSalesman
             title="Best salesman"
             tableData={_ecommerceBestSalesman}
-            headLabel={[
+            headCells={[
               { id: 'name', label: 'Seller' },
               { id: 'category', label: 'Product' },
               { id: 'country', label: 'Country', align: 'center' },
@@ -181,7 +181,7 @@ export function OverviewEcommerceView() {
           />
         </Grid>
 
-        <Grid xs={12} md={6} lg={4}>
+        <Grid size={{ xs: 12, md: 6, lg: 4 }}>
           <EcommerceLatestProducts title="Latest products" list={_ecommerceLatestProducts} />
         </Grid>
       </Grid>

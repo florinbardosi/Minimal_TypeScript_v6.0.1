@@ -1,5 +1,7 @@
+import type { RouteObject } from 'react-router';
+
+import { Outlet } from 'react-router';
 import { lazy, Suspense } from 'react';
-import { Outlet } from 'react-router-dom';
 
 import { AuthSplitLayout } from 'src/layouts/auth-split';
 import { AuthCenteredLayout } from 'src/layouts/auth-centered';
@@ -25,7 +27,11 @@ const authSplit = {
     {
       path: 'sign-in',
       element: (
-        <AuthSplitLayout section={{ title: 'Hi, Welcome back' }}>
+        <AuthSplitLayout
+          slotProps={{
+            section: { title: 'Hi, Welcome back' },
+          }}
+        >
           <SplitLayout.SignInPage />
         </AuthSplitLayout>
       ),
@@ -94,7 +100,7 @@ const authCentered = {
 
 // ----------------------------------------------------------------------
 
-export const authDemoRoutes = [
+export const authDemoRoutes: RouteObject[] = [
   {
     path: 'auth-demo',
     element: (

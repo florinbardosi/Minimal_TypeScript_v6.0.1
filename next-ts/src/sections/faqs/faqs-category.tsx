@@ -1,3 +1,5 @@
+import { useBoolean } from 'minimal-shared/hooks';
+
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Avatar from '@mui/material/Avatar';
@@ -6,10 +8,7 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import ListItemButton from '@mui/material/ListItemButton';
 
-import { useBoolean } from 'src/hooks/use-boolean';
-
-import { CONFIG } from 'src/config-global';
-import { maxLine } from 'src/theme/styles';
+import { CONFIG } from 'src/global-config';
 
 import { Iconify } from 'src/components/iconify';
 
@@ -21,16 +20,8 @@ const CATEGORIES = [
     icon: `${CONFIG.assetsDir}/assets/icons/faqs/ic-account.svg`,
     href: '#',
   },
-  {
-    label: 'Payment',
-    icon: `${CONFIG.assetsDir}/assets/icons/faqs/ic-payment.svg`,
-    href: '#',
-  },
-  {
-    label: 'Delivery',
-    icon: `${CONFIG.assetsDir}/assets/icons/faqs/ic-delivery.svg`,
-    href: '#',
-  },
+  { label: 'Payment', icon: `${CONFIG.assetsDir}/assets/icons/faqs/ic-payment.svg`, href: '#' },
+  { label: 'Delivery', icon: `${CONFIG.assetsDir}/assets/icons/faqs/ic-delivery.svg`, href: '#' },
   {
     label: 'Problem with the product',
     icon: `${CONFIG.assetsDir}/assets/icons/faqs/ic-package.svg`,
@@ -53,18 +44,20 @@ const CATEGORIES = [
 export function FaqsCategory() {
   const navOpen = useBoolean();
 
-  const renderMobile = (
+  const renderMobile = () => (
     <>
       <Box
-        sx={{
-          p: 2,
-          top: 0,
-          left: 0,
-          width: 1,
-          position: 'absolute',
-          display: { xs: 'block', md: 'none' },
-          borderBottom: (theme) => `solid 1px ${theme.vars.palette.divider}`,
-        }}
+        sx={[
+          (theme) => ({
+            p: 2,
+            top: 0,
+            left: 0,
+            width: 1,
+            position: 'absolute',
+            display: { xs: 'block', md: 'none' },
+            borderBottom: `solid 1px ${theme.vars.palette.divider}`,
+          }),
+        ]}
       >
         <Button startIcon={<Iconify icon="solar:list-bold" />} onClick={navOpen.onTrue}>
           Categories
@@ -72,7 +65,14 @@ export function FaqsCategory() {
       </Box>
 
       <Drawer open={navOpen.value} onClose={navOpen.onFalse}>
-        <Box gap={1} display="grid" gridTemplateColumns="repeat(2, 1fr)" sx={{ p: 1 }}>
+        <Box
+          sx={{
+            p: 1,
+            gap: 1,
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+          }}
+        >
           {CATEGORIES.map((category) => (
             <ItemMobile key={category.label} category={category} />
           ))}
@@ -81,11 +81,13 @@ export function FaqsCategory() {
     </>
   );
 
-  const renderDesktop = (
+  const renderDesktop = () => (
     <Box
-      gap={3}
-      display={{ xs: 'none', md: 'grid' }}
-      gridTemplateColumns={{ md: 'repeat(3, 1fr)', lg: 'repeat(6, 1fr)' }}
+      sx={{
+        gap: 3,
+        display: { xs: 'none', md: 'grid' },
+        gridTemplateColumns: { md: 'repeat(3, 1fr)', lg: 'repeat(6, 1fr)' },
+      }}
     >
       {CATEGORIES.map((category) => (
         <ItemDesktop key={category.label} category={category} />
@@ -95,8 +97,8 @@ export function FaqsCategory() {
 
   return (
     <>
-      {renderMobile}
-      {renderDesktop}
+      {renderMobile()}
+      {renderDesktop()}
     </>
   );
 }
@@ -111,17 +113,16 @@ function ItemDesktop({ category }: ItemProps) {
   return (
     <Paper
       variant="outlined"
-      sx={{
-        p: 3,
-        borderRadius: 2,
-        bgcolor: 'unset',
-        cursor: 'pointer',
-        textAlign: 'center',
-        '&:hover': {
-          bgcolor: 'background.paper',
-          boxShadow: (theme) => theme.customShadows.z20,
-        },
-      }}
+      sx={[
+        (theme) => ({
+          p: 3,
+          borderRadius: 2,
+          bgcolor: 'unset',
+          cursor: 'pointer',
+          textAlign: 'center',
+          '&:hover': { bgcolor: 'background.paper', boxShadow: theme.vars.customShadows.z20 },
+        }),
+      ]}
     >
       <Avatar
         alt={category.icon}
@@ -137,7 +138,7 @@ function ItemDesktop({ category }: ItemProps) {
       <Typography
         variant="subtitle2"
         sx={(theme) => ({
-          ...maxLine({ line: 2, persistent: theme.typography.subtitle2 }),
+          ...theme.mixins.maxLine({ line: 2, persistent: theme.typography.subtitle2 }),
         })}
       >
         {category.label}

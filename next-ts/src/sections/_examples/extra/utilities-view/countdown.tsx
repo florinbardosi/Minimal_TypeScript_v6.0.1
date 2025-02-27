@@ -1,9 +1,9 @@
+import { useCountdownDate, useCountdownSeconds } from 'minimal-shared/hooks';
+
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 
-import { useCountdownDate, useCountdownSeconds } from 'src/hooks/use-countdown';
-
-import { ComponentBlock, ComponentContainer } from '../../component-block';
+import { ComponentBox } from '../../layout';
 
 // ----------------------------------------------------------------------
 
@@ -13,46 +13,48 @@ export function Countdown() {
   const countdownSeconds = useCountdownSeconds(10);
 
   return (
-    <ComponentContainer
-      sx={{
-        rowGap: 5,
-        columnGap: 3,
-        display: 'grid',
-        gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
-      }}
-    >
-      <ComponentBlock title="Date">
+    <>
+      <ComponentBox title="Date">
         <Box
-          gap={3}
-          display="flex"
-          alignItems="center"
-          sx={{ textAlign: 'center', typography: 'body2' }}
+          sx={{
+            gap: 3,
+            display: 'flex',
+            textAlign: 'center',
+            typography: 'body2',
+            alignItems: 'center',
+          }}
         >
           <div>
             <Box sx={{ typography: 'h5' }}>{countdownDate.days}</Box>
             <Box sx={{ color: 'text.secondary' }}>days</Box>
           </div>
+
           <div>
             <Box sx={{ typography: 'h5' }}>{countdownDate.hours}</Box>
             <Box sx={{ color: 'text.secondary' }}>hours</Box>
           </div>
+
           <div>
             <Box sx={{ typography: 'h5' }}>{countdownDate.minutes}</Box>
             <Box sx={{ color: 'text.secondary' }}>minutes</Box>
           </div>
+
           <div>
             <Box sx={{ typography: 'h5' }}>{countdownDate.seconds}</Box>
             <Box sx={{ color: 'text.secondary' }}>seconds</Box>
           </div>
         </Box>
-      </ComponentBlock>
+      </ComponentBox>
 
-      <ComponentBlock title="Seconds">
+      <ComponentBox title="Seconds">
         <Box
-          gap={3}
-          display="flex"
-          alignItems="center"
-          sx={{ typography: 'h5', textAlign: 'center' }}
+          sx={{
+            gap: 3,
+            display: 'flex',
+            typography: 'h5',
+            textAlign: 'center',
+            alignItems: 'center',
+          }}
         >
           <Button
             disabled={countdownSeconds.isCounting}
@@ -66,7 +68,7 @@ export function Countdown() {
             {countdownSeconds.isCounting ? `Counting... (${countdownSeconds.value})` : `Start`}
           </Button>
         </Box>
-      </ComponentBlock>
-    </ComponentContainer>
+      </ComponentBox>
+    </>
   );
 }

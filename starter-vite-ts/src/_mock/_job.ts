@@ -71,7 +71,7 @@ export const JOB_SORT_OPTIONS = [
   { label: 'Oldest', value: 'oldest' },
 ];
 
-const CANDIDATES = [...Array(12)].map((_, index) => ({
+const CANDIDATES = Array.from({ length: 12 }, (_, index) => ({
   id: _mock.id(index),
   role: _mock.role(index),
   name: _mock.fullName(index),
@@ -108,7 +108,7 @@ const CONTENT = `
 </ul>
 `;
 
-export const _jobs = [...Array(12)].map((_, index) => {
+export const _jobs = Array.from({ length: 12 }, (_, index) => {
   const publish = index % 3 ? 'published' : 'draft';
 
   const salary = {

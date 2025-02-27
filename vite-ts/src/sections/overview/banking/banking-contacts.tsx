@@ -26,9 +26,9 @@ type Props = CardProps & {
   }[];
 };
 
-export function BankingContacts({ title, subheader, list, ...other }: Props) {
+export function BankingContacts({ title, subheader, list, sx, ...other }: Props) {
   return (
-    <Card {...other}>
+    <Card sx={sx} {...other}>
       <CardHeader
         title={title}
         subheader={subheader}
@@ -70,7 +70,10 @@ type ItemProps = BoxProps & {
 
 function Item({ item, sx, ...other }: ItemProps) {
   return (
-    <Box key={item.id} sx={{ gap: 2, display: 'flex', alignItems: 'center', ...sx }} {...other}>
+    <Box
+      sx={[{ gap: 2, display: 'flex', alignItems: 'center' }, ...(Array.isArray(sx) ? sx : [sx])]}
+      {...other}
+    >
       <Avatar src={item.avatarUrl} />
 
       <ListItemText primary={item.name} secondary={item.email} />

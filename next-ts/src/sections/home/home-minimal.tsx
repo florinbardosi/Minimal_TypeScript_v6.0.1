@@ -1,15 +1,15 @@
 import type { BoxProps } from '@mui/material/Box';
 
 import { m } from 'framer-motion';
+import { varAlpha } from 'minimal-shared/utils';
 
 import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid2';
 import Stack from '@mui/material/Stack';
-import Grid from '@mui/material/Unstable_Grid2';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 
-import { CONFIG } from 'src/config-global';
-import { varAlpha, stylesMode } from 'src/theme/styles';
+import { CONFIG } from 'src/global-config';
 
 import { SvgColor } from 'src/components/svg-color';
 import { varFade, MotionViewport } from 'src/components/animate';
@@ -19,18 +19,18 @@ import { CircleSvg, FloatLine, FloatPlusIcon } from './components/svg-elements';
 
 // ----------------------------------------------------------------------
 
-export function HomeMinimal({ sx, ...other }: BoxProps) {
-  const renderLines = (
-    <>
-      <FloatPlusIcon sx={{ top: 72, left: 72 }} />
-      <FloatPlusIcon sx={{ bottom: 72, left: 72 }} />
-      <FloatLine sx={{ top: 80, left: 0 }} />
-      <FloatLine sx={{ bottom: 80, left: 0 }} />
-      <FloatLine vertical sx={{ top: 0, left: 80 }} />
-    </>
-  );
+const renderLines = () => (
+  <>
+    <FloatPlusIcon sx={{ top: 72, left: 72 }} />
+    <FloatPlusIcon sx={{ bottom: 72, left: 72 }} />
+    <FloatLine sx={{ top: 80, left: 0 }} />
+    <FloatLine sx={{ bottom: 80, left: 0 }} />
+    <FloatLine vertical sx={{ top: 0, left: 80 }} />
+  </>
+);
 
-  const renderDescription = (
+export function HomeMinimal({ sx, ...other }: BoxProps) {
+  const renderDescription = () => (
     <>
       <SectionTitle
         caption="Visualizing Success"
@@ -39,20 +39,13 @@ export function HomeMinimal({ sx, ...other }: BoxProps) {
         sx={{ mb: { xs: 5, md: 8 }, textAlign: { xs: 'center', md: 'left' } }}
       />
 
-      <Stack
-        spacing={6}
-        sx={{
-          maxWidth: { sm: 560, md: 400 },
-          mx: { xs: 'auto', md: 'unset' },
-        }}
-      >
+      <Stack spacing={6} sx={{ maxWidth: { sm: 560, md: 400 }, mx: { xs: 'auto', md: 'unset' } }}>
         {ITEMS.map((item) => (
           <Box
             component={m.div}
+            variants={varFade('inUp', { distance: 24 })}
             key={item.title}
-            variants={varFade({ distance: 24 }).inUp}
-            gap={3}
-            display="flex"
+            sx={[{ gap: 3, display: 'flex' }]}
           >
             <SvgColor src={item.icon} sx={{ width: 40, height: 40 }} />
             <Stack spacing={1}>
@@ -67,32 +60,35 @@ export function HomeMinimal({ sx, ...other }: BoxProps) {
     </>
   );
 
-  const renderImg = (
+  const renderImage = () => (
     <Stack
       component={m.div}
-      variants={varFade({ distance: 24 }).inRight}
-      alignItems="center"
-      justifyContent="center"
-      sx={{ height: 1, position: 'relative' }}
+      variants={varFade('inRight', { distance: 24 })}
+      sx={{
+        height: 1,
+        alignItems: 'center',
+        position: 'relative',
+        justifyContent: 'center',
+      }}
     >
       <Box
-        sx={{
-          left: 0,
-          width: 720,
-          borderRadius: 2,
-          position: 'absolute',
-          bgcolor: 'background.default',
-          boxShadow: (theme) =>
-            `-40px 40px 80px 0px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.16)}`,
-          [stylesMode.dark]: {
-            boxShadow: (theme) =>
-              `-40px 40px 80px 0px ${varAlpha(theme.vars.palette.common.blackChannel, 0.16)}`,
-          },
-        }}
+        sx={[
+          (theme) => ({
+            left: 0,
+            width: 720,
+            borderRadius: 2,
+            position: 'absolute',
+            bgcolor: 'background.default',
+            boxShadow: `-40px 40px 80px 0px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.16)}`,
+            ...theme.applyStyles('dark', {
+              boxShadow: `-40px 40px 80px 0px ${varAlpha(theme.vars.palette.common.blackChannel, 0.16)}`,
+            }),
+          }),
+        ]}
       >
         <Box
           component="img"
-          alt="Home Chart"
+          alt="Home chart"
           src={`${CONFIG.assetsDir}/assets/images/home/home-chart.webp`}
           sx={{ width: 720 }}
         />
@@ -103,29 +99,29 @@ export function HomeMinimal({ sx, ...other }: BoxProps) {
   return (
     <Box
       component="section"
-      sx={{
-        overflow: 'hidden',
-        position: 'relative',
-        py: { xs: 10, md: 20 },
-        ...sx,
-      }}
+      sx={[
+        {
+          overflow: 'hidden',
+          position: 'relative',
+          py: { xs: 10, md: 20 },
+        },
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...other}
     >
       <MotionViewport>
-        {renderLines}
+        {renderLines()}
 
         <Container sx={{ position: 'relative' }}>
           <Grid container columnSpacing={{ xs: 0, md: 8 }} sx={{ position: 'relative', zIndex: 9 }}>
-            <Grid xs={12} md={6} lg={7}>
-              {renderDescription}
-            </Grid>
+            <Grid size={{ xs: 12, md: 6, lg: 7 }}>{renderDescription()}</Grid>
 
-            <Grid md={6} lg={5} sx={{ display: { xs: 'none', md: 'block' } }}>
-              {renderImg}
+            <Grid sx={{ display: { xs: 'none', md: 'block' } }} size={{ md: 6, lg: 5 }}>
+              {renderImage()}
             </Grid>
           </Grid>
 
-          <CircleSvg variants={varFade().in} sx={{ display: { xs: 'none', md: 'block' } }} />
+          <CircleSvg variants={varFade('in')} sx={{ display: { xs: 'none', md: 'block' } }} />
         </Container>
       </MotionViewport>
     </Box>

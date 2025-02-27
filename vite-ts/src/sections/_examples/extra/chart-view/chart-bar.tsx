@@ -22,19 +22,17 @@ export function ChartBar({ chart }: Props) {
     stroke: { width: 0 },
     xaxis: { categories: chart.categories },
     tooltip: {
-      y: {
-        formatter: (value: number) => `$ ${value} thousands`,
-        title: { formatter: () => '' },
-      },
+      y: { formatter: (value: number) => `$ ${value} thousands`, title: { formatter: () => '' } },
     },
-    plotOptions: {
-      bar: {
-        horizontal: true,
-        barHeight: '30%',
-        borderRadius: 2,
-      },
-    },
+    plotOptions: { bar: { horizontal: true, barHeight: '30%', borderRadius: 2 } },
   });
 
-  return <Chart type="bar" series={[{ data: chart.series }]} options={chartOptions} height={320} />;
+  return (
+    <Chart
+      type="bar"
+      series={[{ data: chart.series }]}
+      options={chartOptions}
+      sx={{ height: 320 }}
+    />
+  );
 }

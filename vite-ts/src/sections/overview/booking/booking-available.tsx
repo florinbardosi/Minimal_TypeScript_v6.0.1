@@ -1,15 +1,15 @@
 import type { CardProps } from '@mui/material/Card';
 import type { ChartOptions } from 'src/components/chart';
 
+import { sumBy } from 'es-toolkit';
+import { varAlpha } from 'minimal-shared/utils';
+
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import { useTheme } from '@mui/material/styles';
 import CardHeader from '@mui/material/CardHeader';
 
-import { sumBy } from 'src/utils/helper';
 import { fNumber } from 'src/utils/format-number';
-
-import { varAlpha } from 'src/theme/styles';
 
 import { Chart, useChart } from 'src/components/chart';
 
@@ -28,7 +28,7 @@ type Props = CardProps & {
   };
 };
 
-export function BookingAvailable({ title, subheader, chart, ...other }: Props) {
+export function BookingAvailable({ title, subheader, chart, sx, ...other }: Props) {
   const theme = useTheme();
 
   const total = sumBy(chart.series, (series) => series.value);
@@ -64,16 +64,14 @@ export function BookingAvailable({ title, subheader, chart, ...other }: Props) {
   });
 
   return (
-    <Card {...other}>
+    <Card sx={sx} {...other}>
       <CardHeader title={title} subheader={subheader} sx={{ mb: 5 }} />
 
       <Chart
         type="radialBar"
         series={[chartSeries]}
         options={chartOptions}
-        width={240}
-        height={240}
-        sx={{ mx: 'auto' }}
+        sx={{ mx: 'auto', width: 240, height: 240 }}
       />
 
       <Box
@@ -87,7 +85,12 @@ export function BookingAvailable({ title, subheader, chart, ...other }: Props) {
         {chart.series.map((item) => (
           <Box
             key={item.label}
-            sx={{ gap: 1, display: 'flex', alignItems: 'center', typography: 'subtitle2' }}
+            sx={{
+              gap: 1,
+              display: 'flex',
+              alignItems: 'center',
+              typography: 'subtitle2',
+            }}
           >
             <Box
               sx={{

@@ -30,7 +30,7 @@ type Props = CardProps & {
   };
 };
 
-export function AppAreaInstalled({ title, subheader, chart, ...other }: Props) {
+export function AppAreaInstalled({ title, subheader, chart, sx, ...other }: Props) {
   const theme = useTheme();
 
   const [selectedSeries, setSelectedSeries] = useState('2023');
@@ -58,7 +58,7 @@ export function AppAreaInstalled({ title, subheader, chart, ...other }: Props) {
   const currentSeries = chart.series.find((i) => i.name === selectedSeries);
 
   return (
-    <Card {...other}>
+    <Card sx={sx} {...other}>
       <CardHeader
         title={title}
         subheader={subheader}
@@ -76,10 +76,7 @@ export function AppAreaInstalled({ title, subheader, chart, ...other }: Props) {
         colors={chartOptions?.colors}
         labels={chart.series[0].data.map((item) => item.name)}
         values={[fShortenNumber(1234), fShortenNumber(6789), fShortenNumber(1012)]}
-        sx={{
-          px: 3,
-          gap: 3,
-        }}
+        sx={{ px: 3, gap: 3 }}
       />
 
       <Chart
@@ -87,8 +84,13 @@ export function AppAreaInstalled({ title, subheader, chart, ...other }: Props) {
         type="bar"
         series={currentSeries?.data}
         options={chartOptions}
-        height={320}
-        sx={{ py: 2.5, pl: 1, pr: 2.5 }}
+        slotProps={{ loading: { p: 2.5 } }}
+        sx={{
+          pl: 1,
+          py: 2.5,
+          pr: 2.5,
+          height: 320,
+        }}
       />
     </Card>
   );

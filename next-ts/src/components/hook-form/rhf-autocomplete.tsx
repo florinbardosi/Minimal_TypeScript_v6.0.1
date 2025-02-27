@@ -18,18 +18,22 @@ export type RHFAutocompleteProps = AutocompleteBaseProps & {
   label?: string;
   placeholder?: string;
   helperText?: React.ReactNode;
-  variant?: TextFieldProps['variant'];
+  slotProps?: AutocompleteBaseProps['slotProps'] & {
+    textfield?: TextFieldProps;
+  };
 };
 
 export function RHFAutocomplete({
   name,
   label,
-  variant,
+  slotProps,
   helperText,
   placeholder,
   ...other
 }: RHFAutocompleteProps) {
   const { control, setValue } = useFormContext();
+
+  const { textfield, ...otherSlotProps } = slotProps ?? {};
 
   return (
     <Controller
@@ -43,15 +47,23 @@ export function RHFAutocomplete({
           renderInput={(params) => (
             <TextField
               {...params}
+              {...textfield}
               label={label}
               placeholder={placeholder}
-              variant={variant}
               error={!!error}
-              helperText={error ? error?.message : helperText}
-              inputProps={{ ...params.inputProps, autoComplete: 'new-password' }}
+              helperText={error?.message ?? helperText}
+              slotProps={{
+                ...textfield?.slotProps,
+                htmlInput: {
+                  ...params.inputProps,
+                  autoComplete: 'new-password',
+                  ...textfield?.slotProps?.htmlInput,
+                },
+              }}
             />
           )}
           {...other}
+          {...otherSlotProps}
         />
       )}
     />

@@ -1,19 +1,22 @@
 import { useFormContext } from 'react-hook-form';
+import { useBoolean } from 'minimal-shared/hooks';
 
+import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
+import { useTheme } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-
-import { useBoolean } from 'src/hooks/use-boolean';
-import { useResponsive } from 'src/hooks/use-responsive';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 import { _addressBooks } from 'src/_mock';
 
 import { Iconify } from 'src/components/iconify';
 
 import { AddressListDialog } from '../address';
+
+import type { NewInvoiceSchemaType } from './invoice-new-edit-form';
 
 // ----------------------------------------------------------------------
 
@@ -22,23 +25,21 @@ export function InvoiceNewEditAddress() {
     watch,
     setValue,
     formState: { errors },
-  } = useFormContext();
+  } = useFormContext<NewInvoiceSchemaType>();
 
-  const mdUp = useResponsive('up', 'md');
+  const theme = useTheme();
+  const mdUp = useMediaQuery(theme.breakpoints.up('md'));
 
   const values = watch();
 
+  const addressTo = useBoolean();
+  const addressForm = useBoolean();
+
   const { invoiceFrom, invoiceTo } = values;
-
-  const from = useBoolean();
-
-  const to = useBoolean();
 
   return (
     <>
       <Stack
-        spacing={{ xs: 3, md: 5 }}
-        direction={{ xs: 'column', md: 'row' }}
         divider={
           <Divider
             flexItem
@@ -46,46 +47,46 @@ export function InvoiceNewEditAddress() {
             sx={{ borderStyle: 'dashed' }}
           />
         }
-        sx={{ p: 3 }}
+        sx={{ p: 3, gap: { xs: 3, md: 5 }, flexDirection: { xs: 'column', md: 'row' } }}
       >
         <Stack sx={{ width: 1 }}>
-          <Stack direction="row" alignItems="center" sx={{ mb: 1 }}>
+          <Box sx={{ mb: 1, display: 'flex', alignItems: 'center' }}>
             <Typography variant="h6" sx={{ color: 'text.disabled', flexGrow: 1 }}>
               From:
             </Typography>
 
-            <IconButton onClick={from.onTrue}>
+            <IconButton onClick={addressForm.onTrue}>
               <Iconify icon="solar:pen-bold" />
             </IconButton>
-          </Stack>
+          </Box>
 
           <Stack spacing={1}>
-            <Typography variant="subtitle2">{invoiceFrom.name}</Typography>
-            <Typography variant="body2">{invoiceFrom.fullAddress}</Typography>
-            <Typography variant="body2"> {invoiceFrom.phoneNumber}</Typography>
+            <Typography variant="subtitle2">{invoiceFrom?.name}</Typography>
+            <Typography variant="body2">{invoiceFrom?.fullAddress}</Typography>
+            <Typography variant="body2"> {invoiceFrom?.phoneNumber}</Typography>
           </Stack>
         </Stack>
 
         <Stack sx={{ width: 1 }}>
-          <Stack direction="row" alignItems="center" sx={{ mb: 1 }}>
+          <Box sx={{ mb: 1, display: 'flex', alignItems: 'center' }}>
             <Typography variant="h6" sx={{ color: 'text.disabled', flexGrow: 1 }}>
               To:
             </Typography>
 
-            <IconButton onClick={to.onTrue}>
+            <IconButton onClick={addressTo.onTrue}>
               <Iconify icon={invoiceTo ? 'solar:pen-bold' : 'mingcute:add-line'} />
             </IconButton>
-          </Stack>
+          </Box>
 
           {invoiceTo ? (
             <Stack spacing={1}>
-              <Typography variant="subtitle2">{invoiceTo.name}</Typography>
-              <Typography variant="body2">{invoiceTo.fullAddress}</Typography>
-              <Typography variant="body2"> {invoiceTo.phoneNumber}</Typography>
+              <Typography variant="subtitle2">{invoiceTo?.name}</Typography>
+              <Typography variant="body2">{invoiceTo?.fullAddress}</Typography>
+              <Typography variant="body2"> {invoiceTo?.phoneNumber}</Typography>
             </Stack>
           ) : (
             <Typography typography="caption" sx={{ color: 'error.main' }}>
-              {(errors.invoiceTo as any)?.message}
+              {errors.invoiceTo?.message}
             </Typography>
           )}
         </Stack>
@@ -93,8 +94,8 @@ export function InvoiceNewEditAddress() {
 
       <AddressListDialog
         title="Customers"
-        open={from.value}
-        onClose={from.onFalse}
+        open={addressForm.value}
+        onClose={addressForm.onFalse}
         selected={(selectedId: string) => invoiceFrom?.id === selectedId}
         onSelect={(address) => setValue('invoiceFrom', address)}
         list={_addressBooks}
@@ -111,8 +112,8 @@ export function InvoiceNewEditAddress() {
 
       <AddressListDialog
         title="Customers"
-        open={to.value}
-        onClose={to.onFalse}
+        open={addressTo.value}
+        onClose={addressTo.onFalse}
         selected={(selectedId: string) => invoiceTo?.id === selectedId}
         onSelect={(address) => setValue('invoiceTo', address)}
         list={_addressBooks}

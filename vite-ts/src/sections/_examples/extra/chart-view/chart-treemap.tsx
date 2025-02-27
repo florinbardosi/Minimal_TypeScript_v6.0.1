@@ -26,5 +26,5 @@ export function ChartTreemap({ chart }: Props) {
     tooltip: { x: { show: false } },
   });
 
-  return <Chart type="treemap" series={chart.series} options={chartOptions} height={320} />;
+  return <Chart type="treemap" series={chart.series} options={chartOptions} sx={{ height: 320 }} />;
 }

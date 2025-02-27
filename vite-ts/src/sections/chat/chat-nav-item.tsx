@@ -1,20 +1,19 @@
 import type { IChatConversation } from 'src/types/chat';
 
-import { useCallback } from 'react';
+import { useCallback, startTransition } from 'react';
 
 import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
 import Avatar from '@mui/material/Avatar';
+import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import AvatarGroup from '@mui/material/AvatarGroup';
 import ListItemText from '@mui/material/ListItemText';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import ListItemButton from '@mui/material/ListItemButton';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
-
-import { useResponsive } from 'src/hooks/use-responsive';
 
 import { fToNow } from 'src/utils/format-time';
 
@@ -36,16 +35,15 @@ type Props = {
 export function ChatNavItem({ selected, collapse, conversation, onCloseMobile }: Props) {
   const { user } = useMockedUser();
 
-  const mdUp = useResponsive('up', 'md');
-
   const router = useRouter();
+
+  const theme = useTheme();
+  const mdUp = useMediaQuery(theme.breakpoints.up('md'));
 
   const { group, displayName, displayText, participants, lastActivity, hasOnlineInGroup } =
     getNavItem({ conversation, currentUserId: `${user?.id}` });
 
   const singleParticipant = participants[0];
-
-  const { name, avatarUrl, status } = singleParticipant;
 
   const handleClickConversation = useCallback(async () => {
     try {
@@ -55,17 +53,18 @@ export function ChatNavItem({ selected, collapse, conversation, onCloseMobile }:
 
       await clickConversation(conversation.id);
 
-      router.push(`${paths.dashboard.chat}?id=${conversation.id}`);
+      const redirectPath = `${paths.dashboard.chat}?id=${conversation.id}`;
+
+      startTransition(() => {
+        router.push(redirectPath);
+      });
     } catch (error) {
       console.error(error);
     }
   }, [conversation.id, mdUp, onCloseMobile, router]);
 
-  const renderGroup = (
-    <Badge
-      variant={hasOnlineInGroup ? 'online' : 'invisible'}
-      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-    >
+  const renderGroup = () => (
+    <Badge variant={hasOnlineInGroup ? 'online' : 'invisible'} badgeContent="">
       <AvatarGroup variant="compact" sx={{ width: 48, height: 48 }}>
         {participants.slice(0, 2).map((participant) => (
           <Avatar key={participant.id} alt={participant.name} src={participant.avatarUrl} />
@@ -74,9 +73,13 @@ export function ChatNavItem({ selected, collapse, conversation, onCloseMobile }:
     </Badge>
   );
 
-  const renderSingle = (
-    <Badge key={status} variant={status} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
-      <Avatar alt={name} src={avatarUrl} sx={{ width: 48, height: 48 }} />
+  const renderSingle = () => (
+    <Badge variant={singleParticipant?.status} badgeContent="">
+      <Avatar
+        alt={singleParticipant?.name}
+        src={singleParticipant?.avatarUrl}
+        sx={{ width: 48, height: 48 }}
+      />
     </Badge>
   );
 
@@ -96,24 +99,36 @@ export function ChatNavItem({ selected, collapse, conversation, onCloseMobile }:
           overlap="circular"
           badgeContent={collapse ? conversation.unreadCount : 0}
         >
-          {group ? renderGroup : renderSingle}
+          {group ? renderGroup() : renderSingle()}
         </Badge>
 
         {!collapse && (
           <>
             <ListItemText
               primary={displayName}
-              primaryTypographyProps={{ noWrap: true, component: 'span', variant: 'subtitle2' }}
               secondary={displayText}
-              secondaryTypographyProps={{
-                noWrap: true,
-                component: 'span',
-                variant: conversation.unreadCount ? 'subtitle2' : 'body2',
-                color: conversation.unreadCount ? 'text.primary' : 'text.secondary',
+              slotProps={{
+                primary: { noWrap: true },
+                secondary: {
+                  noWrap: true,
+                  sx: {
+                    ...(conversation.unreadCount && {
+                      color: 'text.primary',
+                      fontWeight: 'fontWeightSemiBold',
+                    }),
+                  },
+                },
               }}
             />
 
-            <Stack alignItems="flex-end" sx={{ alignSelf: 'stretch' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                alignSelf: 'stretch',
+                alignItems: 'flex-end',
+                flexDirection: 'column',
+              }}
+            >
               <Typography
                 noWrap
                 variant="body2"
@@ -125,15 +140,16 @@ export function ChatNavItem({ selected, collapse, conversation, onCloseMobile }:
 
               {!!conversation.unreadCount && (
                 <Box
+                  component="span"
                   sx={{
                     width: 8,
                     height: 8,
-                    bgcolor: 'info.main',
                     borderRadius: '50%',
+                    bgcolor: 'info.main',
                   }}
                 />
               )}
-            </Stack>
+            </Box>
           </>
         )}
       </ListItemButton>

@@ -1,13 +1,13 @@
 import type { CardProps } from '@mui/material/Card';
 import type { ChartOptions } from 'src/components/chart';
 
+import { varAlpha } from 'minimal-shared/utils';
+
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import { useTheme } from '@mui/material/styles';
 
 import { fNumber, fPercent } from 'src/utils/format-number';
-
-import { varAlpha, stylesMode } from 'src/theme/styles';
 
 import { Iconify } from 'src/components/iconify';
 import { Chart, useChart } from 'src/components/chart';
@@ -58,7 +58,7 @@ export function EcommerceWidgetSummary({ title, percent, total, chart, sx, ...ot
     ...chart.options,
   });
 
-  const renderTrending = (
+  const renderTrending = () => (
     <Box sx={{ gap: 0.5, display: 'flex', alignItems: 'center' }}>
       <Box
         component="span"
@@ -72,11 +72,15 @@ export function EcommerceWidgetSummary({ title, percent, total, chart, sx, ...ot
           justifyContent: 'center',
           bgcolor: varAlpha(theme.vars.palette.success.mainChannel, 0.16),
           color: 'success.dark',
-          [stylesMode.dark]: { color: 'success.light' },
+          ...theme.applyStyles('dark', {
+            color: 'success.light',
+          }),
           ...(percent < 0 && {
             bgcolor: varAlpha(theme.vars.palette.error.mainChannel, 0.16),
             color: 'error.dark',
-            [stylesMode.dark]: { color: 'error.light' },
+            ...theme.applyStyles('dark', {
+              color: 'error.light',
+            }),
           }),
         }}
       >
@@ -90,6 +94,7 @@ export function EcommerceWidgetSummary({ title, percent, total, chart, sx, ...ot
         {percent > 0 && '+'}
         {fPercent(percent)}
       </Box>
+
       <Box component="span" sx={{ color: 'text.secondary', typography: 'body2' }}>
         last week
       </Box>
@@ -98,26 +103,22 @@ export function EcommerceWidgetSummary({ title, percent, total, chart, sx, ...ot
 
   return (
     <Card
-      sx={{
-        p: 3,
-        display: 'flex',
-        alignItems: 'center',
-        ...sx,
-      }}
+      sx={[{ p: 3, display: 'flex', alignItems: 'center' }, ...(Array.isArray(sx) ? sx : [sx])]}
       {...other}
     >
       <Box sx={{ flexGrow: 1 }}>
         <Box sx={{ typography: 'subtitle2' }}>{title}</Box>
+
         <Box sx={{ my: 1.5, typography: 'h3' }}>{fNumber(total)}</Box>
-        {renderTrending}
+
+        {renderTrending()}
       </Box>
 
       <Chart
         type="line"
         series={[{ data: chart.series }]}
         options={chartOptions}
-        width={100}
-        height={66}
+        sx={{ width: 100, height: 66 }}
       />
     </Card>
   );

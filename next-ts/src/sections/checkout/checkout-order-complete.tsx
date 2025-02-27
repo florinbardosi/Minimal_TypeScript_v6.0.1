@@ -1,4 +1,5 @@
 import type { DialogProps } from '@mui/material/Dialog';
+import type { CheckoutContextValue } from 'src/types/checkout';
 
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
@@ -7,6 +8,9 @@ import Dialog from '@mui/material/Dialog';
 import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 
+import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
+
 import { OrderCompleteIllustration } from 'src/assets/illustrations';
 
 import { Iconify } from 'src/components/iconify';
@@ -14,34 +18,34 @@ import { Iconify } from 'src/components/iconify';
 // ----------------------------------------------------------------------
 
 type Props = DialogProps & {
-  onReset: () => void;
   onDownloadPDF: () => void;
+  onResetCart: CheckoutContextValue['onResetCart'];
 };
 
-export function CheckoutOrderComplete({ open, onReset, onDownloadPDF }: Props) {
+export function CheckoutOrderComplete({ onResetCart, onDownloadPDF, ...other }: Props) {
   return (
     <Dialog
       fullWidth
       fullScreen
-      open={open}
       PaperProps={{
         sx: {
           width: { md: `calc(100% - 48px)` },
           height: { md: `calc(100% - 48px)` },
         },
       }}
+      {...other}
     >
       <Box
-        gap={5}
-        display="flex"
-        alignItems="center"
-        flexDirection="column"
         sx={{
           py: 5,
+          gap: 5,
           m: 'auto',
           maxWidth: 480,
+          display: 'flex',
           textAlign: 'center',
+          alignItems: 'center',
           px: { xs: 2, sm: 0 },
+          flexDirection: 'column',
         }}
       >
         <Typography variant="h4">Thank you for your purchase!</Typography>
@@ -62,12 +66,21 @@ export function CheckoutOrderComplete({ open, onReset, onDownloadPDF }: Props) {
 
         <Divider sx={{ width: 1, borderStyle: 'dashed' }} />
 
-        <Box gap={2} display="flex" flexWrap="wrap" justifyContent="center">
+        <Box
+          sx={{
+            gap: 2,
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+          }}
+        >
           <Button
+            component={RouterLink}
+            href={paths.product.root}
             size="large"
             color="inherit"
             variant="outlined"
-            onClick={onReset}
+            onClick={onResetCart}
             startIcon={<Iconify icon="eva:arrow-ios-back-fill" />}
           >
             Continue shopping

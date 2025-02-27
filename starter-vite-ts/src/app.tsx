@@ -1,12 +1,10 @@
 import 'src/global.css';
 
-// ----------------------------------------------------------------------
+import { useEffect } from 'react';
 
-import { Router } from 'src/routes/sections';
+import { usePathname } from 'src/routes/hooks';
 
-import { useScrollToTop } from 'src/hooks/use-scroll-to-top';
-
-import { ThemeProvider } from 'src/theme/theme-provider';
+import { themeConfig, ThemeProvider } from 'src/theme';
 
 import { ProgressBar } from 'src/components/progress-bar';
 import { MotionLazy } from 'src/components/animate/motion-lazy';
@@ -16,20 +14,40 @@ import { AuthProvider } from 'src/auth/context/jwt';
 
 // ----------------------------------------------------------------------
 
-export default function App() {
+type AppProps = {
+  children: React.ReactNode;
+};
+
+export default function App({ children }: AppProps) {
   useScrollToTop();
 
   return (
     <AuthProvider>
-      <SettingsProvider settings={defaultSettings}>
-        <ThemeProvider>
+      <SettingsProvider defaultSettings={defaultSettings}>
+        <ThemeProvider
+          noSsr
+          defaultMode={themeConfig.defaultMode}
+          modeStorageKey={themeConfig.modeStorageKey}
+        >
           <MotionLazy>
             <ProgressBar />
-            <SettingsDrawer />
-            <Router />
+            <SettingsDrawer defaultSettings={defaultSettings} />
+            {children}
           </MotionLazy>
         </ThemeProvider>
       </SettingsProvider>
     </AuthProvider>
   );
+}
+
+// ----------------------------------------------------------------------
+
+function useScrollToTop() {
+  const pathname = usePathname();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
 }

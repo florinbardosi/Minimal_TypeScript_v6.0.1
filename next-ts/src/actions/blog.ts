@@ -1,13 +1,14 @@
+import type { SWRConfiguration } from 'swr';
 import type { IPostItem } from 'src/types/blog';
 
 import useSWR from 'swr';
 import { useMemo } from 'react';
 
-import { fetcher, endpoints } from 'src/utils/axios';
+import { fetcher, endpoints } from 'src/lib/axios';
 
 // ----------------------------------------------------------------------
 
-const swrOptions = {
+const swrOptions: SWRConfiguration = {
   revalidateIfStale: false,
   revalidateOnFocus: false,
   revalidateOnReconnect: false,
@@ -111,7 +112,7 @@ export function useSearchPosts(query: string) {
       searchLoading: isLoading,
       searchError: error,
       searchValidating: isValidating,
-      searchEmpty: !isLoading && !data?.results.length,
+      searchEmpty: !isLoading && !isValidating && !data?.results.length,
     }),
     [data?.results, error, isLoading, isValidating]
   );

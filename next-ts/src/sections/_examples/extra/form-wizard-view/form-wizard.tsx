@@ -8,7 +8,7 @@ import Card from '@mui/material/Card';
 import Button from '@mui/material/Button';
 import LoadingButton from '@mui/lab/LoadingButton';
 
-import { Form } from 'src/components/hook-form';
+import { Form, schemaHelper } from 'src/components/hook-form';
 
 import { Stepper, StepOne, StepTwo, StepThree, StepCompleted } from './form-steps';
 
@@ -22,11 +22,15 @@ const StepOneSchema = zod.object({
 });
 
 const StepTwoSchema = zod.object({
-  age: zod
-    .number()
-    .min(1, { message: 'Age is required!' })
-    .min(18, { message: 'Age must be between 18 and 100' })
-    .max(100, { message: 'Age must be between 18 and 100' }),
+  age: schemaHelper.nullableInput(
+    zod
+      .number({ coerce: true })
+      .int()
+      .min(1, { message: 'Age is required!' })
+      .max(80, { message: 'Age must be between 1 and 80' }),
+    // message for null value
+    { message: 'Age is required!' }
+  ),
 });
 
 const StepThreeSchema = zod.object({
@@ -46,9 +50,9 @@ type WizardSchemaType = zod.infer<typeof WizardSchema>;
 
 // ----------------------------------------------------------------------
 
-const defaultValues = {
+const defaultValues: WizardSchemaType = {
   stepOne: { firstName: '', lastName: '' },
-  stepTwo: { age: 0 },
+  stepTwo: { age: null },
   stepThree: { email: '' },
 };
 
@@ -108,21 +112,30 @@ export function FormWizard() {
   const completedStep = activeStep === STEPS.length;
 
   return (
-    <Card sx={{ p: 5, width: 1, mx: 'auto', maxWidth: 720 }}>
-      <Form methods={methods} onSubmit={onSubmit}>
-        <Stepper steps={STEPS} activeStep={activeStep} />
+    <Card
+      sx={{
+        p: 5,
+        width: 1,
+        mx: 'auto',
+        maxWidth: 720,
+      }}
+    >
+      <Stepper steps={STEPS} activeStep={activeStep} />
 
+      <Form methods={methods} onSubmit={onSubmit}>
         <Box
-          gap={3}
-          display="flex"
-          flexDirection="column"
-          sx={{
-            p: 3,
-            mb: 3,
-            minHeight: 240,
-            borderRadius: 1.5,
-            border: (theme) => `dashed 1px ${theme.vars.palette.divider}`,
-          }}
+          sx={[
+            (theme) => ({
+              p: 3,
+              mb: 3,
+              gap: 3,
+              minHeight: 240,
+              display: 'flex',
+              borderRadius: 1.5,
+              flexDirection: 'column',
+              border: `dashed 1px ${theme.vars.palette.divider}`,
+            }),
+          ]}
         >
           {activeStep === 0 && <StepOne />}
           {activeStep === 1 && <StepTwo />}
@@ -131,7 +144,7 @@ export function FormWizard() {
         </Box>
 
         {!completedStep && (
-          <Box display="flex">
+          <Box sx={{ display: 'flex' }}>
             {activeStep !== 0 && <Button onClick={handleBack}>Back</Button>}
 
             <Box sx={{ flex: '1 1 auto' }} />

@@ -1,6 +1,6 @@
 import type { IFileFilters } from 'src/types/file';
-import type { Theme, SxProps } from '@mui/material/styles';
-import type { UseSetStateReturn } from 'src/hooks/use-set-state';
+import type { UseSetStateReturn } from 'minimal-shared/hooks';
+import type { FiltersResultProps } from 'src/components/filters-result';
 
 import { useCallback } from 'react';
 
@@ -12,43 +12,43 @@ import { chipProps, FiltersBlock, FiltersResult } from 'src/components/filters-r
 
 // ----------------------------------------------------------------------
 
-type Props = {
-  totalResults: number;
-  sx?: SxProps<Theme>;
+type Props = FiltersResultProps & {
   onResetPage: () => void;
   filters: UseSetStateReturn<IFileFilters>;
 };
 
 export function FileManagerFiltersResult({ filters, onResetPage, totalResults, sx }: Props) {
+  const { state: currentFilters, setState: updateFilters, resetState: resetFilters } = filters;
+
   const handleRemoveKeyword = useCallback(() => {
     onResetPage();
-    filters.setState({ name: '' });
-  }, [filters, onResetPage]);
+    updateFilters({ name: '' });
+  }, [onResetPage, updateFilters]);
 
   const handleRemoveTypes = useCallback(
     (inputValue: string) => {
-      const newValue = filters.state.type.filter((item) => item !== inputValue);
+      const newValue = currentFilters.type.filter((item) => item !== inputValue);
 
       onResetPage();
-      filters.setState({ type: newValue });
+      updateFilters({ type: newValue });
     },
-    [filters, onResetPage]
+    [onResetPage, updateFilters, currentFilters.type]
   );
 
   const handleRemoveDate = useCallback(() => {
     onResetPage();
-    filters.setState({ startDate: null, endDate: null });
-  }, [filters, onResetPage]);
+    updateFilters({ startDate: null, endDate: null });
+  }, [onResetPage, updateFilters]);
 
   const handleReset = useCallback(() => {
     onResetPage();
-    filters.onResetState();
-  }, [filters, onResetPage]);
+    resetFilters();
+  }, [onResetPage, resetFilters]);
 
   return (
     <FiltersResult totalResults={totalResults} onReset={handleReset} sx={sx}>
-      <FiltersBlock label="Types:" isShow={!!filters.state.type.length}>
-        {filters.state.type.map((item) => (
+      <FiltersBlock label="Types:" isShow={!!currentFilters.type.length}>
+        {currentFilters.type.map((item) => (
           <Chip
             {...chipProps}
             key={item}
@@ -61,17 +61,17 @@ export function FileManagerFiltersResult({ filters, onResetPage, totalResults, s
 
       <FiltersBlock
         label="Date:"
-        isShow={Boolean(filters.state.startDate && filters.state.endDate)}
+        isShow={Boolean(currentFilters.startDate && currentFilters.endDate)}
       >
         <Chip
           {...chipProps}
-          label={fDateRangeShortLabel(filters.state.startDate, filters.state.endDate)}
+          label={fDateRangeShortLabel(currentFilters.startDate, currentFilters.endDate)}
           onDelete={handleRemoveDate}
         />
       </FiltersBlock>
 
-      <FiltersBlock label="Keyword:" isShow={!!filters.state.name}>
-        <Chip {...chipProps} label={filters.state.name} onDelete={handleRemoveKeyword} />
+      <FiltersBlock label="Keyword:" isShow={!!currentFilters.name}>
+        <Chip {...chipProps} label={currentFilters.name} onDelete={handleRemoveKeyword} />
       </FiltersBlock>
     </FiltersResult>
   );

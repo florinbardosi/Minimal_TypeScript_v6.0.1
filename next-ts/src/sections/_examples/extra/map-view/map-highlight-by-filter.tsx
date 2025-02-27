@@ -1,4 +1,6 @@
-import type { MapProps, FillLayer, MapLayerMouseEvent } from 'react-map-gl';
+import type { Theme } from '@mui/material/styles';
+import type { MapProps } from 'src/components/map';
+import type { FillLayer, MapLayerMouseEvent } from 'react-map-gl';
 
 import { Layer, Source } from 'react-map-gl';
 import { useMemo, useState, useCallback } from 'react';
@@ -6,35 +8,35 @@ import { useMemo, useState, useCallback } from 'react';
 import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 
-import { Map, MapPopup, MapControl } from 'src/components/map';
+import { Map, MapPopup, MapControls } from 'src/components/map';
 
 // ----------------------------------------------------------------------
 
-export function MapHighlightByFilter({ ...other }: MapProps) {
+const countiesLayer = (theme: Theme): Omit<FillLayer, 'source'> => ({
+  id: 'counties',
+  type: 'fill',
+  'source-layer': 'original',
+  paint: {
+    'fill-outline-color': theme.palette.grey[900],
+    'fill-color': theme.palette.grey[900],
+    'fill-opacity': 0.12,
+  },
+});
+
+const highlightLayer = (theme: Theme): FillLayer => ({
+  id: 'counties-highlighted',
+  type: 'fill',
+  source: 'counties',
+  'source-layer': 'original',
+  paint: {
+    'fill-outline-color': theme.palette.error.main,
+    'fill-color': theme.palette.error.main,
+    'fill-opacity': 0.48,
+  },
+});
+
+export function MapHighlightByFilter({ sx, ...other }: MapProps) {
   const theme = useTheme();
-
-  const countiesLayer: Omit<FillLayer, 'source'> = {
-    id: 'counties',
-    type: 'fill',
-    'source-layer': 'original',
-    paint: {
-      'fill-outline-color': theme.palette.grey[900],
-      'fill-color': theme.palette.grey[900],
-      'fill-opacity': 0.12,
-    },
-  };
-
-  const highlightLayer: FillLayer = {
-    id: 'counties-highlighted',
-    type: 'fill',
-    source: 'counties',
-    'source-layer': 'original',
-    paint: {
-      'fill-outline-color': theme.palette.error.main,
-      'fill-color': theme.palette.error.main,
-      'fill-opacity': 0.48,
-    },
-  };
 
   const [hoverInfo, setHoverInfo] = useState<{
     countyName: string;
@@ -62,20 +64,19 @@ export function MapHighlightByFilter({ ...other }: MapProps) {
       minZoom={2}
       onMouseMove={onHover}
       interactiveLayerIds={['counties']}
+      sx={sx}
       {...other}
     >
-      <MapControl />
+      <MapControls />
 
       <Source type="vector" url="mapbox://mapbox.82pkq93d">
-        <Layer beforeId="waterway-label" {...countiesLayer} />
-        <Layer beforeId="waterway-label" {...highlightLayer} filter={filter} />
+        <Layer beforeId="waterway-label" {...countiesLayer(theme)} />
+        <Layer beforeId="waterway-label" {...highlightLayer(theme)} filter={filter} />
       </Source>
 
       {selectedCounty && hoverInfo && (
         <MapPopup longitude={hoverInfo.longitude} latitude={hoverInfo.latitude} closeButton={false}>
-          <Typography variant="body2" sx={{ color: 'common.white' }}>
-            {selectedCounty}
-          </Typography>
+          <Typography variant="body2">{selectedCounty}</Typography>
         </MapPopup>
       )}
     </Map>

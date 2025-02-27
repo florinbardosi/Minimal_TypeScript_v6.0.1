@@ -1,7 +1,6 @@
 import type { IUserItem } from 'src/types/user';
 
 import { z as zod } from 'zod';
-import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { isValidPhoneNumber } from 'react-phone-number-input/input';
@@ -31,9 +30,10 @@ export const UserQuickEditSchema = zod.object({
     .string()
     .min(1, { message: 'Email is required!' })
     .email({ message: 'Email must be a valid email address!' }),
-  phoneNumber: schemaHelper.phoneNumber({ isValidPhoneNumber }),
-  country: schemaHelper.objectOrNull<string | null>({
-    message: { required_error: 'Country is required!' },
+  phoneNumber: schemaHelper.phoneNumber({ isValid: isValidPhoneNumber }),
+  country: schemaHelper.nullableInput(zod.string().min(1, { message: 'Country is required!' }), {
+    // message for null value
+    message: 'Country is required!',
   }),
   state: zod.string().min(1, { message: 'State is required!' }),
   city: zod.string().min(1, { message: 'City is required!' }),
@@ -54,27 +54,25 @@ type Props = {
 };
 
 export function UserQuickEditForm({ currentUser, open, onClose }: Props) {
-  const defaultValues = useMemo(
-    () => ({
-      name: currentUser?.name || '',
-      email: currentUser?.email || '',
-      phoneNumber: currentUser?.phoneNumber || '',
-      address: currentUser?.address || '',
-      country: currentUser?.country || '',
-      state: currentUser?.state || '',
-      city: currentUser?.city || '',
-      zipCode: currentUser?.zipCode || '',
-      status: currentUser?.status,
-      company: currentUser?.company || '',
-      role: currentUser?.role || '',
-    }),
-    [currentUser]
-  );
+  const defaultValues: UserQuickEditSchemaType = {
+    name: '',
+    email: '',
+    phoneNumber: '',
+    address: '',
+    country: '',
+    state: '',
+    city: '',
+    zipCode: '',
+    status: '',
+    company: '',
+    role: '',
+  };
 
   const methods = useForm<UserQuickEditSchemaType>({
     mode: 'all',
     resolver: zodResolver(UserQuickEditSchema),
     defaultValues,
+    values: currentUser,
   });
 
   const {
@@ -112,19 +110,21 @@ export function UserQuickEditForm({ currentUser, open, onClose }: Props) {
       onClose={onClose}
       PaperProps={{ sx: { maxWidth: 720 } }}
     >
-      <Form methods={methods} onSubmit={onSubmit}>
-        <DialogTitle>Quick Update</DialogTitle>
+      <DialogTitle>Quick update</DialogTitle>
 
+      <Form methods={methods} onSubmit={onSubmit}>
         <DialogContent>
           <Alert variant="outlined" severity="info" sx={{ mb: 3 }}>
             Account is waiting for confirmation
           </Alert>
 
           <Box
-            rowGap={3}
-            columnGap={2}
-            display="grid"
-            gridTemplateColumns={{ xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' }}
+            sx={{
+              rowGap: 3,
+              columnGap: 2,
+              display: 'grid',
+              gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' },
+            }}
           >
             <Field.Select name="status" label="Status">
               {USER_STATUS_OPTIONS.map((status) => (

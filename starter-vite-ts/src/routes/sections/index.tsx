@@ -1,30 +1,29 @@
-import { Navigate, useRoutes } from 'react-router-dom';
+import type { RouteObject } from 'react-router';
 
-import { CONFIG } from 'src/config-global';
+import { lazy } from 'react';
+import { Navigate } from 'react-router';
+
+import { CONFIG } from 'src/global-config';
 
 import { authRoutes } from './auth';
-import { mainRoutes } from './main';
 import { dashboardRoutes } from './dashboard';
 
 // ----------------------------------------------------------------------
 
-export function Router() {
-  return useRoutes([
-    {
-      path: '/',
-      element: <Navigate to={CONFIG.auth.redirectPath} replace />,
-    },
+const Page404 = lazy(() => import('src/pages/error/404'));
 
-    // Auth
-    ...authRoutes,
+export const routesSection: RouteObject[] = [
+  {
+    path: '/',
+    element: <Navigate to={CONFIG.auth.redirectPath} replace />,
+  },
 
-    // Dashboard
-    ...dashboardRoutes,
+  // Auth
+  ...authRoutes,
 
-    // Main
-    ...mainRoutes,
+  // Dashboard
+  ...dashboardRoutes,
 
-    // No match
-    { path: '*', element: <Navigate to="/404" replace /> },
-  ]);
-}
+  // No match
+  { path: '*', element: <Page404 /> },
+];

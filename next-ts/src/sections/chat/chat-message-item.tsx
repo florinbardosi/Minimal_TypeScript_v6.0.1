@@ -35,7 +35,7 @@ export function ChatMessageItem({ message, participants, onOpenLightbox }: Props
 
   const { body, createdAt } = message;
 
-  const renderInfo = (
+  const renderInfo = () => (
     <Typography
       noWrap
       variant="caption"
@@ -47,7 +47,7 @@ export function ChatMessageItem({ message, participants, onOpenLightbox }: Props
     </Typography>
   );
 
-  const renderBody = (
+  const renderBody = () => (
     <Stack
       sx={{
         p: 1.5,
@@ -63,7 +63,7 @@ export function ChatMessageItem({ message, participants, onOpenLightbox }: Props
       {hasImage ? (
         <Box
           component="img"
-          alt="attachment"
+          alt="Attachment"
           src={body}
           onClick={() => onOpenLightbox(body)}
           sx={{
@@ -82,20 +82,21 @@ export function ChatMessageItem({ message, participants, onOpenLightbox }: Props
     </Stack>
   );
 
-  const renderActions = (
-    <Stack
-      direction="row"
+  const renderActions = () => (
+    <Box
       className="message-actions"
-      sx={{
+      sx={(theme) => ({
         pt: 0.5,
         left: 0,
         opacity: 0,
         top: '100%',
+        display: 'flex',
         position: 'absolute',
-        transition: (theme) =>
-          theme.transitions.create(['opacity'], { duration: theme.transitions.duration.shorter }),
+        transition: theme.transitions.create(['opacity'], {
+          duration: theme.transitions.duration.shorter,
+        }),
         ...(me && { right: 0, left: 'unset' }),
-      }}
+      })}
     >
       <IconButton size="small">
         <Iconify icon="solar:reply-bold" width={16} />
@@ -108,7 +109,7 @@ export function ChatMessageItem({ message, participants, onOpenLightbox }: Props
       <IconButton size="small">
         <Iconify icon="solar:trash-bin-trash-bold" width={16} />
       </IconButton>
-    </Stack>
+    </Box>
   );
 
   if (!message.body) {
@@ -116,21 +117,24 @@ export function ChatMessageItem({ message, participants, onOpenLightbox }: Props
   }
 
   return (
-    <Stack direction="row" justifyContent={me ? 'flex-end' : 'unset'} sx={{ mb: 5 }}>
+    <Box sx={{ mb: 5, display: 'flex', justifyContent: me ? 'flex-end' : 'unset' }}>
       {!me && <Avatar alt={firstName} src={avatarUrl} sx={{ width: 32, height: 32, mr: 2 }} />}
 
       <Stack alignItems={me ? 'flex-end' : 'flex-start'}>
-        {renderInfo}
+        {renderInfo()}
 
-        <Stack
-          direction="row"
-          alignItems="center"
-          sx={{ position: 'relative', '&:hover': { '& .message-actions': { opacity: 1 } } }}
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            position: 'relative',
+            '&:hover': { '& .message-actions': { opacity: 1 } },
+          }}
         >
-          {renderBody}
-          {renderActions}
-        </Stack>
+          {renderBody()}
+          {renderActions()}
+        </Box>
       </Stack>
-    </Stack>
+    </Box>
   );
 }

@@ -1,26 +1,26 @@
 import type { IProductItem } from 'src/types/product';
+import type { Theme, SxProps } from '@mui/material/styles';
+
+import { useTabs } from 'minimal-shared/hooks';
+import { varAlpha } from 'minimal-shared/utils';
 
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
+import Grid from '@mui/material/Grid2';
 import Button from '@mui/material/Button';
-import Grid from '@mui/material/Unstable_Grid2';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { useTabs } from 'src/hooks/use-tabs';
-
-import { varAlpha } from 'src/theme/styles';
-
 import { Iconify } from 'src/components/iconify';
 import { EmptyContent } from 'src/components/empty-content';
 import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { CartIcon } from '../components/cart-icon';
+import { CartIcon } from '../cart-icon';
 import { useCheckoutContext } from '../../checkout/context';
 import { ProductDetailsSkeleton } from '../product-skeleton';
 import { ProductDetailsReview } from '../product-details-review';
@@ -52,18 +52,23 @@ const SUMMARY = [
 
 type Props = {
   product?: IProductItem;
-  error?: any;
   loading?: boolean;
+  error?: any;
 };
 
 export function ProductShopDetailsView({ product, error, loading }: Props) {
-  const checkout = useCheckoutContext();
+  const { state: checkoutState, onAddToCart } = useCheckoutContext();
+
+  const containerStyles: SxProps<Theme> = {
+    mt: 5,
+    mb: 10,
+  };
 
   const tabs = useTabs('description');
 
   if (loading) {
     return (
-      <Container sx={{ mt: 5, mb: 10 }}>
+      <Container sx={containerStyles}>
         <ProductDetailsSkeleton />
       </Container>
     );
@@ -71,7 +76,7 @@ export function ProductShopDetailsView({ product, error, loading }: Props) {
 
   if (error) {
     return (
-      <Container sx={{ mt: 5, mb: 10 }}>
+      <Container sx={containerStyles}>
         <EmptyContent
           filled
           title="Product not found!"
@@ -92,8 +97,8 @@ export function ProductShopDetailsView({ product, error, loading }: Props) {
   }
 
   return (
-    <Container sx={{ mt: 5, mb: 10 }}>
-      <CartIcon totalItems={checkout.totalItems} />
+    <Container sx={containerStyles}>
+      <CartIcon totalItems={checkoutState.totalItems} />
 
       <CustomBreadcrumbs
         links={[
@@ -105,28 +110,28 @@ export function ProductShopDetailsView({ product, error, loading }: Props) {
       />
 
       <Grid container spacing={{ xs: 3, md: 5, lg: 8 }}>
-        <Grid xs={12} md={6} lg={7}>
+        <Grid size={{ xs: 12, md: 6, lg: 7 }}>
           <ProductDetailsCarousel images={product?.images} />
         </Grid>
 
-        <Grid xs={12} md={6} lg={5}>
+        <Grid size={{ xs: 12, md: 6, lg: 5 }}>
           {product && (
             <ProductDetailsSummary
               product={product}
-              items={checkout.items}
-              onAddCart={checkout.onAddToCart}
-              onGotoStep={checkout.onGotoStep}
+              items={checkoutState.items}
+              onAddToCart={onAddToCart}
               disableActions={!product?.available}
             />
           )}
         </Grid>
       </Grid>
-
       <Box
-        gap={5}
-        display="grid"
-        gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' }}
-        sx={{ my: 10 }}
+        sx={{
+          gap: 5,
+          my: 10,
+          display: 'grid',
+          gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' },
+        }}
       >
         {SUMMARY.map((item) => (
           <Box key={item.title} sx={{ textAlign: 'center', px: 5 }}>
@@ -147,11 +152,12 @@ export function ProductShopDetailsView({ product, error, loading }: Props) {
         <Tabs
           value={tabs.value}
           onChange={tabs.onChange}
-          sx={{
-            px: 3,
-            boxShadow: (theme) =>
-              `inset 0 -2px 0 0 ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}`,
-          }}
+          sx={[
+            (theme) => ({
+              px: 3,
+              boxShadow: `inset 0 -2px 0 0 ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}`,
+            }),
+          ]}
         >
           {[
             { value: 'description', label: 'Description' },

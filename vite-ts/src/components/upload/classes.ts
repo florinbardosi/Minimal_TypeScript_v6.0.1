@@ -1,10 +1,12 @@
+import { createClasses } from 'src/theme/create-classes';
+
 // ----------------------------------------------------------------------
 
 export const uploadClasses = {
-  upload: 'mnl__upload',
-  uploadBox: 'mnl__upload__box',
-  uploadAvatar: 'mnl__upload__avatar',
-  uploadSinglePreview: 'mnl__upload__single__preview',
-  uploadMultiPreview: 'mnl__upload__multi__preview',
-  uploadRejectionFiles: 'mnl__upload__rejection__files',
+  upload: createClasses('upload'),
+  uploadBox: createClasses('upload__box'),
+  uploadAvatar: createClasses('upload__avatar'),
+  uploadSinglePreview: createClasses('upload__single__preview'),
+  uploadMultiPreview: createClasses('upload__multi__preview'),
+  uploadRejectionFiles: createClasses('upload__rejection__files'),
 };

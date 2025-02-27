@@ -1,5 +1,4 @@
 import type { ButtonProps } from '@mui/material/Button';
-import type { Theme, SxProps } from '@mui/material/styles';
 
 import { useCallback } from 'react';
 
@@ -13,11 +12,10 @@ import { signOut } from 'src/auth/context/jwt/action';
 // ----------------------------------------------------------------------
 
 type Props = ButtonProps & {
-  sx?: SxProps<Theme>;
   onClose?: () => void;
 };
 
-export function SignOutButton({ onClose, ...other }: Props) {
+export function SignOutButton({ onClose, sx, ...other }: Props) {
   const router = useRouter();
 
   const { checkUserSession } = useAuthContext();
@@ -35,7 +33,15 @@ export function SignOutButton({ onClose, ...other }: Props) {
   }, [checkUserSession, onClose, router]);
 
   return (
-    <Button fullWidth variant="soft" size="large" color="error" onClick={handleLogout} {...other}>
+    <Button
+      fullWidth
+      variant="soft"
+      size="large"
+      color="error"
+      onClick={handleLogout}
+      sx={sx}
+      {...other}
+    >
       Logout
     </Button>
   );

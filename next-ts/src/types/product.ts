@@ -15,13 +15,6 @@ export type IProductTableFilters = {
   publish: string[];
 };
 
-export type IProductReviewNewForm = {
-  rating: number | null;
-  review: string;
-  name: string;
-  email: string;
-};
-
 export type IProductReview = {
   id: string;
   name: string;
@@ -60,17 +53,17 @@ export type IProductItem = {
   subDescription: string;
   priceSale: number | null;
   reviews: IProductReview[];
+  newLabel: {
+    content: string;
+    enabled: boolean;
+  };
+  saleLabel: {
+    content: string;
+    enabled: boolean;
+  };
   ratings: {
     name: string;
     starCount: number;
     reviewCount: number;
   }[];
-  saleLabel: {
-    enabled: boolean;
-    content: string;
-  };
-  newLabel: {
-    enabled: boolean;
-    content: string;
-  };
 };

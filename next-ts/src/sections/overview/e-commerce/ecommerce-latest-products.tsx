@@ -27,9 +27,9 @@ type Props = CardProps & {
   }[];
 };
 
-export function EcommerceLatestProducts({ title, subheader, list, ...other }: Props) {
+export function EcommerceLatestProducts({ title, subheader, list, sx, ...other }: Props) {
   return (
-    <Card {...other}>
+    <Card sx={sx} {...other}>
       <CardHeader title={title} subheader={subheader} />
 
       <Scrollbar sx={{ minHeight: 384 }}>
@@ -60,12 +60,7 @@ type ItemProps = BoxProps & {
 function Item({ item, sx, ...other }: ItemProps) {
   return (
     <Box
-      sx={{
-        gap: 2,
-        display: 'flex',
-        alignItems: 'center',
-        ...sx,
-      }}
+      sx={[{ gap: 2, display: 'flex', alignItems: 'center' }, ...(Array.isArray(sx) ? sx : [sx])]}
       {...other}
     >
       <Avatar
@@ -76,13 +71,26 @@ function Item({ item, sx, ...other }: ItemProps) {
       />
 
       <Box
-        sx={{ gap: 0.5, minWidth: 0, display: 'flex', flex: '1 1 auto', flexDirection: 'column' }}
+        sx={{
+          gap: 0.5,
+          minWidth: 0,
+          display: 'flex',
+          flex: '1 1 auto',
+          flexDirection: 'column',
+        }}
       >
         <Link noWrap sx={{ color: 'text.primary', typography: 'subtitle2' }}>
           {item.name}
         </Link>
 
-        <Box sx={{ gap: 0.5, display: 'flex', typography: 'body2', color: 'text.secondary' }}>
+        <Box
+          sx={{
+            gap: 0.5,
+            display: 'flex',
+            typography: 'body2',
+            color: 'text.secondary',
+          }}
+        >
           {!!item.priceSale && (
             <Box component="span" sx={{ textDecoration: 'line-through' }}>
               {fCurrency(item.priceSale)}

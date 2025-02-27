@@ -1,18 +1,16 @@
-import { paths } from 'src/routes/paths';
-
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
+import type { Theme, SxProps } from '@mui/material/styles';
 
 import { BasicTable } from './basic';
 import { CollapsibleTable } from './collapsible';
-import { ComponentHero } from '../../component-hero';
-import { ComponentBlock } from '../../component-block';
+import { PaginationWithApi } from './pagination-with-api';
 import { SortingSelectingTable } from './sorting-selecting';
-import { ScrollToViewTemplate } from '../../component-template';
+import { ComponentBox, ComponentLayout } from '../../layout';
 import { GroupingFixedHeaderTable } from './grouping-fixed-header';
+import { TablePaginationWithApi } from './table-pagination-with-api';
 
 // ----------------------------------------------------------------------
 
-const blockProps = {
+const componentBoxStyles: SxProps<Theme> = {
   p: 0,
   overflow: 'hidden',
   alignItems: 'unset',
@@ -20,53 +18,67 @@ const blockProps = {
   bgcolor: 'background.paper',
 };
 
-const DEMO = [
+const DEMO_COMPONENTS = [
   {
     name: 'Basic Table',
     component: (
-      <ComponentBlock sx={blockProps}>
+      <ComponentBox sx={componentBoxStyles}>
         <BasicTable />
-      </ComponentBlock>
+      </ComponentBox>
     ),
   },
   {
     name: 'Sorting & selecting',
     component: (
-      <ComponentBlock sx={blockProps}>
+      <ComponentBox sx={{ ...componentBoxStyles, gap: 0 }}>
         <SortingSelectingTable />
-      </ComponentBlock>
+      </ComponentBox>
     ),
   },
   {
     name: 'Grouping & fixed header',
     component: (
-      <ComponentBlock sx={blockProps}>
+      <ComponentBox sx={componentBoxStyles}>
         <GroupingFixedHeaderTable />
-      </ComponentBlock>
+      </ComponentBox>
     ),
   },
   {
     name: 'Collapsible table',
     component: (
-      <ComponentBlock sx={blockProps}>
+      <ComponentBox sx={componentBoxStyles}>
         <CollapsibleTable />
-      </ComponentBlock>
+      </ComponentBox>
+    ),
+  },
+  {
+    name: 'Pagination with API',
+    component: (
+      <ComponentBox sx={{ ...componentBoxStyles, gap: 0 }}>
+        <PaginationWithApi />
+      </ComponentBox>
+    ),
+  },
+  {
+    name: 'Table pagination with API',
+    component: (
+      <ComponentBox sx={{ ...componentBoxStyles, gap: 0 }}>
+        <TablePaginationWithApi />
+      </ComponentBox>
     ),
   },
 ];
 
+// ----------------------------------------------------------------------
+
 export function TableView() {
   return (
-    <>
-      <ComponentHero>
-        <CustomBreadcrumbs
-          heading="Table"
-          links={[{ name: 'Components', href: paths.components }, { name: 'Table' }]}
-          moreLink={['https://mui.com/components/tables']}
-        />
-      </ComponentHero>
-
-      <ScrollToViewTemplate data={DEMO} />
-    </>
+    <ComponentLayout
+      sectionData={DEMO_COMPONENTS}
+      heroProps={{
+        heading: 'Table',
+        moreLinks: ['https://mui.com/material-ui/react-table/'],
+      }}
+    />
   );
 }

@@ -1,12 +1,14 @@
+import { createClasses } from 'src/theme/create-classes';
+
 // ----------------------------------------------------------------------
 
 export const markdownClasses = {
-  root: 'nml__markdown__root',
+  root: createClasses('markdown__root'),
   content: {
-    pre: 'nml__editor__content__pre',
-    codeInline: 'nml__editor__content__codeInline',
-    codeBlock: 'nml__editor__content__codeBlock',
-    image: 'nml__editor__content__image',
-    link: 'nml__editor__content__link',
+    pre: createClasses('markdown__content__pre'),
+    codeInline: createClasses('markdown__content__codeInline'),
+    codeBlock: createClasses('markdown__content__codeBlock'),
+    image: createClasses('markdown__content__image'),
+    link: createClasses('markdown__content__link'),
   },
 };

@@ -9,14 +9,16 @@ export function SignUpTerms({ sx, ...other }: BoxProps) {
   return (
     <Box
       component="span"
-      sx={{
-        mt: 3,
-        display: 'block',
-        textAlign: 'center',
-        typography: 'caption',
-        color: 'text.secondary',
-        ...sx,
-      }}
+      sx={[
+        () => ({
+          mt: 3,
+          display: 'block',
+          textAlign: 'center',
+          typography: 'caption',
+          color: 'text.secondary',
+        }),
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...other}
     >
       {'By signing up, I agree to '}

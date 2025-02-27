@@ -20,7 +20,7 @@ type Props = CardProps & {
   };
 };
 
-export function CourseMyStrength({ title, chart, ...other }: Props) {
+export function CourseMyStrength({ title, chart, sx, ...other }: Props) {
   const theme = useTheme();
 
   const chartColors = chart.colors ?? [theme.palette.primary.main];
@@ -47,16 +47,14 @@ export function CourseMyStrength({ title, chart, ...other }: Props) {
   });
 
   return (
-    <Card {...other}>
+    <Card sx={sx} {...other}>
       <Typography variant="h6">{title}</Typography>
       <Chart
         type="radar"
         series={chart.series}
         options={chartOptions}
-        width={280}
-        height={280}
-        loadingProps={{ sx: { py: 2.5 } }}
-        sx={{ mx: 'auto' }}
+        slotProps={{ loading: { py: 2.5 } }}
+        sx={{ mx: 'auto', width: 280, height: 280 }}
       />
     </Card>
   );

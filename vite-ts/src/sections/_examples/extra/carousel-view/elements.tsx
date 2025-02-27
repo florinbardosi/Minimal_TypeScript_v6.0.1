@@ -21,12 +21,14 @@ export function PlayButton({
       color={isPlaying ? 'error' : 'primary'}
       variant="contained"
       startIcon={<Iconify icon={isPlaying ? 'solar:stop-circle-bold' : 'solar:play-circle-bold'} />}
-      sx={{
-        top: 24,
-        right: 24,
-        position: 'absolute',
-        ...sx,
-      }}
+      sx={[
+        () => ({
+          top: 24,
+          right: 24,
+          position: 'absolute',
+        }),
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...other}
     >
       {isPlaying ? 'Stop' : 'Play'}
@@ -45,22 +47,24 @@ export function IndexLabel({
 }) {
   return (
     <Box
-      sx={{
-        top: 16,
-        left: 16,
-        width: 24,
-        zIndex: 9,
-        height: 24,
-        display: 'flex',
-        color: 'grey.800',
-        borderRadius: '50%',
-        position: 'absolute',
-        alignItems: 'center',
-        bgcolor: 'common.white',
-        typography: 'subtitle2',
-        justifyContent: 'center',
-        ...sx,
-      }}
+      sx={[
+        () => ({
+          top: 16,
+          left: 16,
+          width: 24,
+          zIndex: 9,
+          height: 24,
+          display: 'flex',
+          color: 'grey.800',
+          borderRadius: '50%',
+          position: 'absolute',
+          alignItems: 'center',
+          bgcolor: 'common.white',
+          typography: 'subtitle2',
+          justifyContent: 'center',
+        }),
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...other}
     >
       {index}

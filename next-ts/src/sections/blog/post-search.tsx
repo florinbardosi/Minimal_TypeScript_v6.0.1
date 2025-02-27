@@ -1,16 +1,22 @@
 import type { IPostItem } from 'src/types/blog';
+import type { Theme, SxProps } from '@mui/material/styles';
 
+import { useState, useCallback } from 'react';
 import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
+import { useDebounce } from 'minimal-shared/hooks';
 
-import Link from '@mui/material/Link';
 import Avatar from '@mui/material/Avatar';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import Link, { linkClasses } from '@mui/material/Link';
 import InputAdornment from '@mui/material/InputAdornment';
 import Autocomplete, { autocompleteClasses } from '@mui/material/Autocomplete';
 
 import { useRouter } from 'src/routes/hooks';
+import { RouterLink } from 'src/routes/components';
+
+import { useSearchPosts } from 'src/actions/blog';
 
 import { Iconify } from 'src/components/iconify';
 import { SearchNotFound } from 'src/components/search-not-found';
@@ -18,61 +24,78 @@ import { SearchNotFound } from 'src/components/search-not-found';
 // ----------------------------------------------------------------------
 
 type Props = {
-  query: string;
-  results: IPostItem[];
-  onSearch: (inputValue: string) => void;
-  hrefItem: (title: string) => string;
-  loading?: boolean;
+  sx?: SxProps<Theme>;
+  redirectPath: (title: string) => string;
 };
 
-export function PostSearch({ query, results, onSearch, hrefItem, loading }: Props) {
+export function PostSearch({ redirectPath, sx }: Props) {
   const router = useRouter();
 
-  const handleClick = (title: string) => {
-    router.push(hrefItem(title));
-  };
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedItem, setSelectedItem] = useState<IPostItem | null>(null);
 
-  const handleKeyUp = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (query) {
-      if (event.key === 'Enter') {
-        handleClick(query);
+  const debouncedQuery = useDebounce(searchQuery);
+  const { searchResults: options, searchLoading: loading } = useSearchPosts(debouncedQuery);
+
+  const handleChange = useCallback(
+    (item: IPostItem | null) => {
+      setSelectedItem(item);
+      if (item) {
+        router.push(redirectPath(item.title));
       }
-    }
+    },
+    [redirectPath, router]
+  );
+
+  const paperStyles: SxProps<Theme> = {
+    width: 320,
+    [` .${autocompleteClasses.listbox}`]: {
+      [` .${autocompleteClasses.option}`]: {
+        p: 0,
+        [` .${linkClasses.root}`]: {
+          p: 0.75,
+          gap: 1.5,
+          width: 1,
+          display: 'flex',
+          alignItems: 'center',
+        },
+      },
+    },
   };
 
   return (
     <Autocomplete
-      sx={{ width: { xs: 1, sm: 260 } }}
-      loading={loading}
       autoHighlight
       popupIcon={null}
-      options={results}
-      onInputChange={(event, newValue) => onSearch(newValue)}
+      loading={loading}
+      options={options}
+      value={selectedItem}
+      onChange={(event, newValue) => handleChange(newValue)}
+      onInputChange={(event, newValue) => setSearchQuery(newValue)}
       getOptionLabel={(option) => option.title}
-      noOptionsText={<SearchNotFound query={query} />}
+      noOptionsText={<SearchNotFound query={debouncedQuery} />}
       isOptionEqualToValue={(option, value) => option.id === value.id}
-      slotProps={{
-        popper: { placement: 'bottom-start', sx: { minWidth: 320 } },
-        paper: { sx: { [` .${autocompleteClasses.option}`]: { pl: 0.75 } } },
-      }}
+      slotProps={{ paper: { sx: paperStyles } }}
+      sx={[{ width: { xs: 1, sm: 260 } }, ...(Array.isArray(sx) ? sx : [sx])]}
       renderInput={(params) => (
         <TextField
           {...params}
           placeholder="Search..."
-          onKeyUp={handleKeyUp}
-          InputProps={{
-            ...params.InputProps,
-            startAdornment: (
-              <InputAdornment position="start">
-                <Iconify icon="eva:search-fill" sx={{ ml: 1, color: 'text.disabled' }} />
-              </InputAdornment>
-            ),
-            endAdornment: (
-              <>
-                {loading ? <Iconify icon="svg-spinners:8-dots-rotate" sx={{ mr: -3 }} /> : null}
-                {params.InputProps.endAdornment}
-              </>
-            ),
+          slotProps={{
+            input: {
+              ...params.InputProps,
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Iconify icon="eva:search-fill" sx={{ ml: 1, color: 'text.disabled' }} />
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <>
+                  {loading ? <Iconify icon="svg-spinners:8-dots-rotate" sx={{ mr: -3 }} /> : null}
+                  {params.InputProps.endAdornment}
+                </>
+              ),
+            },
           }}
         />
       )}
@@ -82,34 +105,40 @@ export function PostSearch({ query, results, onSearch, hrefItem, loading }: Prop
 
         return (
           <li {...props} key={post.id}>
-            <Avatar
-              key={post.id}
-              alt={post.title}
-              src={post.coverUrl}
-              variant="rounded"
-              sx={{
-                width: 48,
-                height: 48,
-                flexShrink: 0,
-                mr: 1.5,
-                borderRadius: 1,
-              }}
-            />
+            <Link
+              component={RouterLink}
+              href={redirectPath(post.title)}
+              color="inherit"
+              underline="none"
+            >
+              <Avatar
+                key={post.id}
+                alt={post.title}
+                src={post.coverUrl}
+                variant="rounded"
+                sx={{
+                  width: 48,
+                  height: 48,
+                  flexShrink: 0,
+                  borderRadius: 1,
+                }}
+              />
 
-            <Link key={inputValue} underline="none" onClick={() => handleClick(post.title)}>
-              {parts.map((part, index) => (
-                <Typography
-                  key={index}
-                  component="span"
-                  color={part.highlight ? 'primary' : 'textPrimary'}
-                  sx={{
-                    typography: 'body2',
-                    fontWeight: part.highlight ? 'fontWeightSemiBold' : 'fontWeightMedium',
-                  }}
-                >
-                  {part.text}
-                </Typography>
-              ))}
+              <div key={inputValue}>
+                {parts.map((part, index) => (
+                  <Typography
+                    key={index}
+                    component="span"
+                    color={part.highlight ? 'primary' : 'textPrimary'}
+                    sx={{
+                      typography: 'body2',
+                      fontWeight: part.highlight ? 'fontWeightSemiBold' : 'fontWeightMedium',
+                    }}
+                  >
+                    {part.text}
+                  </Typography>
+                ))}
+              </div>
             </Link>
           </li>
         );

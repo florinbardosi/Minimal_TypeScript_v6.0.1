@@ -11,8 +11,14 @@ export function FaqsForm({ sx, ...other }: BoxProps) {
   return (
     <Box sx={sx} {...other}>
       <Typography variant="h4">{`Haven't found the right help?`}</Typography>
-
-      <Box gap={3} display="flex" flexDirection="column" sx={{ my: 5 }}>
+      <Box
+        sx={{
+          my: 5,
+          gap: 3,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
         <TextField fullWidth label="Name" />
         <TextField fullWidth label="Email" />
         <TextField fullWidth label="Subject" />

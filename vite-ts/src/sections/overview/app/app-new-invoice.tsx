@@ -1,5 +1,7 @@
 import type { CardProps } from '@mui/material/Card';
-import type { TableHeadCustomProps } from 'src/components/table';
+import type { TableHeadCellProps } from 'src/components/table';
+
+import { usePopover } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -20,14 +22,14 @@ import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { TableHeadCustom } from 'src/components/table';
-import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import { CustomPopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
 type Props = CardProps & {
   title?: string;
   subheader?: string;
-  headLabel: TableHeadCustomProps['headLabel'];
+  headCells: TableHeadCellProps[];
   tableData: {
     id: string;
     price: number;
@@ -37,14 +39,14 @@ type Props = CardProps & {
   }[];
 };
 
-export function AppNewInvoice({ title, subheader, tableData, headLabel, ...other }: Props) {
+export function AppNewInvoice({ title, subheader, tableData, headCells, sx, ...other }: Props) {
   return (
-    <Card {...other}>
+    <Card sx={sx} {...other}>
       <CardHeader title={title} subheader={subheader} sx={{ mb: 3 }} />
 
       <Scrollbar sx={{ minHeight: 402 }}>
         <Table sx={{ minWidth: 680 }}>
-          <TableHeadCustom headLabel={headLabel} />
+          <TableHeadCustom headCells={headCells} />
 
           <TableBody>
             {tableData.map((row) => (
@@ -76,27 +78,60 @@ type RowItemProps = {
 };
 
 function RowItem({ row }: RowItemProps) {
-  const popover = usePopover();
+  const menuActions = usePopover();
 
   const handleDownload = () => {
-    popover.onClose();
+    menuActions.onClose();
     console.info('DOWNLOAD', row.id);
   };
 
   const handlePrint = () => {
-    popover.onClose();
+    menuActions.onClose();
     console.info('PRINT', row.id);
   };
 
   const handleShare = () => {
-    popover.onClose();
+    menuActions.onClose();
     console.info('SHARE', row.id);
   };
 
   const handleDelete = () => {
-    popover.onClose();
+    menuActions.onClose();
     console.info('DELETE', row.id);
   };
+
+  const renderMenuActions = () => (
+    <CustomPopover
+      open={menuActions.open}
+      anchorEl={menuActions.anchorEl}
+      onClose={menuActions.onClose}
+      slotProps={{ arrow: { placement: 'right-top' } }}
+    >
+      <MenuList>
+        <MenuItem onClick={handleDownload}>
+          <Iconify icon="eva:cloud-download-fill" />
+          Download
+        </MenuItem>
+
+        <MenuItem onClick={handlePrint}>
+          <Iconify icon="solar:printer-minimalistic-bold" />
+          Print
+        </MenuItem>
+
+        <MenuItem onClick={handleShare}>
+          <Iconify icon="solar:share-bold" />
+          Share
+        </MenuItem>
+
+        <Divider sx={{ borderStyle: 'dashed' }} />
+
+        <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
+          <Iconify icon="solar:trash-bin-trash-bold" />
+          Delete
+        </MenuItem>
+      </MenuList>
+    </CustomPopover>
+  );
 
   return (
     <>
@@ -121,42 +156,13 @@ function RowItem({ row }: RowItemProps) {
         </TableCell>
 
         <TableCell align="right" sx={{ pr: 1 }}>
-          <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
+          <IconButton color={menuActions.open ? 'inherit' : 'default'} onClick={menuActions.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
         </TableCell>
       </TableRow>
 
-      <CustomPopover
-        open={popover.open}
-        anchorEl={popover.anchorEl}
-        onClose={popover.onClose}
-        slotProps={{ arrow: { placement: 'right-top' } }}
-      >
-        <MenuList>
-          <MenuItem onClick={handleDownload}>
-            <Iconify icon="eva:cloud-download-fill" />
-            Download
-          </MenuItem>
-
-          <MenuItem onClick={handlePrint}>
-            <Iconify icon="solar:printer-minimalistic-bold" />
-            Print
-          </MenuItem>
-
-          <MenuItem onClick={handleShare}>
-            <Iconify icon="solar:share-bold" />
-            Share
-          </MenuItem>
-
-          <Divider sx={{ borderStyle: 'dashed' }} />
-
-          <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
-            <Iconify icon="solar:trash-bin-trash-bold" />
-            Delete
-          </MenuItem>
-        </MenuList>
-      </CustomPopover>
+      {renderMenuActions()}
     </>
   );
 }

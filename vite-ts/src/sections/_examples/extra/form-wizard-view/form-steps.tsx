@@ -21,29 +21,31 @@ export function Stepper({ steps, activeStep }: StepperProps) {
       {steps.map((label, index) => (
         <Step key={label}>
           <StepLabel
-            StepIconComponent={({ active, completed }) => (
-              <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                sx={{
-                  width: 24,
-                  height: 24,
-                  borderRadius: '50%',
-                  color: 'text.disabled',
-                  typography: 'subtitle2',
-                  bgcolor: 'action.disabledBackground',
-                  ...(active && { bgcolor: 'primary.main', color: 'primary.contrastText' }),
-                  ...(completed && { bgcolor: 'primary.main', color: 'primary.contrastText' }),
-                }}
-              >
-                {completed ? (
-                  <Iconify width={14} icon="mingcute:check-fill" />
-                ) : (
-                  <Box sx={{ typography: 'subtitle2' }}>{index + 1}</Box>
-                )}
-              </Box>
-            )}
+            slots={{
+              stepIcon: ({ active, completed }) => (
+                <Box
+                  sx={{
+                    width: 24,
+                    height: 24,
+                    display: 'flex',
+                    borderRadius: '50%',
+                    alignItems: 'center',
+                    color: 'text.disabled',
+                    typography: 'subtitle2',
+                    justifyContent: 'center',
+                    bgcolor: 'action.disabledBackground',
+                    ...(active && { bgcolor: 'primary.main', color: 'primary.contrastText' }),
+                    ...(completed && { bgcolor: 'primary.main', color: 'primary.contrastText' }),
+                  }}
+                >
+                  {completed ? (
+                    <Iconify width={14} icon="mingcute:check-fill" />
+                  ) : (
+                    <Box sx={{ typography: 'subtitle2' }}>{index + 1}</Box>
+                  )}
+                </Box>
+              ),
+            }}
           >
             {label}
           </StepLabel>
@@ -62,13 +64,13 @@ export function StepOne() {
         name="stepOne.firstName"
         label="First name"
         variant="filled"
-        InputLabelProps={{ shrink: true }}
+        slotProps={{ inputLabel: { shrink: true } }}
       />
       <Field.Text
         name="stepOne.lastName"
         label="Last name"
         variant="filled"
-        InputLabelProps={{ shrink: true }}
+        slotProps={{ inputLabel: { shrink: true } }}
       />
     </>
   );
@@ -81,7 +83,7 @@ export function StepTwo() {
       label="Age"
       type="number"
       variant="filled"
-      InputLabelProps={{ shrink: true }}
+      slotProps={{ inputLabel: { shrink: true } }}
       helperText="Age must be between 18 and 100"
     />
   );
@@ -93,7 +95,7 @@ export function StepThree() {
       name="stepThree.email"
       label="Email"
       variant="filled"
-      InputLabelProps={{ shrink: true }}
+      slotProps={{ inputLabel: { shrink: true } }}
     />
   );
 }
@@ -101,16 +103,18 @@ export function StepThree() {
 export function StepCompleted({ onReset }: { onReset: () => void }) {
   return (
     <Box
-      gap={3}
-      display="flex"
-      flex="1 1 auto"
-      alignItems="center"
-      flexDirection="column"
-      justifyContent="center"
-      sx={{ borderRadius: 'inherit', bgcolor: 'background.neutral' }}
+      sx={{
+        gap: 3,
+        display: 'flex',
+        flex: '1 1 auto',
+        alignItems: 'center',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        borderRadius: 'inherit',
+        bgcolor: 'background.neutral',
+      }}
     >
       <Typography variant="subtitle1">All steps completed - you&apos;re finished</Typography>
-
       <Button
         variant="outlined"
         onClick={onReset}

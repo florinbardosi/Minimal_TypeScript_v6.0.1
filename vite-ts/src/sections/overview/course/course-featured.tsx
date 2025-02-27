@@ -9,8 +9,6 @@ import Typography from '@mui/material/Typography';
 
 import { fCurrency, fShortenNumber } from 'src/utils/format-number';
 
-import { maxLine } from 'src/theme/styles';
-
 import { Image } from 'src/components/image';
 import { Iconify } from 'src/components/iconify';
 import { Label, labelClasses } from 'src/components/label';
@@ -34,7 +32,13 @@ export function CourseFeatured({ title, list, sx, ...other }: Props) {
   const carousel = useCarousel({
     align: 'start',
     slideSpacing: '24px',
-    slidesToShow: { xs: 1, sm: 2, md: 3, lg: '40%', xl: '30%' },
+    slidesToShow: {
+      xs: 1,
+      sm: 2,
+      md: 3,
+      lg: '40%',
+      xl: '30%',
+    },
   });
 
   return (
@@ -47,13 +51,7 @@ export function CourseFeatured({ title, list, sx, ...other }: Props) {
         <CarouselArrowBasicButtons {...carousel.arrows} />
       </Box>
 
-      <Carousel
-        carousel={carousel}
-        slotProps={{
-          slide: { py: 3 },
-        }}
-        sx={{ px: 0.5 }}
-      >
+      <Carousel carousel={carousel} slotProps={{ slide: { py: 3 } }} sx={{ px: 0.5 }}>
         {list.map((item) => (
           <CarouselItem key={item.id} item={item} />
         ))}
@@ -69,23 +67,20 @@ type CarouselItemProps = CardProps & {
 };
 
 function CarouselItem({ item, sx, ...other }: CarouselItemProps) {
-  const renderImage = (
+  const renderImage = () => (
     <Box sx={{ px: 1, pt: 1 }}>
       <Image alt={item.title} src={item.coverUrl} ratio="5/4" sx={{ borderRadius: 1.5 }} />
     </Box>
   );
 
-  const renderLabels = (
+  const renderLabels = () => (
     <Box
       sx={{
         gap: 1,
         mb: 1.5,
         display: 'flex',
         flexWrap: 'wrap',
-        [`& .${labelClasses.root}`]: {
-          typography: 'caption',
-          color: 'text.secondary',
-        },
+        [`& .${labelClasses.root}`]: { typography: 'caption', color: 'text.secondary' },
       }}
     >
       <Label startIcon={<Iconify width={12} icon="solar:clock-circle-outline" />}>1h 40m</Label>
@@ -96,7 +91,7 @@ function CarouselItem({ item, sx, ...other }: CarouselItemProps) {
     </Box>
   );
 
-  const renderFooter = (
+  const renderFooter = () => (
     <Box
       sx={{
         mt: 2.5,
@@ -108,9 +103,11 @@ function CarouselItem({ item, sx, ...other }: CarouselItemProps) {
       <Box component="span" sx={{ typography: 'h6' }}>
         {fCurrency(item.price)}
       </Box>
+
       <Box component="span" sx={{ typography: 'body2', color: 'text.secondary', flexGrow: 1 }}>
         / year
       </Box>
+
       <Button variant="contained" size="small">
         Join
       </Button>
@@ -118,24 +115,24 @@ function CarouselItem({ item, sx, ...other }: CarouselItemProps) {
   );
 
   return (
-    <Card sx={{ width: 1, ...sx }} {...other}>
-      {renderImage}
+    <Card sx={[{ width: 1 }, ...(Array.isArray(sx) ? sx : [sx])]} {...other}>
+      {renderImage()}
 
       <Box sx={{ px: 2, py: 2.5 }}>
-        {renderLabels}
+        {renderLabels()}
 
         <Link
           variant="subtitle2"
           color="inherit"
           underline="none"
           sx={(theme) => ({
-            ...maxLine({ line: 2, persistent: theme.typography.subtitle2 }),
+            ...theme.mixins.maxLine({ line: 2, persistent: theme.typography.subtitle2 }),
           })}
         >
           {item.title}
         </Link>
 
-        {renderFooter}
+        {renderFooter()}
       </Box>
     </Card>
   );

@@ -27,11 +27,7 @@ export function CarouselYaxis({ data }: Props) {
     <Box sx={{ position: 'relative' }}>
       <Carousel
         carousel={carousel}
-        sx={{
-          borderRadius: 2,
-          overflow: 'hidden',
-          height: { xs: 240, sm: 320, md: 480 },
-        }}
+        sx={{ borderRadius: 2, overflow: 'hidden', height: { xs: 240, sm: 320, md: 480 } }}
       >
         {data.map((item, index) => (
           <CarouselItem key={item.id} index={index} item={item} />
@@ -53,10 +49,7 @@ export function CarouselYaxis({ data }: Props) {
       <CarouselArrowBasicButtons
         {...carousel.arrows}
         options={carousel.options}
-        slotProps={{
-          prevBtn: { sx: { p: 0.75 } },
-          nextBtn: { sx: { p: 0.75 } },
-        }}
+        slotProps={{ prevBtn: { sx: { p: 0.75 } }, nextBtn: { sx: { p: 0.75 } } }}
         sx={{
           p: 0.5,
           gap: 0.5,

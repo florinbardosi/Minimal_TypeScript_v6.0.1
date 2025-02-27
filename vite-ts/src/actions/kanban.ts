@@ -1,10 +1,11 @@
+import type { SWRConfiguration } from 'swr';
 import type { UniqueIdentifier } from '@dnd-kit/core';
 import type { IKanban, IKanbanTask, IKanbanColumn } from 'src/types/kanban';
 
-import { useMemo } from 'react';
 import useSWR, { mutate } from 'swr';
+import { useMemo, startTransition } from 'react';
 
-import axios, { fetcher, endpoints } from 'src/utils/axios';
+import axios, { fetcher, endpoints } from 'src/lib/axios';
 
 // ----------------------------------------------------------------------
 
@@ -12,7 +13,7 @@ const enableServer = false;
 
 const KANBAN_ENDPOINT = endpoints.kanban;
 
-const swrOptions = {
+const swrOptions: SWRConfiguration = {
   revalidateIfStale: enableServer,
   revalidateOnFocus: enableServer,
   revalidateOnReconnect: enableServer,
@@ -40,7 +41,7 @@ export function useGetBoard() {
       boardLoading: isLoading,
       boardError: error,
       boardValidating: isValidating,
-      boardEmpty: !isLoading && !columns.length,
+      boardEmpty: !isLoading && !isValidating && !columns.length,
     };
   }, [data?.board.columns, data?.board.tasks, error, isLoading, isValidating]);
 
@@ -92,25 +93,27 @@ export async function updateColumn(columnId: UniqueIdentifier, columnName: strin
   /**
    * Work in local
    */
-  mutate(
-    KANBAN_ENDPOINT,
-    (currentData) => {
-      const { board } = currentData as BoardData;
+  startTransition(() => {
+    mutate(
+      KANBAN_ENDPOINT,
+      (currentData) => {
+        const { board } = currentData as BoardData;
 
-      const columns = board.columns.map((column) =>
-        column.id === columnId
-          ? {
-              // Update data when found
-              ...column,
-              name: columnName,
-            }
-          : column
-      );
+        const columns = board.columns.map((column) =>
+          column.id === columnId
+            ? {
+                // Update data when found
+                ...column,
+                name: columnName,
+              }
+            : column
+        );
 
-      return { ...currentData, board: { ...board, columns } };
-    },
-    false
-  );
+        return { ...currentData, board: { ...board, columns } };
+      },
+      false
+    );
+  });
 }
 
 // ----------------------------------------------------------------------
@@ -119,15 +122,17 @@ export async function moveColumn(updateColumns: IKanbanColumn[]) {
   /**
    * Work in local
    */
-  mutate(
-    KANBAN_ENDPOINT,
-    (currentData) => {
-      const { board } = currentData as BoardData;
+  startTransition(() => {
+    mutate(
+      KANBAN_ENDPOINT,
+      (currentData) => {
+        const { board } = currentData as BoardData;
 
-      return { ...currentData, board: { ...board, columns: updateColumns } };
-    },
-    false
-  );
+        return { ...currentData, board: { ...board, columns: updateColumns } };
+      },
+      false
+    );
+  });
 
   /**
    * Work on server
@@ -152,18 +157,20 @@ export async function clearColumn(columnId: UniqueIdentifier) {
   /**
    * Work in local
    */
-  mutate(
-    KANBAN_ENDPOINT,
-    (currentData) => {
-      const { board } = currentData as BoardData;
+  startTransition(() => {
+    mutate(
+      KANBAN_ENDPOINT,
+      (currentData) => {
+        const { board } = currentData as BoardData;
 
-      // remove all tasks in column
-      const tasks = { ...board.tasks, [columnId]: [] };
+        // remove all tasks in column
+        const tasks = { ...board.tasks, [columnId]: [] };
 
-      return { ...currentData, board: { ...board, tasks } };
-    },
-    false
-  );
+        return { ...currentData, board: { ...board, tasks } };
+      },
+      false
+    );
+  });
 }
 
 // ----------------------------------------------------------------------
@@ -216,18 +223,20 @@ export async function createTask(columnId: UniqueIdentifier, taskData: IKanbanTa
   /**
    * Work in local
    */
-  mutate(
-    KANBAN_ENDPOINT,
-    (currentData) => {
-      const { board } = currentData as BoardData;
+  startTransition(() => {
+    mutate(
+      KANBAN_ENDPOINT,
+      (currentData) => {
+        const { board } = currentData as BoardData;
 
-      // add task in board.tasks
-      const tasks = { ...board.tasks, [columnId]: [taskData, ...board.tasks[columnId]] };
+        // add task in board.tasks
+        const tasks = { ...board.tasks, [columnId]: [taskData, ...board.tasks[columnId]] };
 
-      return { ...currentData, board: { ...board, tasks } };
-    },
-    false
-  );
+        return { ...currentData, board: { ...board, tasks } };
+      },
+      false
+    );
+  });
 }
 
 // ----------------------------------------------------------------------
@@ -244,31 +253,33 @@ export async function updateTask(columnId: UniqueIdentifier, taskData: IKanbanTa
   /**
    * Work in local
    */
-  mutate(
-    KANBAN_ENDPOINT,
-    (currentData) => {
-      const { board } = currentData as BoardData;
+  startTransition(() => {
+    mutate(
+      KANBAN_ENDPOINT,
+      (currentData) => {
+        const { board } = currentData as BoardData;
 
-      // tasks in column
-      const tasksInColumn = board.tasks[columnId];
+        // tasks in column
+        const tasksInColumn = board.tasks[columnId];
 
-      // find and update task
-      const updateTasks = tasksInColumn.map((task) =>
-        task.id === taskData.id
-          ? {
-              // Update data when found
-              ...task,
-              ...taskData,
-            }
-          : task
-      );
+        // find and update task
+        const updateTasks = tasksInColumn.map((task) =>
+          task.id === taskData.id
+            ? {
+                // Update data when found
+                ...task,
+                ...taskData,
+              }
+            : task
+        );
 
-      const tasks = { ...board.tasks, [columnId]: updateTasks };
+        const tasks = { ...board.tasks, [columnId]: updateTasks };
 
-      return { ...currentData, board: { ...board, tasks } };
-    },
-    false
-  );
+        return { ...currentData, board: { ...board, tasks } };
+      },
+      false
+    );
+  });
 }
 
 // ----------------------------------------------------------------------
@@ -277,18 +288,20 @@ export async function moveTask(updateTasks: IKanban['tasks']) {
   /**
    * Work in local
    */
-  mutate(
-    KANBAN_ENDPOINT,
-    (currentData) => {
-      const { board } = currentData as BoardData;
+  startTransition(() => {
+    mutate(
+      KANBAN_ENDPOINT,
+      (currentData) => {
+        const { board } = currentData as BoardData;
 
-      // update board.tasks
-      const tasks = updateTasks;
+        // update board.tasks
+        const tasks = updateTasks;
 
-      return { ...currentData, board: { ...board, tasks } };
-    },
-    false
-  );
+        return { ...currentData, board: { ...board, tasks } };
+      },
+      false
+    );
+  });
 
   /**
    * Work on server

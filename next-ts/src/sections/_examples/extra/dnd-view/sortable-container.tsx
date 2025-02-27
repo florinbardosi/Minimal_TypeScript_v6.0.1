@@ -1,3 +1,4 @@
+import type { BoxProps } from '@mui/material/Box';
 import type { DropAnimation, UniqueIdentifier } from '@dnd-kit/core';
 import type { NewIndexGetter, AnimateLayoutChanges } from '@dnd-kit/sortable';
 
@@ -26,7 +27,6 @@ import {
 } from '@dnd-kit/core';
 
 import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
 import Portal from '@mui/material/Portal';
 import Button from '@mui/material/Button';
 
@@ -36,17 +36,25 @@ import ItemBase from './sortable-item-base';
 // ----------------------------------------------------------------------
 
 const dropAnimationConfig: DropAnimation = {
-  sideEffects: defaultDropAnimationSideEffects({ styles: { active: { opacity: '0.5' } } }),
+  sideEffects: defaultDropAnimationSideEffects({
+    styles: { active: { opacity: '0.5' } },
+  }),
 };
 
-type Props = {
+type Props = BoxProps & {
   swap?: boolean;
   itemCount?: number;
   layout?: 'grid' | 'vertical' | 'horizontal';
 };
 
-export function SortableContainer({ itemCount = 12, swap = false, layout = 'grid' }: Props) {
-  const createItems = [...Array(itemCount)].map((_, index) => index + 1);
+export function SortableContainer({
+  sx,
+  itemCount = 12,
+  swap = false,
+  layout = 'grid',
+  ...other
+}: Props) {
+  const createItems = Array.from({ length: itemCount }, (_, index) => index + 1);
 
   const [items, setItems] = useState<UniqueIdentifier[]>(createItems);
 
@@ -64,7 +72,7 @@ export function SortableContainer({ itemCount = 12, swap = false, layout = 'grid
 
   const getIndex = (id: UniqueIdentifier) => items.indexOf(id);
 
-  const activeIndex = activeId ? getIndex(activeId) : -1;
+  const activeIndex = activeId != null ? getIndex(activeId) : -1;
 
   const strategy = swap ? rectSwappingStrategy : rectSortingStrategy;
   const reorderItems = swap ? arraySwap : arrayMove;
@@ -80,7 +88,7 @@ export function SortableContainer({ itemCount = 12, swap = false, layout = 'grid
     : undefined;
 
   useEffect(() => {
-    if (!activeId) {
+    if (activeId == null) {
       isFirstAnnouncement.current = true;
     }
   }, [activeId]);
@@ -94,8 +102,24 @@ export function SortableContainer({ itemCount = 12, swap = false, layout = 'grid
     setItems(updatedItems);
   };
 
+  const renderDragOverlay = () => (
+    <Portal>
+      <DragOverlay dropAnimation={dropAnimationConfig}>
+        {activeId != null ? (
+          <ItemBase item={items[activeIndex]} stateProps={{ dragOverlay: true }} />
+        ) : null}
+      </DragOverlay>
+    </Portal>
+  );
+
   return (
-    <Stack alignItems="flex-end">
+    <Box
+      sx={[
+        { display: 'flex', alignItems: 'flex-end', flexDirection: 'column' },
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
+      {...other}
+    >
       <Button variant="contained" onClick={handleAdd}>
         + Add item
       </Button>
@@ -132,9 +156,15 @@ export function SortableContainer({ itemCount = 12, swap = false, layout = 'grid
               width: 1,
               ...(layout === 'grid' && {
                 display: 'grid',
-                gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(4, 1fr)' },
+                gridTemplateColumns: {
+                  xs: 'repeat(2, 1fr)',
+                  sm: 'repeat(4, 1fr)',
+                },
               }),
-              ...(layout === 'vertical' && { display: 'flex', flexDirection: 'column' }),
+              ...(layout === 'vertical' && {
+                display: 'flex',
+                flexDirection: 'column',
+              }),
               ...(layout === 'horizontal' && {
                 display: 'flex',
                 overflowX: 'auto',
@@ -155,15 +185,9 @@ export function SortableContainer({ itemCount = 12, swap = false, layout = 'grid
           </Box>
         </SortableContext>
 
-        <Portal>
-          <DragOverlay dropAnimation={dropAnimationConfig}>
-            {activeId ? (
-              <ItemBase item={items[activeIndex]} stateProps={{ dragOverlay: true }} />
-            ) : null}
-          </DragOverlay>
-        </Portal>
+        {renderDragOverlay()}
       </DndContext>
-    </Stack>
+    </Box>
   );
 }
 
@@ -179,7 +203,7 @@ interface SortableItemProps {
   onRemove?: () => void;
 }
 
-export function SortableGridItem({ id, index, onRemove, getNewIndex }: SortableItemProps) {
+function SortableGridItem({ id, index, onRemove, getNewIndex }: SortableItemProps) {
   const {
     isSorting,
     transform,

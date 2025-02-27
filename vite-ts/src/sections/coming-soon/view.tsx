@@ -1,3 +1,6 @@
+import { varAlpha } from 'minimal-shared/utils';
+import { useCountdownDate } from 'minimal-shared/hooks';
+
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
@@ -8,10 +11,7 @@ import Typography from '@mui/material/Typography';
 import InputAdornment from '@mui/material/InputAdornment';
 import { outlinedInputClasses } from '@mui/material/OutlinedInput';
 
-import { useCountdownDate } from 'src/hooks/use-countdown';
-
 import { _socials } from 'src/_mock';
-import { varAlpha } from 'src/theme/styles';
 import { ComingSoonIllustration } from 'src/assets/illustrations';
 import { TwitterIcon, FacebookIcon, LinkedinIcon, InstagramIcon } from 'src/assets/icons';
 
@@ -33,10 +33,8 @@ export function ComingSoonView() {
       <ComingSoonIllustration sx={{ my: { xs: 5, sm: 10 } }} />
 
       <Stack
-        direction="row"
-        justifyContent="center"
         divider={<Box sx={{ mx: { xs: 1, sm: 2.5 } }}>:</Box>}
-        sx={{ typography: 'h2' }}
+        sx={{ typography: 'h2', justifyContent: 'center', flexDirection: 'row' }}
       >
         <TimeBlock label="days" value={countdown.days} />
         <TimeBlock label="hours" value={countdown.hours} />
@@ -47,35 +45,36 @@ export function ComingSoonView() {
       <TextField
         fullWidth
         placeholder="Enter your email"
-        InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              <Button variant="contained" size="large">
-                Notify me
-              </Button>
-            </InputAdornment>
-          ),
-          sx: {
-            pr: 0.5,
-            [`&.${outlinedInputClasses.focused}`]: {
-              boxShadow: (theme) => theme.customShadows.z20,
-              transition: (theme) =>
-                theme.transitions.create(['box-shadow'], {
-                  duration: theme.transitions.duration.shorter,
-                }),
-              [`& .${outlinedInputClasses.notchedOutline}`]: {
-                border: (theme) =>
-                  `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.32)}`,
-              },
-            },
+        slotProps={{
+          input: {
+            endAdornment: (
+              <InputAdornment position="end">
+                <Button variant="contained" size="large">
+                  Notify me
+                </Button>
+              </InputAdornment>
+            ),
+            sx: [
+              (theme) => ({
+                pr: 0.5,
+                [`&.${outlinedInputClasses.focused}`]: {
+                  boxShadow: theme.vars.customShadows.z20,
+                  transition: theme.transitions.create(['box-shadow'], {
+                    duration: theme.transitions.duration.shorter,
+                  }),
+                  [`& .${outlinedInputClasses.notchedOutline}`]: {
+                    border: `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.32)}`,
+                  },
+                },
+              }),
+            ],
           },
         }}
         sx={{ my: 5 }}
       />
-
-      <Box gap={1} display="flex" justifyContent="center">
+      <Box sx={{ gap: 1, display: 'flex', justifyContent: 'center' }}>
         {_socials.map((social) => (
-          <IconButton key={social.label} color="inherit">
+          <IconButton key={social.label}>
             {social.value === 'facebook' && <FacebookIcon />}
             {social.value === 'instagram' && <InstagramIcon />}
             {social.value === 'linkedin' && <LinkedinIcon />}

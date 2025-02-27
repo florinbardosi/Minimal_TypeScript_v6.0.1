@@ -35,8 +35,12 @@ export function ChartDonut({ chart }: Props) {
       <ChartLegends
         labels={chartOptions?.labels}
         colors={chartOptions?.colors}
+        values={chart.series.map((value) => value.toString())}
+        sublabels={chart.series.map((value) => value.toString())}
         sx={{
           p: 3,
+          gap: 5,
+          textAlign: 'center',
           justifyContent: 'center',
         }}
       />
@@ -45,11 +49,11 @@ export function ChartDonut({ chart }: Props) {
         type="donut"
         series={chart.series}
         options={chartOptions}
-        width={240}
-        height={240}
         sx={{
           my: 3,
           mx: 'auto',
+          width: 240,
+          height: 240,
         }}
       />
     </>

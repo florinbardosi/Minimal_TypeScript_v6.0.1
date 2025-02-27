@@ -1,14 +1,15 @@
-import type { MapProps, MarkerDragEvent } from 'react-map-gl';
+import type { MapProps } from 'src/components/map';
+import type { MarkerDragEvent } from 'react-map-gl';
 
 import { useState, useCallback } from 'react';
 
-import { Map, MapMarker, MapControl } from 'src/components/map';
+import { Map, MapMarker, MapControls } from 'src/components/map';
 
-import { ControlPanel } from './control-panel';
+import { MapControlPanel } from './control-panel';
 
 // ----------------------------------------------------------------------
 
-export function MapDraggableMarkers({ ...other }: MapProps) {
+export function MapDraggableMarkers({ sx, ...other }: MapProps) {
   const [marker, setMarker] = useState({ latitude: 40, longitude: -100 });
 
   const [events, logEvents] = useState({});
@@ -28,22 +29,20 @@ export function MapDraggableMarkers({ ...other }: MapProps) {
   }, []);
 
   return (
-    <>
-      <Map initialViewState={{ latitude: 40, longitude: -100, zoom: 3.5 }} {...other}>
-        <MapControl />
+    <Map initialViewState={{ latitude: 40, longitude: -100, zoom: 3.5 }} sx={sx} {...other}>
+      <MapControls />
 
-        <MapMarker
-          longitude={marker.longitude}
-          latitude={marker.latitude}
-          anchor="bottom"
-          draggable
-          onDragStart={onMarkerDragStart}
-          onDrag={onMarkerDrag}
-          onDragEnd={onMarkerDragEnd}
-        />
-      </Map>
+      <MapMarker
+        longitude={marker.longitude}
+        latitude={marker.latitude}
+        anchor="bottom"
+        draggable
+        onDragStart={onMarkerDragStart}
+        onDrag={onMarkerDrag}
+        onDragEnd={onMarkerDragEnd}
+      />
 
-      <ControlPanel events={events} />
-    </>
+      <MapControlPanel events={events} />
+    </Map>
   );
 }

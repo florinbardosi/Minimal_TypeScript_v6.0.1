@@ -1,20 +1,19 @@
 import type { BoxProps } from '@mui/material/Box';
 
 import { useCallback } from 'react';
+import { useBoolean, usePopover } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import MenuList from '@mui/material/MenuList';
 import MenuItem from '@mui/material/MenuItem';
 import IconButton from '@mui/material/IconButton';
 
-import { useBoolean } from 'src/hooks/use-boolean';
-
 import { fCurrency } from 'src/utils/format-number';
 
-import { CONFIG } from 'src/config-global';
+import { CONFIG } from 'src/global-config';
 
 import { Iconify } from 'src/components/iconify';
-import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import { CustomPopover } from 'src/components/custom-popover';
 import { Carousel, useCarousel, CarouselDotButtons } from 'src/components/carousel';
 
 // ----------------------------------------------------------------------
@@ -31,52 +30,58 @@ type Props = BoxProps & {
 };
 
 export function BankingCurrentBalance({ list, sx, ...other }: Props) {
-  const currency = useBoolean();
+  const showCurrency = useBoolean();
 
   const carousel = useCarousel();
 
   return (
     <Box
-      sx={{
-        mb: 2,
-        borderRadius: 2,
-        position: 'relative',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundImage: `url('${CONFIG.assetsDir}/assets/background/background-4.jpg')`,
-        '&::before, &::after': {
-          left: 0,
-          right: 0,
-          mx: '28px',
-          zIndex: -2,
-          height: 40,
-          bottom: -16,
-          content: "''",
-          opacity: 0.16,
-          borderRadius: 1.5,
-          bgcolor: 'grey.500',
-          position: 'absolute',
-        },
-        '&::after': { mx: '16px', bottom: -8, opacity: 0.32 },
-        ...sx,
-      }}
+      sx={[
+        (theme) => ({
+          ...theme.mixins.bgGradient({
+            images: [`url(${CONFIG.assetsDir}/assets/background/background-4.jpg)`],
+          }),
+          mb: 2,
+          borderRadius: 2,
+          position: 'relative',
+          '&::before, &::after': {
+            left: 0,
+            right: 0,
+            mx: '28px',
+            zIndex: -2,
+            height: 40,
+            bottom: -16,
+            content: "''",
+            opacity: 0.16,
+            borderRadius: 1.5,
+            bgcolor: 'grey.500',
+            position: 'absolute',
+          },
+          '&::after': { mx: '16px', bottom: -8, opacity: 0.32 },
+        }),
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...other}
     >
       <CarouselDotButtons
         scrollSnaps={carousel.dots.scrollSnaps}
         selectedIndex={carousel.dots.selectedIndex}
         onClickDot={carousel.dots.onClickDot}
-        sx={{ right: 16, bottom: 16, position: 'absolute', color: 'primary.main' }}
+        sx={{
+          right: 16,
+          bottom: 16,
+          position: 'absolute',
+          color: 'primary.main',
+        }}
       />
 
       <Carousel carousel={carousel} sx={{ color: 'common.white' }}>
         {list.map((item) => (
-          <Item
+          <CarouselItem
             item={item}
             key={item.id}
-            showCurrency={currency.value}
-            onToggleCurrency={currency.onToggle}
+            showCurrency={showCurrency.value}
+            onToggleCurrency={showCurrency.onToggle}
           />
         ))}
       </Carousel>
@@ -86,38 +91,58 @@ export function BankingCurrentBalance({ list, sx, ...other }: Props) {
 
 // ----------------------------------------------------------------------
 
-type ItemProps = {
+type CarouselItemProps = {
   item: Props['list'][number];
   showCurrency: boolean;
   onToggleCurrency: () => void;
 };
 
-function Item({ item, showCurrency, onToggleCurrency }: ItemProps) {
-  const popover = usePopover();
+function CarouselItem({ item, showCurrency, onToggleCurrency }: CarouselItemProps) {
+  const menuActions = usePopover();
 
   const handleDelete = useCallback(() => {
-    popover.onClose();
+    menuActions.onClose();
     console.info('DELETE', item.id);
-  }, [item.id, popover]);
+  }, [item.id, menuActions]);
 
   const handleEdit = useCallback(() => {
-    popover.onClose();
+    menuActions.onClose();
     console.info('EDIT', item.id);
-  }, [item.id, popover]);
+  }, [item.id, menuActions]);
+
+  const renderMenuActions = () => (
+    <CustomPopover
+      open={menuActions.open}
+      anchorEl={menuActions.anchorEl}
+      onClose={menuActions.onClose}
+    >
+      <MenuList>
+        <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
+          <Iconify icon="solar:trash-bin-trash-bold" />
+          Delete
+        </MenuItem>
+
+        <MenuItem onClick={handleEdit}>
+          <Iconify icon="solar:pen-bold" />
+          Edit
+        </MenuItem>
+      </MenuList>
+    </CustomPopover>
+  );
 
   return (
     <>
       <Box sx={{ p: 3, width: 1 }}>
         <IconButton
           color="inherit"
-          onClick={popover.onOpen}
+          onClick={menuActions.onOpen}
           sx={{
             top: 8,
             right: 8,
             zIndex: 9,
             opacity: 0.48,
             position: 'absolute',
-            ...(popover.open && { opacity: 1 }),
+            ...(menuActions.open && { opacity: 1 }),
           }}
         >
           <Iconify icon="eva:more-vertical-fill" />
@@ -158,34 +183,25 @@ function Item({ item, showCurrency, onToggleCurrency }: ItemProps) {
             {item.cardType === 'mastercard' && <Iconify width={24} icon="logos:mastercard" />}
             {item.cardType === 'visa' && <Iconify width={24} icon="logos:visa" />}
           </Box>
+
           {item.cardNumber}
         </Box>
 
         <Box sx={{ gap: 5, display: 'flex', typography: 'subtitle1' }}>
           <div>
             <Box sx={{ mb: 1, opacity: 0.48, typography: 'caption' }}>Card holder</Box>
+
             <Box component="span">{item.cardHolder}</Box>
           </div>
           <div>
             <Box sx={{ mb: 1, opacity: 0.48, typography: 'caption' }}>Expiration date</Box>
+
             <Box component="span">{item.cardValid}</Box>
           </div>
         </Box>
       </Box>
 
-      <CustomPopover open={popover.open} anchorEl={popover.anchorEl} onClose={popover.onClose}>
-        <MenuList>
-          <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
-            <Iconify icon="solar:trash-bin-trash-bold" />
-            Delete
-          </MenuItem>
-
-          <MenuItem onClick={handleEdit}>
-            <Iconify icon="solar:pen-bold" />
-            Edit
-          </MenuItem>
-        </MenuList>
-      </CustomPopover>
+      {renderMenuActions()}
     </>
   );
 }

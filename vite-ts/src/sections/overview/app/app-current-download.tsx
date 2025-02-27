@@ -25,7 +25,7 @@ type Props = CardProps & {
   };
 };
 
-export function AppCurrentDownload({ title, subheader, chart, ...other }: Props) {
+export function AppCurrentDownload({ title, subheader, chart, sx, ...other }: Props) {
   const theme = useTheme();
 
   const chartColors = chart.colors ?? [
@@ -72,16 +72,19 @@ export function AppCurrentDownload({ title, subheader, chart, ...other }: Props)
   });
 
   return (
-    <Card {...other}>
+    <Card sx={sx} {...other}>
       <CardHeader title={title} subheader={subheader} />
 
       <Chart
         type="donut"
         series={chartSeries}
         options={chartOptions}
-        width={{ xs: 240, xl: 260 }}
-        height={{ xs: 240, xl: 260 }}
-        sx={{ my: 6, mx: 'auto' }}
+        sx={{
+          my: 6,
+          mx: 'auto',
+          width: { xs: 240, xl: 260 },
+          height: { xs: 240, xl: 260 },
+        }}
       />
 
       <Divider sx={{ borderStyle: 'dashed' }} />

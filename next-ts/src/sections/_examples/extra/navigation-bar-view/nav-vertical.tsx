@@ -1,3 +1,4 @@
+import { isEqual } from 'es-toolkit';
 import { useState, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
@@ -13,15 +14,17 @@ import ToggleButton from '@mui/material/ToggleButton';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
-import { isEqual } from 'src/utils/helper';
-
-import { CONFIG } from 'src/config-global';
+import { CONFIG } from 'src/global-config';
 
 import { Iconify } from 'src/components/iconify';
 import { SvgColor } from 'src/components/svg-color';
-import { NavSectionVertical, NavSectionVerticalItem } from 'src/components/nav-section';
+import {
+  navSectionCssVars,
+  NavSectionVertical,
+  NavSectionVerticalItem,
+} from 'src/components/nav-section';
 
-import { NAV_ITEMS } from './data';
+import { NAV_SECTION_ITEMS } from './data';
 
 // ----------------------------------------------------------------------
 
@@ -52,26 +55,31 @@ export function NavVertical() {
   }, []);
 
   return (
-    <Stack spacing={5} direction="row" flexWrap="wrap" justifyContent="center">
+    <Box
+      sx={{
+        gap: 5,
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+      }}
+    >
       <Paper
         variant="outlined"
         sx={{
           p: 2,
           width: 1,
           maxWidth: 320,
-          borderRadius: 2,
+          borderRadius: 1.5,
           display: 'flex',
           flexDirection: 'column',
         }}
       >
         <NavSectionVertical
-          data={NAV_ITEMS}
+          data={NAV_SECTION_ITEMS}
+          currentRole={config.currentRole}
           sx={{ flex: '1 1 auto' }}
-          cssVars={{
-            '--nav-item-gap': `${config.gap}px`,
-          }}
+          cssVars={{ '--nav-item-gap': `${config.gap}px` }}
           slotProps={{
-            currentRole: config.currentRole,
             rootItem: {
               sx: {
                 padding: config.padding,
@@ -118,16 +126,16 @@ export function NavVertical() {
           title="Chat"
           caption="Praesent porttitor nulla vitae posuere"
           icon={<SvgColor src={`${CONFIG.assetsDir}/assets/icons/navbar/ic-chat.svg`} />}
+          sx={(theme) => ({ ...navSectionCssVars.vertical(theme) })}
         />
       </Paper>
-
       <ControlsPanel
         config={config}
         onChangeConfig={handleChangeConfig}
         canReset={canReset}
         onReset={handleReset}
       />
-    </Stack>
+    </Box>
   );
 }
 
@@ -146,12 +154,12 @@ function ControlsPanel({ config, onChangeConfig, canReset, onReset }: ControlsPa
       spacing={3}
       sx={{
         p: 3,
-        borderRadius: 2,
+        borderRadius: 1.5,
         position: 'relative',
         bgcolor: 'background.neutral',
       }}
     >
-      <Box display="flex" alignItems="center">
+      <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
           Controls
         </Typography>
@@ -159,7 +167,12 @@ function ControlsPanel({ config, onChangeConfig, canReset, onReset }: ControlsPa
         {canReset && (
           <IconButton
             onClick={onReset}
-            sx={{ top: 16, right: 16, zIndex: 9, position: 'absolute' }}
+            sx={{
+              top: 16,
+              right: 16,
+              zIndex: 9,
+              position: 'absolute',
+            }}
           >
             <Badge color="error" variant="dot" invisible={!canReset}>
               <Iconify icon="solar:restart-bold" />
@@ -306,6 +319,7 @@ function ControlsPanel({ config, onChangeConfig, canReset, onReset }: ControlsPa
           <Switch
             checked={config.hiddenSubheader}
             onClick={() => onChangeConfig('hiddenSubheader', !config.hiddenSubheader)}
+            inputProps={{ id: 'hidden-subheader-switch' }}
           />
         }
         label="Hidden subheader"

@@ -26,9 +26,10 @@ export const NewAddressSchema = zod.object({
   name: zod.string().min(1, { message: 'Name is required!' }),
   address: zod.string().min(1, { message: 'Address is required!' }),
   zipCode: zod.string().min(1, { message: 'Zip code is required!' }),
-  phoneNumber: schemaHelper.phoneNumber({ isValidPhoneNumber }),
-  country: schemaHelper.objectOrNull<string | null>({
-    message: { required_error: 'Country is required!' },
+  phoneNumber: schemaHelper.phoneNumber({ isValid: isValidPhoneNumber }),
+  country: schemaHelper.nullableInput(zod.string().min(1, { message: 'Country is required!' }), {
+    // message for null value
+    message: 'Country is required!',
   }),
   // Not required
   primary: zod.boolean(),
@@ -44,7 +45,7 @@ type Props = {
 };
 
 export function AddressNewForm({ open, onClose, onCreate }: Props) {
-  const defaultValues = {
+  const defaultValues: NewAddressSchemaType = {
     name: '',
     city: '',
     state: '',
@@ -99,23 +100,27 @@ export function AddressNewForm({ open, onClose, onCreate }: Props) {
             />
 
             <Box
-              rowGap={3}
-              columnGap={2}
-              display="grid"
-              gridTemplateColumns={{ xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' }}
+              sx={{
+                rowGap: 3,
+                columnGap: 2,
+                display: 'grid',
+                gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' },
+              }}
             >
               <Field.Text name="name" label="Full name" />
 
-              <Field.Phone name="phoneNumber" label="Phone number" />
+              <Field.Phone name="phoneNumber" label="Phone number" country="US" />
             </Box>
 
             <Field.Text name="address" label="Address" />
 
             <Box
-              rowGap={3}
-              columnGap={2}
-              display="grid"
-              gridTemplateColumns={{ xs: 'repeat(1, 1fr)', sm: 'repeat(3, 1fr)' }}
+              sx={{
+                rowGap: 3,
+                columnGap: 2,
+                display: 'grid',
+                gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(3, 1fr)' },
+              }}
             >
               <Field.Text name="city" label="Town/city" />
 

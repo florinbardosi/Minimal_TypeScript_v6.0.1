@@ -2,17 +2,16 @@ import type { BoxProps } from '@mui/material/Box';
 import type { IDateValue } from 'src/types/common';
 import type { CardProps } from '@mui/material/Card';
 
+import { varAlpha } from 'minimal-shared/utils';
+
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Card from '@mui/material/Card';
-import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
 
 import { fDateTime } from 'src/utils/format-time';
 import { fPercent } from 'src/utils/format-number';
-
-import { varAlpha } from 'src/theme/styles';
 
 import { Iconify } from 'src/components/iconify';
 
@@ -29,25 +28,29 @@ type Props = CardProps & {
   }[];
 };
 
-export function CourseReminders({ title, list, ...other }: Props) {
-  const theme = useTheme();
-
-  const colors = [
-    theme.vars.palette.info.main,
-    theme.vars.palette.error.main,
-    theme.vars.palette.secondary.main,
-    theme.vars.palette.success.main,
-  ];
-
+export function CourseReminders({ title, list, sx, ...other }: Props) {
   return (
-    <Card {...other}>
+    <Card sx={sx} {...other}>
       <Typography variant="h6" sx={{ mb: 3 }}>
         {title}
       </Typography>
 
       <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
         {list.map((item, index) => (
-          <Item key={item.id} item={item} sx={{ color: colors[index] }} />
+          <Item
+            key={item.id}
+            item={item}
+            sx={[
+              (theme) => ({
+                color: [
+                  theme.vars.palette.info.main,
+                  theme.vars.palette.error.main,
+                  theme.vars.palette.secondary.main,
+                  theme.vars.palette.success.main,
+                ][index],
+              }),
+            ]}
+          />
         ))}
       </Box>
     </Card>
@@ -64,7 +67,7 @@ function Item({ item, sx, ...other }: CourseItemProps) {
   const percent = (item.currentLesson / item.totalLesson) * 100;
 
   return (
-    <Box sx={{ gap: 1.5, display: 'flex', ...sx }} {...other}>
+    <Box sx={[{ gap: 1.5, display: 'flex' }, ...(Array.isArray(sx) ? sx : [sx])]} {...other}>
       <Box
         sx={{
           width: 6,
@@ -108,12 +111,14 @@ function Item({ item, sx, ...other }: CourseItemProps) {
             color="warning"
             variant="determinate"
             value={percent}
-            sx={{
-              width: 1,
-              height: 6,
-              bgcolor: (theme) => varAlpha(theme.vars.palette.grey['500Channel'], 0.16),
-              [` .${linearProgressClasses.bar}`]: { bgcolor: 'currentColor' },
-            }}
+            sx={[
+              (theme) => ({
+                width: 1,
+                height: 6,
+                bgcolor: varAlpha(theme.vars.palette.grey['500Channel'], 0.16),
+                [` .${linearProgressClasses.bar}`]: { bgcolor: 'currentColor' },
+              }),
+            ]}
           />
           <Box
             component="span"

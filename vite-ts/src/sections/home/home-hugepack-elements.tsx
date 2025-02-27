@@ -1,22 +1,20 @@
+import type { MotionValue } from 'framer-motion';
 import type { BoxProps } from '@mui/material/Box';
-import type { MotionProps, MotionValue } from 'framer-motion';
 
-import { useRef, useState, forwardRef } from 'react';
+import { useRef, useState } from 'react';
+import { useClientRect } from 'minimal-shared/hooks';
 import { m, useSpring, useScroll, useTransform, useMotionValueEvent } from 'framer-motion';
 
 import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid2';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
-import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
 import { styled, useTheme } from '@mui/material/styles';
 
 import { paths } from 'src/routes/paths';
 
-import { useClientRect } from 'src/hooks/use-client-rect';
-
-import { CONFIG } from 'src/config-global';
-import { stylesMode } from 'src/theme/styles';
+import { CONFIG } from 'src/global-config';
 
 import { Iconify } from 'src/components/iconify';
 import { varFade, MotionViewport } from 'src/components/animate';
@@ -26,33 +24,38 @@ import { FloatLine, FloatTriangleLeftIcon } from './components/svg-elements';
 
 // ----------------------------------------------------------------------
 
-export function HomeHugePackElements({ sx, ...other }: BoxProps) {
-  const renderLines = (
-    <>
-      <FloatTriangleLeftIcon sx={{ top: 80, left: 80, opacity: 0.4 }} />
-      <FloatLine vertical sx={{ top: 0, left: 80 }} />
-    </>
-  );
+const renderLines = () => (
+  <>
+    <FloatTriangleLeftIcon sx={{ top: 80, left: 80, opacity: 0.4 }} />
+    <FloatLine vertical sx={{ top: 0, left: 80 }} />
+  </>
+);
 
+export function HomeHugePackElements({ sx, ...other }: BoxProps) {
   return (
-    <Box component="section" sx={{ pt: 10, position: 'relative', ...sx }} {...other}>
+    <Box
+      component="section"
+      sx={[
+        () => ({
+          pt: 10,
+          position: 'relative',
+        }),
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
+      {...other}
+    >
       <MotionViewport>
-        {renderLines}
+        {renderLines()}
 
         <Container sx={{ textAlign: { xs: 'center', md: 'left' } }}>
-          <Grid
-            container
-            disableEqualOverflow
-            rowSpacing={{ xs: 3, md: 0 }}
-            columnSpacing={{ xs: 0, md: 8 }}
-          >
-            <Grid xs={12} md={6} lg={7}>
+          <Grid container rowSpacing={{ xs: 3, md: 0 }} columnSpacing={{ xs: 0, md: 8 }}>
+            <Grid size={{ xs: 12, md: 6, lg: 7 }}>
               <SectionCaption title="Interface Starter Kit" />
               <SectionTitle title="Large bundle of" txtGradient="elements" sx={{ mt: 3 }} />
             </Grid>
 
-            <Grid xs={12} md={6} lg={5}>
-              <m.div variants={varFade({ distance: 24 }).inUp}>
+            <Grid size={{ xs: 12, md: 6, lg: 5 }}>
+              <m.div variants={varFade('inUp', { distance: 24 })}>
                 <Typography
                   sx={{ color: 'text.disabled', fontSize: { md: 20 }, lineHeight: { md: 36 / 20 } }}
                 >
@@ -66,7 +69,7 @@ export function HomeHugePackElements({ sx, ...other }: BoxProps) {
             </Grid>
           </Grid>
 
-          <m.div variants={varFade({ distance: 24 }).inUp}>
+          <m.div variants={varFade('inUp', { distance: 24 })}>
             <Button
               size="large"
               color="inherit"
@@ -82,58 +85,16 @@ export function HomeHugePackElements({ sx, ...other }: BoxProps) {
           </m.div>
         </Container>
       </MotionViewport>
-
-      <ScrollContent />
+      <ScrollableContent />
     </Box>
   );
 }
 
 // ----------------------------------------------------------------------
 
-const StyledRoot = styled(
-  forwardRef((props: BoxProps & MotionProps, ref) => <Box ref={ref} component={m.div} {...props} />)
-)(({ theme }) => ({
-  zIndex: 9,
-  position: 'relative',
-  paddingTop: theme.spacing(5),
-  [theme.breakpoints.up('md')]: { paddingTop: theme.spacing(15) },
-}));
-
-const StyledContainer = styled((props: MotionProps & Omit<BoxProps, 'style'>) => (
-  <Box component={m.div} {...props} />
-))(({ theme }) => ({
-  top: 0,
-  height: '100vh',
-  display: 'flex',
-  position: 'sticky',
-  overflow: 'hidden',
-  flexDirection: 'column',
-  justifyContent: 'flex-start',
-  transition: theme.transitions.create(['background-color']),
-  '&[data-scrolling="true"]': { justifyContent: 'center' },
-}));
-
-const StyledContent = styled(
-  forwardRef((props: BoxProps & MotionProps, ref) => (
-    <Box ref={ref} component={m.div} transition={{ ease: 'linear', duration: 0.25 }} {...props} />
-  ))
-)(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: theme.spacing(3),
-  [theme.breakpoints.up('md')]: { gap: theme.spacing(5) },
-}));
-
-const StyledItem = styled((props: BoxProps & MotionProps) => <Box component={m.div} {...props} />)({
-  backgroundSize: 'auto 100%',
-  backgroundRepeat: 'repeat-x',
-  backgroundPosition: 'center center',
-});
-
-// ----------------------------------------------------------------------
-
-function ScrollContent() {
+function ScrollableContent() {
   const theme = useTheme();
+  const isRtl = theme.direction === 'rtl';
 
   const containerRef = useRef<HTMLDivElement>(null);
   const containerRect = useClientRect(containerRef);
@@ -147,7 +108,7 @@ function ScrollContent() {
 
   const physics = { damping: 16, mass: 0.16, stiffness: 50 };
 
-  const scrollRange = -scrollRect.scrollWidth + containerRect.width;
+  const scrollRange = (-scrollRect.scrollWidth + containerRect.width) * (isRtl ? -1 : 1);
 
   const x1 = useSpring(useTransform(scrollYProgress, [0, 1], [0, scrollRange]), physics);
   const x2 = useSpring(useTransform(scrollYProgress, [0, 1], [scrollRange, 0]), physics);
@@ -173,33 +134,71 @@ function ScrollContent() {
   });
 
   return (
-    <StyledRoot ref={containerRef} sx={{ height: scrollRect.scrollWidth, minHeight: '100vh' }}>
-      <StyledContainer style={{ background }} data-scrolling={startScroll}>
-        <StyledContent ref={scrollRef} layout>
-          <StyledItem
+    <ScrollRoot ref={containerRef} sx={{ height: scrollRect.scrollWidth, minHeight: '100vh' }}>
+      <ScrollContainer style={{ background }} data-scrolling={startScroll}>
+        <ScrollContent ref={scrollRef} layout transition={{ ease: 'linear', duration: 0.25 }}>
+          <ScrollItem
             style={{ x: x1 }}
             sx={{
               height: { xs: 160, md: 180 },
               width: { xs: '600%', md: '400%' },
               backgroundImage: `url(${CONFIG.assetsDir}/assets/images/home/bundle-light-1.webp)`,
-              [stylesMode.dark]: {
+              ...theme.applyStyles('dark', {
                 backgroundImage: `url(${CONFIG.assetsDir}/assets/images/home/bundle-dark-1.webp)`,
-              },
+              }),
             }}
           />
-          <StyledItem
+          <ScrollItem
             style={{ x: x2 }}
             sx={{
               height: { xs: 400, md: 480 },
               width: { xs: '600%', md: '400%' },
               backgroundImage: `url(${CONFIG.assetsDir}/assets/images/home/bundle-light-2.webp)`,
-              [stylesMode.dark]: {
+              ...theme.applyStyles('dark', {
                 backgroundImage: `url(${CONFIG.assetsDir}/assets/images/home/bundle-dark-2.webp)`,
-              },
+              }),
             }}
           />
-        </StyledContent>
-      </StyledContainer>
-    </StyledRoot>
+        </ScrollContent>
+      </ScrollContainer>
+    </ScrollRoot>
   );
 }
+
+// ----------------------------------------------------------------------
+
+const ScrollRoot = styled(m.div)(({ theme }) => ({
+  zIndex: 9,
+  position: 'relative',
+  paddingTop: theme.spacing(5),
+  [theme.breakpoints.up('md')]: {
+    paddingTop: theme.spacing(15),
+  },
+}));
+
+const ScrollContainer = styled(m.div)(({ theme }) => ({
+  top: 0,
+  height: '100vh',
+  display: 'flex',
+  position: 'sticky',
+  overflow: 'hidden',
+  flexDirection: 'column',
+  justifyContent: 'flex-start',
+  transition: theme.transitions.create(['background-color']),
+  '&[data-scrolling="true"]': { justifyContent: 'center' },
+}));
+
+const ScrollContent = styled(m.div)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: theme.spacing(3),
+  [theme.breakpoints.up('md')]: {
+    gap: theme.spacing(5),
+  },
+}));
+
+const ScrollItem = styled(m.div)({
+  backgroundSize: 'auto 100%',
+  backgroundRepeat: 'repeat-x',
+  backgroundPosition: 'center center',
+});

@@ -5,10 +5,9 @@ import { m } from 'framer-motion';
 import NoSsr from '@mui/material/NoSsr';
 import Avatar from '@mui/material/Avatar';
 import SvgIcon from '@mui/material/SvgIcon';
-import { useTheme } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
 
-import { varHover, AnimateAvatar } from 'src/components/animate';
+import { varTap, varHover, AnimateBorder, transitionTap } from 'src/components/animate';
 
 // ----------------------------------------------------------------------
 
@@ -18,15 +17,15 @@ export type AccountButtonProps = IconButtonProps & {
 };
 
 export function AccountButton({ photoURL, displayName, sx, ...other }: AccountButtonProps) {
-  const theme = useTheme();
-
-  const renderFallback = (
+  const renderFallback = () => (
     <Avatar
-      sx={{
-        width: 40,
-        height: 40,
-        border: `solid 2px ${theme.vars.palette.background.default}`,
-      }}
+      sx={[
+        (theme) => ({
+          width: 40,
+          height: 40,
+          border: `solid 2px ${theme.vars.palette.background.default}`,
+        }),
+      ]}
     >
       <SvgIcon>
         <circle cx="12" cy="6" r="4" fill="currentColor" />
@@ -42,25 +41,25 @@ export function AccountButton({ photoURL, displayName, sx, ...other }: AccountBu
   return (
     <IconButton
       component={m.button}
-      whileTap="tap"
-      whileHover="hover"
-      variants={varHover(1.05)}
-      sx={{ p: 0, ...sx }}
+      whileTap={varTap(0.96)}
+      whileHover={varHover(1.04)}
+      transition={transitionTap()}
+      aria-label="Account button"
+      sx={[{ p: 0 }, ...(Array.isArray(sx) ? sx : [sx])]}
       {...other}
     >
-      <NoSsr fallback={renderFallback}>
-        <AnimateAvatar
+      <NoSsr fallback={renderFallback()}>
+        <AnimateBorder
+          sx={{ p: '3px', borderRadius: '50%', width: 40, height: 40 }}
           slotProps={{
-            avatar: { src: photoURL, alt: displayName },
-            overlay: {
-              border: 1,
-              spacing: 2,
-              color: `conic-gradient(${theme.vars.palette.primary.main}, ${theme.vars.palette.warning.main}, ${theme.vars.palette.primary.main})`,
-            },
+            primaryBorder: { size: 60, width: '1px', sx: { color: 'primary.main' } },
+            secondaryBorder: { sx: { color: 'warning.main' } },
           }}
         >
-          {displayName?.charAt(0).toUpperCase()}
-        </AnimateAvatar>
+          <Avatar src={photoURL} alt={displayName} sx={{ width: 1, height: 1 }}>
+            {displayName?.charAt(0).toUpperCase()}
+          </Avatar>
+        </AnimateBorder>
       </NoSsr>
     </IconButton>
   );

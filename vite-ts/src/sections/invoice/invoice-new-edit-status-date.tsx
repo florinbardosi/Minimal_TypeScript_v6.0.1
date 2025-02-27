@@ -1,6 +1,6 @@
 import { useFormContext } from 'react-hook-form';
 
-import Stack from '@mui/material/Stack';
+import Box from '@mui/material/Box';
 import MenuItem from '@mui/material/MenuItem';
 
 import { Field } from 'src/components/hook-form';
@@ -13,10 +13,14 @@ export function InvoiceNewEditStatusDate() {
   const values = watch();
 
   return (
-    <Stack
-      spacing={2}
-      direction={{ xs: 'column', sm: 'row' }}
-      sx={{ p: 3, bgcolor: 'background.neutral' }}
+    <Box
+      sx={{
+        p: 3,
+        gap: 2,
+        display: 'flex',
+        bgcolor: 'background.neutral',
+        flexDirection: { xs: 'column', sm: 'row' },
+      }}
     >
       <Field.Text
         disabled
@@ -25,7 +29,12 @@ export function InvoiceNewEditStatusDate() {
         value={values.invoiceNumber}
       />
 
-      <Field.Select fullWidth name="status" label="Status" InputLabelProps={{ shrink: true }}>
+      <Field.Select
+        fullWidth
+        name="status"
+        label="Status"
+        slotProps={{ inputLabel: { shrink: true } }}
+      >
         {['paid', 'pending', 'overdue', 'draft'].map((option) => (
           <MenuItem key={option} value={option} sx={{ textTransform: 'capitalize' }}>
             {option}
@@ -35,6 +44,6 @@ export function InvoiceNewEditStatusDate() {
 
       <Field.DatePicker name="createDate" label="Date create" />
       <Field.DatePicker name="dueDate" label="Due date" />
-    </Stack>
+    </Box>
   );
 }

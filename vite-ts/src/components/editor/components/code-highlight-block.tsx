@@ -1,10 +1,10 @@
 import './code-highlight-block.css';
 
+import type { NodeViewProps } from '@tiptap/react';
+
 import { NodeViewContent, NodeViewWrapper } from '@tiptap/react';
 
 import { editorClasses } from '../classes';
-
-import type { EditorCodeHighlightBlockProps } from '../types';
 
 // ----------------------------------------------------------------------
 
@@ -14,7 +14,7 @@ export function CodeHighlightBlock({
   },
   extension,
   updateAttributes,
-}: EditorCodeHighlightBlockProps) {
+}: NodeViewProps) {
   return (
     <NodeViewWrapper className={editorClasses.content.codeBlock}>
       <select

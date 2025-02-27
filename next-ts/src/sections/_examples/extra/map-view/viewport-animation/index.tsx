@@ -1,10 +1,11 @@
-import type { MapRef, MapProps } from 'react-map-gl';
+import type { MapRef } from 'react-map-gl';
+import type { MapProps } from 'src/components/map';
 
 import { useRef, useState, useCallback } from 'react';
 
-import { Map, MapControl } from 'src/components/map';
+import { Map, MapControls } from 'src/components/map';
 
-import { ControlPanel } from './control-panel';
+import { MapControlPanel } from './control-panel';
 
 import type { CityProps } from './control-panel';
 
@@ -14,7 +15,7 @@ type Props = MapProps & {
   data: CityProps[];
 };
 
-export function MapViewportAnimation({ data, ...other }: Props) {
+export function MapViewportAnimation({ data, sx, ...other }: Props) {
   const mapRef = useRef<MapRef>(null);
 
   const [selectedCity, setSelectedCity] = useState(data[2].city);
@@ -38,6 +39,7 @@ export function MapViewportAnimation({ data, ...other }: Props) {
 
   return (
     <Map
+      ref={mapRef}
       initialViewState={{
         latitude: 37.7751,
         longitude: -122.4193,
@@ -45,12 +47,12 @@ export function MapViewportAnimation({ data, ...other }: Props) {
         bearing: 0,
         pitch: 0,
       }}
-      ref={mapRef}
+      sx={sx}
       {...other}
     >
-      <MapControl />
+      <MapControls />
 
-      <ControlPanel data={data} selectedCity={selectedCity} onSelectCity={onSelectCity} />
+      <MapControlPanel data={data} selectedCity={selectedCity} onSelectCity={onSelectCity} />
     </Map>
   );
 }

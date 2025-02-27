@@ -30,7 +30,9 @@ export const ResetPasswordSchema = zod.object({
 // ----------------------------------------------------------------------
 
 export function CenteredResetPasswordView() {
-  const defaultValues = { email: '' };
+  const defaultValues: ResetPasswordSchemaType = {
+    email: '',
+  };
 
   const methods = useForm<ResetPasswordSchemaType>({
     resolver: zodResolver(ResetPasswordSchema),
@@ -51,14 +53,14 @@ export function CenteredResetPasswordView() {
     }
   });
 
-  const renderForm = (
-    <Box gap={3} display="flex" flexDirection="column">
+  const renderForm = () => (
+    <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
       <Field.Text
         name="email"
         label="Email address"
         placeholder="example@gmail.com"
         autoFocus
-        InputLabelProps={{ shrink: true }}
+        slotProps={{ inputLabel: { shrink: true } }}
       />
 
       <LoadingButton
@@ -83,7 +85,7 @@ export function CenteredResetPasswordView() {
       />
 
       <Form methods={methods} onSubmit={onSubmit}>
-        {renderForm}
+        {renderForm()}
       </Form>
 
       <FormReturnLink href={paths.authDemo.centered.signIn} />

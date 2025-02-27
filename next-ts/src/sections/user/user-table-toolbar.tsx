@@ -1,10 +1,11 @@
 import type { IUserTableFilters } from 'src/types/user';
 import type { SelectChangeEvent } from '@mui/material/Select';
-import type { UseSetStateReturn } from 'src/hooks/use-set-state';
+import type { UseSetStateReturn } from 'minimal-shared/hooks';
 
 import { useCallback } from 'react';
+import { usePopover } from 'minimal-shared/hooks';
 
-import Stack from '@mui/material/Stack';
+import Box from '@mui/material/Box';
 import Select from '@mui/material/Select';
 import MenuList from '@mui/material/MenuList';
 import MenuItem from '@mui/material/MenuItem';
@@ -17,7 +18,7 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
 
 import { Iconify } from 'src/components/iconify';
-import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import { CustomPopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
@@ -30,14 +31,16 @@ type Props = {
 };
 
 export function UserTableToolbar({ filters, options, onResetPage }: Props) {
-  const popover = usePopover();
+  const menuActions = usePopover();
+
+  const { state: currentFilters, setState: updateFilters } = filters;
 
   const handleFilterName = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       onResetPage();
-      filters.setState({ name: event.target.value });
+      updateFilters({ name: event.target.value });
     },
-    [filters, onResetPage]
+    [onResetPage, updateFilters]
   );
 
   const handleFilterRole = useCallback(
@@ -46,28 +49,58 @@ export function UserTableToolbar({ filters, options, onResetPage }: Props) {
         typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value;
 
       onResetPage();
-      filters.setState({ role: newValue });
+      updateFilters({ role: newValue });
     },
-    [filters, onResetPage]
+    [onResetPage, updateFilters]
+  );
+
+  const renderMenuActions = () => (
+    <CustomPopover
+      open={menuActions.open}
+      anchorEl={menuActions.anchorEl}
+      onClose={menuActions.onClose}
+      slotProps={{ arrow: { placement: 'right-top' } }}
+    >
+      <MenuList>
+        <MenuItem onClick={() => menuActions.onClose()}>
+          <Iconify icon="solar:printer-minimalistic-bold" />
+          Print
+        </MenuItem>
+
+        <MenuItem onClick={() => menuActions.onClose()}>
+          <Iconify icon="solar:import-bold" />
+          Import
+        </MenuItem>
+
+        <MenuItem onClick={() => menuActions.onClose()}>
+          <Iconify icon="solar:export-bold" />
+          Export
+        </MenuItem>
+      </MenuList>
+    </CustomPopover>
   );
 
   return (
     <>
-      <Stack
-        spacing={2}
-        alignItems={{ xs: 'flex-end', md: 'center' }}
-        direction={{ xs: 'column', md: 'row' }}
-        sx={{ p: 2.5, pr: { xs: 2.5, md: 1 } }}
+      <Box
+        sx={{
+          p: 2.5,
+          gap: 2,
+          display: 'flex',
+          pr: { xs: 2.5, md: 1 },
+          flexDirection: { xs: 'column', md: 'row' },
+          alignItems: { xs: 'flex-end', md: 'center' },
+        }}
       >
         <FormControl sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}>
-          <InputLabel htmlFor="user-filter-role-select-label">Role</InputLabel>
+          <InputLabel htmlFor="filter-role-select">Role</InputLabel>
           <Select
             multiple
-            value={filters.state.role}
+            value={currentFilters.role}
             onChange={handleFilterRole}
             input={<OutlinedInput label="Role" />}
             renderValue={(selected) => selected.map((value) => value).join(', ')}
-            inputProps={{ id: 'user-filter-role-select-label' }}
+            inputProps={{ id: 'filter-role-select' }}
             MenuProps={{ PaperProps: { sx: { maxHeight: 240 } } }}
           >
             {options.roles.map((option) => (
@@ -75,7 +108,7 @@ export function UserTableToolbar({ filters, options, onResetPage }: Props) {
                 <Checkbox
                   disableRipple
                   size="small"
-                  checked={filters.state.role.includes(option)}
+                  checked={currentFilters.role.includes(option)}
                 />
                 {option}
               </MenuItem>
@@ -83,62 +116,38 @@ export function UserTableToolbar({ filters, options, onResetPage }: Props) {
           </Select>
         </FormControl>
 
-        <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
+        <Box
+          sx={{
+            gap: 2,
+            width: 1,
+            flexGrow: 1,
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
           <TextField
             fullWidth
-            value={filters.state.name}
+            value={currentFilters.name}
             onChange={handleFilterName}
             placeholder="Search..."
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-                </InputAdornment>
-              ),
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                  </InputAdornment>
+                ),
+              },
             }}
           />
 
-          <IconButton onClick={popover.onOpen}>
+          <IconButton onClick={menuActions.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
-        </Stack>
-      </Stack>
+        </Box>
+      </Box>
 
-      <CustomPopover
-        open={popover.open}
-        anchorEl={popover.anchorEl}
-        onClose={popover.onClose}
-        slotProps={{ arrow: { placement: 'right-top' } }}
-      >
-        <MenuList>
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:printer-minimalistic-bold" />
-            Print
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:import-bold" />
-            Import
-          </MenuItem>
-
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:export-bold" />
-            Export
-          </MenuItem>
-        </MenuList>
-      </CustomPopover>
+      {renderMenuActions()}
     </>
   );
 }

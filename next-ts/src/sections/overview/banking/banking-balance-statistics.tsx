@@ -30,7 +30,7 @@ type Props = CardProps & {
   };
 };
 
-export function BankingBalanceStatistics({ title, subheader, chart, ...other }: Props) {
+export function BankingBalanceStatistics({ title, subheader, chart, sx, ...other }: Props) {
   const theme = useTheme();
 
   const [selectedSeries, setSelectedSeries] = useState('Yearly');
@@ -56,7 +56,7 @@ export function BankingBalanceStatistics({ title, subheader, chart, ...other }: 
   }, []);
 
   return (
-    <Card {...other}>
+    <Card sx={sx} {...other}>
       <CardHeader
         title={title}
         subheader={subheader}
@@ -82,9 +82,13 @@ export function BankingBalanceStatistics({ title, subheader, chart, ...other }: 
         type="bar"
         series={currentSeries?.data}
         options={chartOptions}
-        height={320}
-        loadingProps={{ sx: { p: 2.5 } }}
-        sx={{ py: 2.5, pl: 1, pr: 2.5 }}
+        slotProps={{ loading: { p: 2.5 } }}
+        sx={{
+          pl: 1,
+          py: 2.5,
+          pr: 2.5,
+          height: 320,
+        }}
       />
     </Card>
   );

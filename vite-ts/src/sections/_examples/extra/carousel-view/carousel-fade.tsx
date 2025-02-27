@@ -23,13 +23,7 @@ type Props = {
 };
 
 export function CarouselFade({ data }: Props) {
-  const carousel = useCarousel(
-    {
-      loop: true,
-      duration: 80,
-    },
-    [Fade()]
-  );
+  const carousel = useCarousel({ loop: true, duration: 80 }, [Fade()]);
 
   return (
     <>
@@ -39,7 +33,14 @@ export function CarouselFade({ data }: Props) {
         ))}
       </Carousel>
 
-      <Box display="flex" alignItems="center" justifyContent="space-between" sx={{ mt: 3 }}>
+      <Box
+        sx={{
+          mt: 3,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
         <CarouselArrowBasicButtons {...carousel.arrows} options={carousel.options} />
         <CarouselDotButtons
           scrollSnaps={carousel.dots.scrollSnaps}
@@ -60,23 +61,14 @@ type CarouselItemProps = {
 
 function CarouselItem({ item, index }: CarouselItemProps) {
   return (
-    <Box
-      sx={{
-        borderRadius: 2,
-        overflow: 'hidden',
-        position: 'relative',
-      }}
-    >
+    <Box sx={{ borderRadius: 2, overflow: 'hidden', position: 'relative' }}>
       <IndexLabel index={index + 1} />
 
       <Box
         component="img"
         alt={item.title}
         src={item.coverUrl}
-        sx={{
-          objectFit: 'cover',
-          aspectRatio: { xs: '4/3', sm: '16/10' },
-        }}
+        sx={{ objectFit: 'cover', aspectRatio: { xs: '4/3', sm: '16/10' } }}
       />
     </Box>
   );

@@ -1,6 +1,6 @@
 import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid2';
 import Container from '@mui/material/Container';
-import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
 
 import { PaymentSummary } from '../payment-summary';
@@ -21,16 +21,18 @@ export function PaymentView() {
       </Typography>
 
       <Grid container rowSpacing={{ xs: 5, md: 0 }} columnSpacing={{ xs: 0, md: 5 }}>
-        <Grid xs={12} md={8}>
+        <Grid size={{ xs: 12, md: 8 }}>
           <Box
-            gap={5}
-            display="grid"
-            gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
-            sx={{
-              p: { md: 5 },
-              borderRadius: 2,
-              border: (theme) => ({ md: `dashed 1px ${theme.vars.palette.divider}` }),
-            }}
+            sx={[
+              (theme) => ({
+                gap: 5,
+                p: { md: 5 },
+                display: 'grid',
+                borderRadius: 2,
+                gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' },
+                border: { md: `dashed 1px ${theme.vars.palette.divider}` },
+              }),
+            ]}
           >
             <PaymentBillingAddress />
 
@@ -38,7 +40,7 @@ export function PaymentView() {
           </Box>
         </Grid>
 
-        <Grid xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <PaymentSummary />
         </Grid>
       </Grid>

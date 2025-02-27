@@ -1,11 +1,11 @@
 import type { BoxProps } from '@mui/material/Box';
 
+import { varAlpha } from 'minimal-shared/utils';
+
 import Box from '@mui/material/Box';
-import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 
-import { CONFIG } from 'src/config-global';
-import { varAlpha, bgGradient } from 'src/theme/styles';
+import { CONFIG } from 'src/global-config';
 
 // ----------------------------------------------------------------------
 
@@ -17,31 +17,33 @@ type Props = BoxProps & {
 };
 
 export function AppWelcome({ title, description, action, img, sx, ...other }: Props) {
-  const theme = useTheme();
-
   return (
     <Box
-      sx={{
-        ...bgGradient({
-          color: `to right, ${varAlpha(theme.vars.palette.grey['900Channel'], 0.88)} 0%, ${theme.vars.palette.grey[900]} 75%`,
-          imgUrl: `${CONFIG.assetsDir}/assets/background/background-5.webp`,
+      sx={[
+        (theme) => ({
+          ...theme.mixins.bgGradient({
+            images: [
+              `linear-gradient(to right, ${varAlpha(theme.vars.palette.grey['900Channel'], 0.88)} 0%, ${theme.vars.palette.grey[900]} 75%)`,
+              `url(${CONFIG.assetsDir}/assets/background/background-5.webp)`,
+            ],
+          }),
+          pt: 5,
+          pb: 5,
+          pr: 3,
+          gap: 5,
+          borderRadius: 2,
+          display: 'flex',
+          height: { md: 1 },
+          position: 'relative',
+          pl: { xs: 3, md: 5 },
+          alignItems: 'center',
+          color: 'common.white',
+          textAlign: { xs: 'center', md: 'left' },
+          flexDirection: { xs: 'column', md: 'row' },
+          border: `solid 1px ${theme.vars.palette.grey[800]}`,
         }),
-        pt: 5,
-        pb: 5,
-        pr: 3,
-        gap: 5,
-        borderRadius: 2,
-        display: 'flex',
-        height: { md: 1 },
-        position: 'relative',
-        pl: { xs: 3, md: 5 },
-        alignItems: 'center',
-        color: 'common.white',
-        textAlign: { xs: 'center', md: 'left' },
-        flexDirection: { xs: 'column', md: 'row' },
-        border: `solid 1px ${theme.vars.palette.grey[800]}`,
-        ...sx,
-      }}
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...other}
     >
       <Box

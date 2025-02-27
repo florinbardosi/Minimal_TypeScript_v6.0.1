@@ -1,37 +1,36 @@
-import type {} from '@mui/lab/themeAugmentation';
-import type {} from '@mui/x-tree-view/themeAugmentation';
-import type {} from '@mui/x-data-grid/themeAugmentation';
-import type {} from '@mui/x-date-pickers/themeAugmentation';
-import type {} from '@mui/material/themeCssVarsAugmentation';
+import type { Theme } from '@mui/material/styles';
+import type { ThemeProviderProps as MuiThemeProviderProps } from '@mui/material/styles/ThemeProvider';
 
 import CssBaseline from '@mui/material/CssBaseline';
-import { Experimental_CssVarsProvider as CssVarsProvider } from '@mui/material/styles';
+import { ThemeProvider as ThemeVarsProvider } from '@mui/material/styles';
 
 import { useSettingsContext } from 'src/components/settings';
 
 import { createTheme } from './create-theme';
-import { schemeConfig } from './scheme-config';
-import { RTL } from './with-settings/right-to-left';
+import { Rtl } from './with-settings/right-to-left';
+
+import type {} from './extend-theme-types';
+import type { ThemeOptions } from './types';
 
 // ----------------------------------------------------------------------
 
-type Props = {
-  children: React.ReactNode;
+export type ThemeProviderProps = Omit<MuiThemeProviderProps, 'theme'> & {
+  theme?: Theme;
+  themeOverrides?: ThemeOptions;
 };
 
-export function ThemeProvider({ children }: Props) {
+export function ThemeProvider({ themeOverrides, children, ...other }: ThemeProviderProps) {
   const settings = useSettingsContext();
 
-  const theme = createTheme(settings);
+  const theme = createTheme({
+    settingsState: settings.state,
+    themeOverrides,
+  });
 
   return (
-    <CssVarsProvider
-      theme={theme}
-      defaultMode={schemeConfig.defaultMode}
-      modeStorageKey={schemeConfig.modeStorageKey}
-    >
+    <ThemeVarsProvider disableTransitionOnChange theme={theme} {...other}>
       <CssBaseline />
-      <RTL direction={settings.direction}>{children}</RTL>
-    </CssVarsProvider>
+      <Rtl direction={settings.state.direction!}>{children}</Rtl>
+    </ThemeVarsProvider>
   );
 }

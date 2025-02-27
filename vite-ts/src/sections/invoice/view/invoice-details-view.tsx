@@ -19,12 +19,13 @@ export function InvoiceDetailsView({ invoice }: Props) {
     <DashboardContent>
       <CustomBreadcrumbs
         heading={invoice?.invoiceNumber}
+        backHref={paths.dashboard.invoice.root}
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'Invoice', href: paths.dashboard.invoice.root },
           { name: invoice?.invoiceNumber },
         ]}
-        sx={{ mb: { xs: 3, md: 5 } }}
+        sx={{ mb: 3 }}
       />
 
       <InvoiceDetails invoice={invoice} />

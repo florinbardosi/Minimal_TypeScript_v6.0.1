@@ -7,14 +7,9 @@ import { useState } from 'react';
 import Box from '@mui/material/Box';
 import Rating from '@mui/material/Rating';
 
-import { paths } from 'src/routes/paths';
-
 import { Iconify } from 'src/components/iconify';
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { ComponentHero } from '../../component-hero';
-import { ComponentBlock } from '../../component-block';
-import { ScrollToViewTemplate } from '../../component-template';
+import { ComponentBox, ComponentLayout } from '../../layout';
 
 // ----------------------------------------------------------------------
 
@@ -49,61 +44,58 @@ const customIcons: {
 // ----------------------------------------------------------------------
 
 export function RatingView() {
+  const [hover, setHover] = useState(-1);
   const [value, setValue] = useState<number | null>(2);
 
-  const [hover, setHover] = useState(-1);
-
-  const DEMO = [
+  const DEMO_COMPONENTS = [
     {
       name: 'Controlled',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <Rating
             name="simple-controlled"
             value={value}
-            onChange={(event, newValue) => {
-              setValue(newValue);
-            }}
+            onChange={(event, newValue) => setValue(newValue)}
           />
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Read only',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <Rating name="read-only" value={value} readOnly />
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Disabled',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <Rating name="disabled" value={value} disabled />
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Pristine',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <Rating name="pristine" value={null} />
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Custom empty icon',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <Rating name="customized-empty" defaultValue={2} precision={0.5} />
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Custom icon and color',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <Rating
             name="customized-color"
             defaultValue={2}
@@ -113,82 +105,74 @@ export function RatingView() {
             emptyIcon={<Iconify icon="solar:heart-bold" />}
             sx={{ color: 'info.main', '&:hover': { color: 'info.dark' } }}
           />
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: '10 stars',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <Rating name="customized-10" defaultValue={2} max={10} />
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Custom icon set',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <Rating
             name="customized-icons"
             defaultValue={2}
             getLabelText={(ratingValue) => customIcons[ratingValue].label}
             IconContainerComponent={IconContainer}
           />
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Hover feedback',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <Rating
             name="hover-feedback"
             value={value}
             precision={0.5}
-            onChange={(event, newValue) => {
-              setValue(newValue);
-            }}
-            onChangeActive={(event, newHover) => {
-              setHover(newHover);
-            }}
+            onChange={(event, newValue) => setValue(newValue)}
+            onChangeActive={(event, newHover) => setHover(newHover)}
           />
           {value !== null && <Box sx={{ ml: 2 }}>{labels[hover !== -1 ? hover : value]}</Box>}
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Half ratings',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <Rating name="half-rating" defaultValue={2.5} precision={0.5} />
           <Rating name="half-rating-read" defaultValue={2.5} precision={0.5} readOnly />
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Sizes',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <Rating name="size-small" defaultValue={2} size="small" />
           <Rating name="size-medium" defaultValue={2} />
           <Rating name="size-large" defaultValue={2} size="large" />
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
   ];
 
   return (
-    <>
-      <ComponentHero>
-        <CustomBreadcrumbs
-          heading="Rating"
-          links={[{ name: 'Components', href: paths.components }, { name: 'Rating' }]}
-          moreLink={['https://mui.com/components/rating']}
-        />
-      </ComponentHero>
-
-      <ScrollToViewTemplate data={DEMO} />
-    </>
+    <ComponentLayout
+      sectionData={DEMO_COMPONENTS}
+      heroProps={{
+        heading: 'Rating',
+        moreLinks: ['https://mui.com/material-ui/react-rating/'],
+      }}
+    />
   );
 }
 

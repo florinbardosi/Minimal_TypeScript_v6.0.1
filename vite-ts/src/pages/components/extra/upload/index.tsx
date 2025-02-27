@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 
-import { CONFIG } from 'src/config-global';
+import { CONFIG } from 'src/global-config';
 
 import { UploadView } from 'src/sections/_examples/extra/upload-view';
 

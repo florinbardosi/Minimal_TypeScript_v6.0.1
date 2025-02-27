@@ -1,19 +1,12 @@
 import { useState } from 'react';
+import { varAlpha } from 'minimal-shared/utils';
 
 import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
-import Slider, { sliderClasses } from '@mui/material/Slider';
-
-import { paths } from 'src/routes/paths';
-
-import { varAlpha } from 'src/theme/styles';
+import Slider from '@mui/material/Slider';
 
 import { Iconify } from 'src/components/iconify';
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { ComponentHero } from '../../component-hero';
-import { ComponentBlock } from '../../component-block';
-import { ScrollToViewTemplate } from '../../component-template';
+import { ComponentBox, ComponentLayout } from '../../layout';
 
 // ----------------------------------------------------------------------
 
@@ -56,10 +49,9 @@ function valueLabelFormat(value: number) {
 
 export function SliderView() {
   const [value, setValue] = useState<number>(30);
-
   const [price, setPrice] = useState<number[]>([20, 37]);
 
-  const handleChange = (event: Event, newValue: number | number[]) => {
+  const handleChangeValue = (event: Event, newValue: number | number[]) => {
     setValue(newValue as number);
   };
 
@@ -67,31 +59,29 @@ export function SliderView() {
     setPrice(newValue as number[]);
   };
 
-  const DEMO = [
+  const DEMO_COMPONENTS = [
     {
       name: 'Volume',
       component: (
-        <ComponentBlock>
-          <Stack direction="row" alignItems="center" spacing={1} width={1}>
-            <Iconify icon="eva:volume-mute-fill" width={24} />
-            <Slider value={value} onChange={handleChange} aria-labelledby="continuous-slider" />
-            <Iconify icon="eva:volume-up-fill" width={24} />
-          </Stack>
-        </ComponentBlock>
+        <ComponentBox sx={{ flexWrap: 'unset' }}>
+          <Iconify width={24} icon="eva:volume-mute-fill" />
+          <Slider value={value} onChange={handleChangeValue} aria-labelledby="continuous-slider" />
+          <Iconify width={24} icon="eva:volume-up-fill" />
+        </ComponentBox>
       ),
     },
     {
       name: 'Disabled',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <Slider disabled defaultValue={30} />
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Temperature',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <Slider
             defaultValue={30}
             getAriaValueText={valuetext}
@@ -100,15 +90,14 @@ export function SliderView() {
             marks
             min={10}
             max={110}
-            sx={{ [`& .${sliderClasses.mark}[data-index="10"]`]: { display: 'none' } }}
           />
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Sizes',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <Slider
             size="medium"
             marks
@@ -118,7 +107,6 @@ export function SliderView() {
             defaultValue={30}
             valueLabelDisplay="auto"
             getAriaValueText={valuetext}
-            sx={{ [`& .${sliderClasses.mark}[data-index="10"]`]: { display: 'none' } }}
           />
           <Slider
             size="small"
@@ -129,15 +117,14 @@ export function SliderView() {
             defaultValue={30}
             valueLabelDisplay="auto"
             getAriaValueText={valuetext}
-            sx={{ [`& .${sliderClasses.mark}[data-index="10"]`]: { display: 'none' } }}
           />
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Small steps',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <Slider
             defaultValue={0.00000005}
             getAriaValueText={valuetext}
@@ -147,28 +134,27 @@ export function SliderView() {
             max={0.0000001}
             valueLabelDisplay="auto"
           />
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Custom marks',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <Slider
             defaultValue={20}
             getAriaValueText={valuetext}
             step={10}
             valueLabelDisplay="auto"
             marks={marks}
-            sx={{ [`& .${sliderClasses.mark}[data-index="3"]`]: { display: 'none' } }}
           />
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Restricted values',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <Slider
             defaultValue={20}
             valueLabelFormat={valueLabelFormat}
@@ -176,15 +162,14 @@ export function SliderView() {
             step={null}
             valueLabelDisplay="auto"
             marks={marks}
-            sx={{ [`& .${sliderClasses.mark}[data-index="3"]`]: { display: 'none' } }}
           />
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Range',
       component: (
-        <ComponentBlock sx={{ gap: 8, flexDirection: 'column' }}>
+        <ComponentBox sx={{ flexDirection: 'column' }}>
           <Slider
             scale={(x) => x * 10}
             step={10}
@@ -194,29 +179,29 @@ export function SliderView() {
             valueLabelDisplay="on"
             getAriaValueText={valuePrice}
             valueLabelFormat={valueLabelFormatPrice}
-            sx={{ [`& .${sliderClasses.mark}[data-index="4"]`]: { display: 'none' } }}
           />
 
-          <Stack
-            spacing={5}
-            direction="row"
-            sx={{
+          <Box
+            sx={(theme) => ({
               p: 2,
+              gap: 3,
               borderRadius: 1,
+              display: 'flex',
               typography: 'subtitle2',
-              bgcolor: (theme) => varAlpha(theme.vars.palette.grey['500Channel'], 0.12),
-            }}
+              bgcolor: varAlpha(theme.vars.palette.grey['500Channel'], 0.12),
+            })}
           >
             <Box component="span">Min: {valuePrice(price[0])}</Box>
+
             <Box component="span">Max: {valuePrice(price[1])}</Box>
-          </Stack>
-        </ComponentBlock>
+          </Box>
+        </ComponentBox>
       ),
     },
     {
       name: 'Color',
       component: (
-        <ComponentBlock sx={{ flexDirection: 'column' }}>
+        <ComponentBox sx={{ flexDirection: 'column' }}>
           {COLORS.map((color) => (
             <Slider
               key={color}
@@ -228,25 +213,20 @@ export function SliderView() {
               defaultValue={30}
               valueLabelDisplay="auto"
               getAriaValueText={valuetext}
-              sx={{ [`& .${sliderClasses.mark}[data-index="10"]`]: { display: 'none' } }}
             />
           ))}
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
   ];
 
   return (
-    <>
-      <ComponentHero>
-        <CustomBreadcrumbs
-          heading="Slider"
-          links={[{ name: 'Components', href: paths.components }, { name: 'Slider' }]}
-          moreLink={['https://mui.com/components/slider']}
-        />
-      </ComponentHero>
-
-      <ScrollToViewTemplate data={DEMO} />
-    </>
+    <ComponentLayout
+      sectionData={DEMO_COMPONENTS}
+      heroProps={{
+        heading: 'Slider',
+        moreLinks: ['https://mui.com/material-ui/react-slider/'],
+      }}
+    />
   );
 }

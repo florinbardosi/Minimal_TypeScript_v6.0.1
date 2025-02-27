@@ -1,12 +1,18 @@
-import { lazy, Suspense } from 'react';
-import { Outlet } from 'react-router-dom';
+import type { RouteObject } from 'react-router';
 
-import { CONFIG } from 'src/config-global';
+import { Outlet } from 'react-router';
+import { lazy, Suspense } from 'react';
+
+import { CONFIG } from 'src/global-config';
 import { DashboardLayout } from 'src/layouts/dashboard';
 
 import { LoadingScreen } from 'src/components/loading-screen';
 
+import { AccountLayout } from 'src/sections/account/account-layout';
+
 import { AuthGuard } from 'src/auth/guard';
+
+import { usePathname } from '../hooks';
 
 // ----------------------------------------------------------------------
 
@@ -35,9 +41,18 @@ const InvoiceEditPage = lazy(() => import('src/pages/dashboard/invoice/edit'));
 const UserProfilePage = lazy(() => import('src/pages/dashboard/user/profile'));
 const UserCardsPage = lazy(() => import('src/pages/dashboard/user/cards'));
 const UserListPage = lazy(() => import('src/pages/dashboard/user/list'));
-const UserAccountPage = lazy(() => import('src/pages/dashboard/user/account'));
 const UserCreatePage = lazy(() => import('src/pages/dashboard/user/new'));
 const UserEditPage = lazy(() => import('src/pages/dashboard/user/edit'));
+// Account
+const AccountGeneralPage = lazy(() => import('src/pages/dashboard/user/account/general'));
+const AccountBillingPage = lazy(() => import('src/pages/dashboard/user/account/billing'));
+const AccountSocialsPage = lazy(() => import('src/pages/dashboard/user/account/socials'));
+const AccountNotificationsPage = lazy(
+  () => import('src/pages/dashboard/user/account/notifications')
+);
+const AccountChangePasswordPage = lazy(
+  () => import('src/pages/dashboard/user/account/change-password')
+);
 // Blog
 const BlogPostsPage = lazy(() => import('src/pages/dashboard/post/list'));
 const BlogPostPage = lazy(() => import('src/pages/dashboard/post/details'));
@@ -68,20 +83,33 @@ const BlankPage = lazy(() => import('src/pages/dashboard/blank'));
 
 // ----------------------------------------------------------------------
 
-const layoutContent = (
-  <DashboardLayout>
-    <Suspense fallback={<LoadingScreen />}>
+function SuspenseOutlet() {
+  const pathname = usePathname();
+  return (
+    <Suspense key={pathname} fallback={<LoadingScreen />}>
       <Outlet />
     </Suspense>
+  );
+}
+
+const dashboardLayout = () => (
+  <DashboardLayout>
+    <SuspenseOutlet />
   </DashboardLayout>
 );
 
-export const dashboardRoutes = [
+const accountLayout = () => (
+  <AccountLayout>
+    <SuspenseOutlet />
+  </AccountLayout>
+);
+
+export const dashboardRoutes: RouteObject[] = [
   {
     path: 'dashboard',
-    element: CONFIG.auth.skip ? <>{layoutContent}</> : <AuthGuard>{layoutContent}</AuthGuard>,
+    element: CONFIG.auth.skip ? dashboardLayout() : <AuthGuard>{dashboardLayout()}</AuthGuard>,
     children: [
-      { element: <IndexPage />, index: true },
+      { index: true, element: <IndexPage /> },
       { path: 'ecommerce', element: <OverviewEcommercePage /> },
       { path: 'analytics', element: <OverviewAnalyticsPage /> },
       { path: 'banking', element: <OverviewBankingPage /> },
@@ -91,19 +119,29 @@ export const dashboardRoutes = [
       {
         path: 'user',
         children: [
-          { element: <UserProfilePage />, index: true },
+          { index: true, element: <UserProfilePage /> },
           { path: 'profile', element: <UserProfilePage /> },
           { path: 'cards', element: <UserCardsPage /> },
           { path: 'list', element: <UserListPage /> },
           { path: 'new', element: <UserCreatePage /> },
           { path: ':id/edit', element: <UserEditPage /> },
-          { path: 'account', element: <UserAccountPage /> },
+          {
+            path: 'account',
+            element: accountLayout(),
+            children: [
+              { index: true, element: <AccountGeneralPage /> },
+              { path: 'billing', element: <AccountBillingPage /> },
+              { path: 'notifications', element: <AccountNotificationsPage /> },
+              { path: 'socials', element: <AccountSocialsPage /> },
+              { path: 'change-password', element: <AccountChangePasswordPage /> },
+            ],
+          },
         ],
       },
       {
         path: 'product',
         children: [
-          { element: <ProductListPage />, index: true },
+          { index: true, element: <ProductListPage /> },
           { path: 'list', element: <ProductListPage /> },
           { path: ':id', element: <ProductDetailsPage /> },
           { path: 'new', element: <ProductCreatePage /> },
@@ -113,7 +151,7 @@ export const dashboardRoutes = [
       {
         path: 'order',
         children: [
-          { element: <OrderListPage />, index: true },
+          { index: true, element: <OrderListPage /> },
           { path: 'list', element: <OrderListPage /> },
           { path: ':id', element: <OrderDetailsPage /> },
         ],
@@ -121,7 +159,7 @@ export const dashboardRoutes = [
       {
         path: 'invoice',
         children: [
-          { element: <InvoiceListPage />, index: true },
+          { index: true, element: <InvoiceListPage /> },
           { path: 'list', element: <InvoiceListPage /> },
           { path: ':id', element: <InvoiceDetailsPage /> },
           { path: ':id/edit', element: <InvoiceEditPage /> },
@@ -131,7 +169,7 @@ export const dashboardRoutes = [
       {
         path: 'post',
         children: [
-          { element: <BlogPostsPage />, index: true },
+          { index: true, element: <BlogPostsPage /> },
           { path: 'list', element: <BlogPostsPage /> },
           { path: ':title', element: <BlogPostPage /> },
           { path: ':title/edit', element: <BlogEditPostPage /> },
@@ -141,7 +179,7 @@ export const dashboardRoutes = [
       {
         path: 'job',
         children: [
-          { element: <JobListPage />, index: true },
+          { index: true, element: <JobListPage /> },
           { path: 'list', element: <JobListPage /> },
           { path: ':id', element: <JobDetailsPage /> },
           { path: 'new', element: <JobCreatePage /> },
@@ -151,7 +189,7 @@ export const dashboardRoutes = [
       {
         path: 'tour',
         children: [
-          { element: <TourListPage />, index: true },
+          { index: true, element: <TourListPage /> },
           { path: 'list', element: <TourListPage /> },
           { path: ':id', element: <TourDetailsPage /> },
           { path: 'new', element: <TourCreatePage /> },

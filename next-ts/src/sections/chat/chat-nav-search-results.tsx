@@ -20,7 +20,7 @@ export function ChatNavSearchResults({ query, results, onClickResult }: Props) {
 
   const notFound = !totalResults && !!query;
 
-  const renderNotFound = (
+  const renderNotFound = () => (
     <SearchNotFound
       query={query}
       sx={{
@@ -32,19 +32,24 @@ export function ChatNavSearchResults({ query, results, onClickResult }: Props) {
     />
   );
 
-  const renderResults = (
+  const renderResults = () => (
     <nav>
-      <Box component="ul">
+      <Box component="ul" sx={{ '& li': { display: 'flex' } }}>
         {results.map((result) => (
-          <Box key={result.id} component="li" sx={{ display: 'flex' }}>
+          <li key={result.id}>
             <ListItemButton
               onClick={() => onClickResult(result)}
-              sx={{ gap: 2, py: 1.5, px: 2.5, typography: 'subtitle2' }}
+              sx={{
+                gap: 2,
+                py: 1.5,
+                px: 2.5,
+                typography: 'subtitle2',
+              }}
             >
               <Avatar alt={result.name} src={result.avatarUrl} />
               {result.name}
             </ListItemButton>
-          </Box>
+          </li>
         ))}
       </Box>
     </nav>
@@ -56,7 +61,7 @@ export function ChatNavSearchResults({ query, results, onClickResult }: Props) {
         Contacts ({totalResults})
       </Typography>
 
-      {notFound ? renderNotFound : renderResults}
+      {notFound ? renderNotFound() : renderResults()}
     </>
   );
 }

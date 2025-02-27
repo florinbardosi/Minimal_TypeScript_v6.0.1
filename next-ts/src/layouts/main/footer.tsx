@@ -1,12 +1,11 @@
-import type { Theme, SxProps, Breakpoint } from '@mui/material/styles';
+import type { Breakpoint } from '@mui/material/styles';
 
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
-import Stack from '@mui/material/Stack';
+import Grid from '@mui/material/Grid2';
 import Divider from '@mui/material/Divider';
-import { useTheme } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import Container from '@mui/material/Container';
-import Grid from '@mui/material/Unstable_Grid2';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 
@@ -41,86 +40,95 @@ const LINKS = [
 
 // ----------------------------------------------------------------------
 
-export type FooterProps = {
-  layoutQuery: Breakpoint;
-  sx?: SxProps<Theme>;
-};
+const FooterRoot = styled('footer')(({ theme }) => ({
+  position: 'relative',
+  backgroundColor: theme.vars.palette.background.default,
+}));
 
-export function Footer({ layoutQuery, sx }: FooterProps) {
-  const theme = useTheme();
+export type FooterProps = React.ComponentProps<typeof FooterRoot>;
 
+export function Footer({
+  sx,
+  layoutQuery = 'md',
+  ...other
+}: FooterProps & { layoutQuery?: Breakpoint }) {
   return (
-    <Box component="footer" sx={{ position: 'relative', bgcolor: 'background.default', ...sx }}>
+    <FooterRoot sx={sx} {...other}>
       <Divider />
 
       <Container
-        sx={{
+        sx={(theme) => ({
           pb: 5,
           pt: 10,
           textAlign: 'center',
           [theme.breakpoints.up(layoutQuery)]: { textAlign: 'unset' },
-        }}
+        })}
       >
         <Logo />
 
         <Grid
           container
-          sx={{
-            mt: 3,
-            justifyContent: 'center',
-            [theme.breakpoints.up(layoutQuery)]: { justifyContent: 'space-between' },
-          }}
+          sx={[
+            (theme) => ({
+              mt: 3,
+              justifyContent: 'center',
+              [theme.breakpoints.up(layoutQuery)]: { justifyContent: 'space-between' },
+            }),
+          ]}
         >
-          <Grid {...{ xs: 12, [layoutQuery]: 3 }}>
+          <Grid size={{ xs: 12, [layoutQuery]: 3 }}>
             <Typography
               variant="body2"
-              sx={{
+              sx={(theme) => ({
                 mx: 'auto',
                 maxWidth: 280,
                 [theme.breakpoints.up(layoutQuery)]: { mx: 'unset' },
-              }}
+              })}
             >
               The starting point for your next project with Minimal UI Kit, built on the newest
               version of Material-UI ©, ready to be customized to your style.
             </Typography>
 
-            <Stack
-              direction="row"
-              sx={{
+            <Box
+              sx={(theme) => ({
                 mt: 3,
                 mb: 5,
+                display: 'flex',
                 justifyContent: 'center',
                 [theme.breakpoints.up(layoutQuery)]: { mb: 0, justifyContent: 'flex-start' },
-              }}
+              })}
             >
               {_socials.map((social) => (
-                <IconButton key={social.label} color="inherit">
+                <IconButton key={social.label}>
                   {social.value === 'twitter' && <TwitterIcon />}
                   {social.value === 'facebook' && <FacebookIcon />}
                   {social.value === 'instagram' && <InstagramIcon />}
                   {social.value === 'linkedin' && <LinkedinIcon />}
                 </IconButton>
               ))}
-            </Stack>
+            </Box>
           </Grid>
 
-          <Grid {...{ xs: 12, [layoutQuery]: 6 }}>
-            <Stack
-              spacing={5}
-              sx={{
+          <Grid size={{ xs: 12, [layoutQuery]: 6 }}>
+            <Box
+              sx={(theme) => ({
+                gap: 5,
+                display: 'flex',
                 flexDirection: 'column',
                 [theme.breakpoints.up(layoutQuery)]: { flexDirection: 'row' },
-              }}
+              })}
             >
               {LINKS.map((list) => (
-                <Stack
+                <Box
                   key={list.headline}
-                  spacing={2}
-                  sx={{
+                  sx={(theme) => ({
+                    gap: 2,
                     width: 1,
+                    display: 'flex',
                     alignItems: 'center',
+                    flexDirection: 'column',
                     [theme.breakpoints.up(layoutQuery)]: { alignItems: 'flex-start' },
-                  }}
+                  })}
                 >
                   <Typography component="div" variant="overline">
                     {list.headline}
@@ -137,9 +145,9 @@ export function Footer({ layoutQuery, sx }: FooterProps) {
                       {link.name}
                     </Link>
                   ))}
-                </Stack>
+                </Box>
               ))}
-            </Stack>
+            </Box>
           </Grid>
         </Grid>
 
@@ -147,27 +155,23 @@ export function Footer({ layoutQuery, sx }: FooterProps) {
           © All rights reserved.
         </Typography>
       </Container>
-    </Box>
+    </FooterRoot>
   );
 }
 
 // ----------------------------------------------------------------------
 
-export type HomeFooterProps = {
-  sx?: SxProps<Theme>;
-};
-
-export function HomeFooter({ sx }: HomeFooterProps) {
+export function HomeFooter({ sx, ...other }: FooterProps) {
   return (
-    <Box
-      component="footer"
-      sx={{
-        py: 5,
-        textAlign: 'center',
-        position: 'relative',
-        bgcolor: 'background.default',
-        ...sx,
-      }}
+    <FooterRoot
+      sx={[
+        {
+          py: 5,
+          textAlign: 'center',
+        },
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
+      {...other}
     >
       <Container>
         <Logo />
@@ -177,6 +181,6 @@ export function HomeFooter({ sx }: HomeFooterProps) {
           <Link href="https://minimals.cc/"> minimals.cc </Link>
         </Box>
       </Container>
-    </Box>
+    </FooterRoot>
   );
 }

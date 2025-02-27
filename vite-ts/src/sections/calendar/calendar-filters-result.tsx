@@ -1,58 +1,58 @@
 import type { ICalendarFilters } from 'src/types/calendar';
-import type { Theme, SxProps } from '@mui/material/styles';
-import type { UseSetStateReturn } from 'src/hooks/use-set-state';
+import type { UseSetStateReturn } from 'minimal-shared/hooks';
+import type { FiltersResultProps } from 'src/components/filters-result';
 
 import { useCallback } from 'react';
+import { varAlpha } from 'minimal-shared/utils';
 
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 
 import { fDateRangeShortLabel } from 'src/utils/format-time';
 
-import { varAlpha } from 'src/theme/styles';
-
 import { chipProps, FiltersBlock, FiltersResult } from 'src/components/filters-result';
 
 // ----------------------------------------------------------------------
 
-type Props = {
-  totalResults: number;
-  sx?: SxProps<Theme>;
+type Props = FiltersResultProps & {
   filters: UseSetStateReturn<ICalendarFilters>;
 };
 
 export function CalendarFiltersResult({ filters, totalResults, sx }: Props) {
+  const { state: currentFilters, setState: updateFilters, resetState: resetFilters } = filters;
+
   const handleRemoveColor = useCallback(
     (inputValue: string) => {
-      const newValue = filters.state.colors.filter((item) => item !== inputValue);
+      const newValue = currentFilters.colors.filter((item) => item !== inputValue);
 
-      filters.setState({ colors: newValue });
+      updateFilters({ colors: newValue });
     },
-    [filters]
+    [updateFilters, currentFilters.colors]
   );
 
   const handleRemoveDate = useCallback(() => {
-    filters.setState({ startDate: null, endDate: null });
-  }, [filters]);
+    updateFilters({ startDate: null, endDate: null });
+  }, [updateFilters]);
 
   return (
-    <FiltersResult totalResults={totalResults} onReset={filters.onResetState} sx={sx}>
-      <FiltersBlock label="Colors:" isShow={!!filters.state.colors.length}>
-        {filters.state.colors.map((item) => (
+    <FiltersResult totalResults={totalResults} onReset={() => resetFilters()} sx={sx}>
+      <FiltersBlock label="Colors:" isShow={!!currentFilters.colors.length}>
+        {currentFilters.colors.map((item) => (
           <Chip
             {...chipProps}
             key={item}
             label={
               <Box
-                sx={{
-                  ml: -0.5,
-                  width: 18,
-                  height: 18,
-                  bgcolor: item,
-                  borderRadius: '50%',
-                  border: (theme) =>
-                    `solid 1px ${varAlpha(theme.vars.palette.common.whiteChannel, 0.24)}`,
-                }}
+                sx={[
+                  (theme) => ({
+                    ml: -0.5,
+                    width: 18,
+                    height: 18,
+                    bgcolor: item,
+                    borderRadius: '50%',
+                    border: `solid 1px ${varAlpha(theme.vars.palette.common.whiteChannel, 0.24)}`,
+                  }),
+                ]}
               />
             }
             onDelete={() => handleRemoveColor(item)}
@@ -62,11 +62,11 @@ export function CalendarFiltersResult({ filters, totalResults, sx }: Props) {
 
       <FiltersBlock
         label="Date:"
-        isShow={Boolean(filters.state.startDate && filters.state.endDate)}
+        isShow={Boolean(currentFilters.startDate && currentFilters.endDate)}
       >
         <Chip
           {...chipProps}
-          label={fDateRangeShortLabel(filters.state.startDate, filters.state.endDate)}
+          label={fDateRangeShortLabel(currentFilters.startDate, currentFilters.endDate)}
           onDelete={handleRemoveDate}
         />
       </FiltersBlock>

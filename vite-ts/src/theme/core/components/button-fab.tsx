@@ -1,20 +1,24 @@
 import type { Theme, Components, ComponentsVariants } from '@mui/material/styles';
 
-import { fabClasses } from '@mui/material/Fab';
+import { varAlpha } from 'minimal-shared/utils';
 
-import { varAlpha, stylesMode } from '../../styles';
+import { fabClasses } from '@mui/material/Fab';
 
 // ----------------------------------------------------------------------
 
-// NEW VARIANT
-declare module '@mui/material/Fab' {
-  interface FabPropsVariantOverrides {
-    outlined: true;
-    outlinedExtended: true;
-    soft: true;
-    softExtended: true;
-  }
-}
+/**
+ * TypeScript (type definition and extension)
+ * @to {@link file://./../../extend-theme-types.d.ts}
+ */
+
+export type FabExtendVariant = {
+  outlined: true;
+  outlinedExtended: true;
+  soft: true;
+  softExtended: true;
+};
+
+// ----------------------------------------------------------------------
 
 const COLORS = ['primary', 'secondary', 'info', 'success', 'warning', 'error'] as const;
 
@@ -24,8 +28,6 @@ const FILLED_VARIANT = ['circular', 'extended'];
 const OUTLINED_VARIANT = ['outlined', 'outlinedExtended'];
 const SOFT_VARIANT = ['soft', 'softExtended'];
 
-// ----------------------------------------------------------------------
-
 const filledVariant: Record<string, ComponentsVariants<Theme>['MuiFab']> = {
   colors: COLORS.map((color) => ({
     props: ({ ownerState }) =>
@@ -33,7 +35,7 @@ const filledVariant: Record<string, ComponentsVariants<Theme>['MuiFab']> = {
       FILLED_VARIANT.includes(ownerState.variant!) &&
       ownerState.color === color,
     style: ({ theme }) => ({
-      boxShadow: theme.customShadows[color],
+      boxShadow: theme.vars.customShadows[color],
       '&:hover': { boxShadow: 'none' },
     }),
   })),
@@ -42,7 +44,7 @@ const filledVariant: Record<string, ComponentsVariants<Theme>['MuiFab']> = {
       props: ({ ownerState }) =>
         FILLED_VARIANT.includes(ownerState.variant!) && DEFAULT_COLORS.includes(ownerState.color!),
       style: ({ theme }) => ({
-        boxShadow: theme.customShadows.z8,
+        boxShadow: theme.vars.customShadows.z8,
         /**
          * @color default
          */
@@ -56,10 +58,10 @@ const filledVariant: Record<string, ComponentsVariants<Theme>['MuiFab']> = {
           color: theme.vars.palette.common.white,
           backgroundColor: theme.vars.palette.text.primary,
           '&:hover': { backgroundColor: theme.vars.palette.grey[700] },
-          [stylesMode.dark]: {
+          ...theme.applyStyles('dark', {
             color: theme.vars.palette.grey[800],
             '&:hover': { backgroundColor: theme.vars.palette.grey[400] },
-          },
+          }),
         },
       }),
     },
@@ -115,7 +117,9 @@ const softVariant: Record<string, ComponentsVariants<Theme>['MuiFab']> = {
         boxShadow: 'none',
         backgroundColor: varAlpha(theme.vars.palette[color].mainChannel, 0.32),
       },
-      [stylesMode.dark]: { color: theme.vars.palette[color].light },
+      ...theme.applyStyles('dark', {
+        color: theme.vars.palette[color].light,
+      }),
     }),
   })),
   base: [
@@ -172,31 +176,33 @@ const MuiFab: Components<Theme>['MuiFab'] = {
   defaultProps: { color: 'primary' },
 
   /** **************************************
-   * VARIANTS
-   *************************************** */
-  variants: [
-    /**
-     * @variant filled
-     */
-    ...[...filledVariant.base!, ...filledVariant.colors!],
-    /**
-     * @variant outlined
-     */
-    ...[...outlinedVariant.base!, ...outlinedVariant.colors!],
-    /**
-     * @variant soft
-     */
-    ...[...softVariant.base!, ...softVariant.colors!],
-    /**
-     * @sizes
-     */
-    ...sizes,
-  ],
-
-  /** **************************************
    * STYLE
    *************************************** */
-  styleOverrides: {},
+  styleOverrides: {
+    root: {
+      variants: [
+        /**
+         * @variant filled
+         */
+        filledVariant.base,
+        filledVariant.colors,
+        /**
+         * @variant outlined
+         */
+        outlinedVariant.base,
+        outlinedVariant.colors,
+        /**
+         * @variant soft
+         */
+        softVariant.base,
+        softVariant.colors,
+        /**
+         * @sizes
+         */
+        sizes,
+      ].flat(),
+    },
+  },
 };
 
 // ----------------------------------------------------------------------

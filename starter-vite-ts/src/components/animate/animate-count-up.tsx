@@ -30,17 +30,16 @@ export function AnimateCountUp({
   component = 'p',
   ...other
 }: AnimateCountUpProps) {
-  const ref = useRef(null);
+  const countRef = useRef(null);
 
   const shortNumber = shortenNumber(to);
 
   const startCount = useMotionValue<number>(from);
-
   const endCount = shortNumber ? shortNumber.value : to;
 
   const unit = unitProp ?? shortNumber?.unit;
 
-  const inView = useInView(ref, { once, amount });
+  const inView = useInView(countRef, { once, amount });
 
   const rounded = useTransform(startCount, (latest) =>
     latest.toFixed(isFloat(latest) ? toFixed : 0)
@@ -55,15 +54,17 @@ export function AnimateCountUp({
   return (
     <Typography
       component={component}
-      sx={{
-        p: 0,
-        m: 0,
-        display: 'inline-flex',
-        ...sx,
-      }}
+      sx={[
+        {
+          p: 0,
+          m: 0,
+          display: 'inline-flex',
+        },
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...other}
     >
-      <m.span ref={ref}>{rounded}</m.span>
+      <m.span ref={countRef}>{rounded}</m.span>
       {unit}
     </Typography>
   );
@@ -75,15 +76,15 @@ function isFloat(n: number | string) {
   return typeof n === 'number' && !Number.isInteger(n);
 }
 
-function shortenNumber(num: number): { unit: string; value: number } | undefined {
-  if (num >= 1e9) {
-    return { unit: 'b', value: num / 1e9 };
+function shortenNumber(value: number): { unit: string; value: number } | undefined {
+  if (value >= 1e9) {
+    return { unit: 'b', value: value / 1e9 };
   }
-  if (num >= 1e6) {
-    return { unit: 'm', value: num / 1e6 };
+  if (value >= 1e6) {
+    return { unit: 'm', value: value / 1e6 };
   }
-  if (num >= 1e3) {
-    return { unit: 'k', value: num / 1e3 };
+  if (value >= 1e3) {
+    return { unit: 'k', value: value / 1e3 };
   }
   return undefined;
 }

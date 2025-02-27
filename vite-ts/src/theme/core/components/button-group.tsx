@@ -1,24 +1,30 @@
 import type { ButtonGroupProps } from '@mui/material/ButtonGroup';
 import type { Theme, CSSObject, Components, ComponentsVariants } from '@mui/material/styles';
 
-import { buttonGroupClasses } from '@mui/material/ButtonGroup';
+import { varAlpha } from 'minimal-shared/utils';
 
-import { varAlpha, stylesMode } from '../../styles';
+import { buttonGroupClasses } from '@mui/material/ButtonGroup';
 
 // ----------------------------------------------------------------------
 
-// NEW VARIANT
-declare module '@mui/material/ButtonGroup' {
-  interface ButtonGroupPropsVariantOverrides {
-    soft: true;
-  }
-}
+/**
+ * TypeScript (type definition and extension)
+ * @to {@link file://./../../extend-theme-types.d.ts}
+ */
+
+export type ButtonGroupExtendVariant = {
+  soft: true;
+};
+
+// ----------------------------------------------------------------------
 
 const COLORS = ['primary', 'secondary', 'info', 'success', 'warning', 'error'] as const;
 
-type ColorType = (typeof COLORS)[number];
+type PaletteColor = (typeof COLORS)[number];
 
-function styleColors(ownerState: ButtonGroupProps, styles: (val: ColorType) => CSSObject) {
+// ----------------------------------------------------------------------
+
+function styleColors(ownerState: ButtonGroupProps, styles: (val: PaletteColor) => CSSObject) {
   const outputStyle = COLORS.reduce((acc, color) => {
     if (!ownerState.disabled && ownerState.color === color) {
       acc = styles(color);
@@ -38,14 +44,16 @@ const softVariant: Record<string, ComponentsVariants<Theme>['MuiButtonGroup']> =
     style: ({ theme }) => ({
       [buttonClasses]: {
         borderColor: varAlpha(theme.vars.palette[color].darkChannel, 0.24),
-        [stylesMode.dark]: { borderColor: varAlpha(theme.vars.palette[color].lightChannel, 0.24) },
+        ...theme.applyStyles('dark', {
+          borderColor: varAlpha(theme.vars.palette[color].lightChannel, 0.24),
+        }),
       },
       [`&.${buttonGroupClasses.vertical}`]: {
         [buttonClasses]: {
           borderColor: varAlpha(theme.vars.palette[color].darkChannel, 0.24),
-          [stylesMode.dark]: {
+          ...theme.applyStyles('dark', {
             borderColor: varAlpha(theme.vars.palette[color].lightChannel, 0.24),
-          },
+          }),
         },
       },
     }),
@@ -83,19 +91,18 @@ const MuiButtonGroup: Components<Theme>['MuiButtonGroup'] = {
   defaultProps: { disableElevation: true },
 
   /** **************************************
-   * VARIANTS
-   *************************************** */
-  variants: [
-    /**
-     * @variant soft
-     */
-    ...[...softVariant.base!, ...softVariant.colors!],
-  ],
-
-  /** **************************************
    * STYLE
    *************************************** */
   styleOverrides: {
+    root: {
+      variants: [
+        /**
+         * @variant soft
+         */
+        softVariant.base,
+        softVariant.colors,
+      ].flat(),
+    },
     /**
      * @variant contained
      */
@@ -121,6 +128,22 @@ const MuiButtonGroup: Components<Theme>['MuiButtonGroup'] = {
       };
 
       return { ...styled.inheritColor, ...styled.colors, ...styled.disabled };
+    },
+    /**
+     * @variant outlined
+     */
+    outlined: ({ theme, ownerState }) => {
+      const styled = {
+        inheritColor: {
+          ...(ownerState.color === 'inherit' && {
+            [`& .${buttonGroupClasses.grouped}`]: {
+              '&:hover': { borderColor: theme.vars.palette.text.primary },
+            },
+          }),
+        },
+      };
+
+      return { ...styled.inheritColor };
     },
     /**
      * @variant text

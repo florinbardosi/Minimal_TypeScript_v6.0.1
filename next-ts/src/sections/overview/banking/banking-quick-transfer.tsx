@@ -1,8 +1,16 @@
 import type { CardProps } from '@mui/material/Card';
 import type { InputProps } from '@mui/material/Input';
 import type { DialogProps } from '@mui/material/Dialog';
+import type { Theme, SxProps } from '@mui/material/styles';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useBoolean } from 'minimal-shared/hooks';
+import { useId, useState, useCallback } from 'react';
+import {
+  varAlpha,
+  transformValue,
+  transformValueOnBlur,
+  transformValueOnChange,
+} from 'minimal-shared/utils';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -18,11 +26,7 @@ import ListItemText from '@mui/material/ListItemText';
 import DialogActions from '@mui/material/DialogActions';
 import Input, { inputClasses } from '@mui/material/Input';
 
-import { useBoolean } from 'src/hooks/use-boolean';
-
 import { fCurrency } from 'src/utils/format-number';
-
-import { varAlpha, stylesMode } from 'src/theme/styles';
 
 import { Iconify } from 'src/components/iconify';
 import { Carousel, useCarousel, CarouselArrowFloatButtons } from 'src/components/carousel';
@@ -54,57 +58,47 @@ export function BankingQuickTransfer({ title, subheader, list, sx, ...other }: P
     slideSpacing: '20px',
   });
 
-  const confirm = useBoolean();
+  const confirmDialog = useBoolean();
 
-  const [amount, setAmount] = useState(0);
-
-  const [autoWidth, setAutoWidth] = useState(24);
+  const [amount, setAmount] = useState<string | number>(200);
 
   const contactInfo = list.find((_, index) => index === carousel.dots.selectedIndex);
-
-  useEffect(() => {
-    if (amount) {
-      handleAutoWidth();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [amount]);
-
-  const handleAutoWidth = useCallback(() => {
-    const getNumberLength = amount.toString().length;
-    setAutoWidth(getNumberLength * 24);
-  }, [amount]);
 
   const handleChangeSlider = useCallback((event: Event, newValue: number | number[]) => {
     setAmount(newValue as number);
   }, []);
 
-  const handleChangeInput = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    setAmount(Number(event.target.value));
+  const handleChangeAmountInput = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const transformedValue = transformValueOnChange(event.target.value);
+    setAmount(transformedValue);
   }, []);
 
-  const handleBlur = useCallback(() => {
-    if (amount < 0) {
-      setAmount(0);
-    } else if (amount > MAX_AMOUNT) {
-      setAmount(MAX_AMOUNT);
-    }
-  }, [amount]);
+  const handleBlurAmountInput = useCallback((event: React.FocusEvent<HTMLInputElement>) => {
+    const transformedValue = transformValueOnBlur(event.target.value);
 
-  const renderCarousel = (
+    if (typeof transformedValue === 'number') {
+      if (transformedValue > MAX_AMOUNT) {
+        setAmount(MAX_AMOUNT);
+      } else {
+        setAmount(transformedValue);
+      }
+    }
+  }, []);
+
+  const renderCarousel = () => (
     <Box sx={{ position: 'relative' }}>
       <CarouselArrowFloatButtons
         {...carousel.arrows}
         options={carousel.options}
-        slotProps={{
-          prevBtn: { svgSize: 14 },
-          nextBtn: { svgSize: 14 },
-        }}
-        sx={{
-          p: 0.5,
-          borderRadius: '50%',
-          bgcolor: (theme) => varAlpha(theme.vars.palette.text.primaryChannel, 0.48),
-          '&:hover': { bgcolor: (theme) => theme.vars.palette.text.primary },
-        }}
+        slotProps={{ prevBtn: { svgSize: 14 }, nextBtn: { svgSize: 14 } }}
+        sx={[
+          (theme) => ({
+            p: 0.5,
+            borderRadius: '50%',
+            bgcolor: varAlpha(theme.vars.palette.text.primaryChannel, 0.48),
+            '&:hover': { bgcolor: theme.vars.palette.text.primary },
+          }),
+        ]}
       />
 
       <Carousel carousel={carousel} sx={{ py: 5 }}>
@@ -113,20 +107,22 @@ export function BankingQuickTransfer({ title, subheader, list, sx, ...other }: P
             <Avatar
               src={contact.avatarUrl}
               onClick={() => carousel.dots.onClickDot(index)}
-              sx={(theme) => ({
-                mx: 'auto',
-                opacity: 0.48,
-                cursor: 'pointer',
-                transition: theme.transitions.create('all'),
-                ...(index === carousel.dots.selectedIndex && {
-                  opacity: 1,
-                  transform: 'scale(1.25)',
-                  boxShadow: `-4px 12px 24px 0 ${varAlpha(theme.vars.palette.common.blackChannel, 0.12)}`,
-                  [stylesMode.dark]: {
-                    boxShadow: `-4px 12px 24px 0 ${varAlpha(theme.vars.palette.common.blackChannel, 0.24)}`,
-                  },
+              sx={[
+                (theme) => ({
+                  mx: 'auto',
+                  opacity: 0.48,
+                  cursor: 'pointer',
+                  transition: theme.transitions.create(['all']),
+                  ...(index === carousel.dots.selectedIndex && {
+                    opacity: 1,
+                    transform: 'scale(1.25)',
+                    boxShadow: `-4px 12px 24px 0 ${varAlpha(theme.vars.palette.common.blackChannel, 0.12)}`,
+                    ...theme.applyStyles('dark', {
+                      boxShadow: `-4px 12px 24px 0 ${varAlpha(theme.vars.palette.common.blackChannel, 0.24)}`,
+                    }),
+                  }),
                 }),
-              })}
+              ]}
             />
           </Tooltip>
         ))}
@@ -134,17 +130,17 @@ export function BankingQuickTransfer({ title, subheader, list, sx, ...other }: P
     </Box>
   );
 
-  const renderInput = (
+  const renderInput = () => (
     <>
       <Typography variant="overline" sx={{ color: 'text.secondary' }}>
-        insert amount
+        Insert amount
       </Typography>
 
       <InputAmount
-        amount={amount}
-        onBlur={handleBlur}
-        autoWidth={autoWidth}
-        onChange={handleChangeInput}
+        disableUnderline
+        value={transformValue(amount)}
+        onBlur={handleBlurAmountInput}
+        onChange={handleChangeAmountInput}
         sx={{ my: 3 }}
       />
 
@@ -171,21 +167,46 @@ export function BankingQuickTransfer({ title, subheader, list, sx, ...other }: P
         color="inherit"
         variant="contained"
         disabled={amount === 0}
-        onClick={confirm.onTrue}
+        onClick={confirmDialog.onTrue}
       >
         Transfer now
       </Button>
     </>
   );
 
+  const renderConfrimDialog = () => (
+    <ConfirmTransferDialog
+      contactInfo={contactInfo}
+      open={confirmDialog.value}
+      value={transformValue(amount)}
+      onBlur={handleBlurAmountInput}
+      onChange={handleChangeAmountInput}
+      onClose={() => {
+        setAmount(0);
+        confirmDialog.onFalse();
+      }}
+    />
+  );
+
   return (
     <>
-      <Box sx={{ borderRadius: 2, bgcolor: 'background.neutral', ...sx }} {...other}>
+      <Box
+        sx={[
+          (theme) => ({
+            borderRadius: 2,
+            bgcolor: 'background.neutral',
+            boxShadow: theme.vars.customShadows.z1,
+            border: `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}`,
+          }),
+          ...(Array.isArray(sx) ? sx : [sx]),
+        ]}
+        {...other}
+      >
         <CardHeader title={title} subheader={subheader} />
 
         <Box sx={{ p: 3 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Typography variant="overline" sx={{ color: 'text.secondary' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography variant="overline" sx={{ color: 'text.secondary', flexGrow: 1 }}>
               Recent
             </Typography>
 
@@ -199,111 +220,62 @@ export function BankingQuickTransfer({ title, subheader, list, sx, ...other }: P
             </Button>
           </Box>
 
-          {renderCarousel}
-
-          {renderInput}
+          {renderCarousel()}
+          {renderInput()}
         </Box>
       </Box>
 
-      <ConfirmTransferDialog
-        amount={amount}
-        onBlur={handleBlur}
-        open={confirm.value}
-        autoWidth={autoWidth}
-        onClose={confirm.onFalse}
-        contactInfo={contactInfo}
-        onChange={handleChangeInput}
-      />
+      {renderConfrimDialog()}
     </>
   );
 }
 
 // ----------------------------------------------------------------------
 
-type InputAmountProps = InputProps & {
-  autoWidth: number;
-  amount: number | number[];
-};
-
-function InputAmount({ autoWidth, amount, onBlur, onChange, sx, ...other }: InputAmountProps) {
-  return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', ...sx }}>
-      <Box component="span" sx={{ typography: 'h5' }}>
-        $
-      </Box>
-
-      <Input
-        disableUnderline
-        size="small"
-        value={amount}
-        onChange={onChange}
-        onBlur={onBlur}
-        inputProps={{
-          step: STEP,
-          min: MIN_AMOUNT,
-          max: MAX_AMOUNT,
-          type: 'number',
-          id: 'input-amount',
-        }}
-        sx={{
-          [`& .${inputClasses.input}`]: {
-            p: 0,
-            typography: 'h3',
-            textAlign: 'center',
-            width: autoWidth,
-          },
-        }}
-        {...other}
-      />
-    </Box>
-  );
-}
-
-// ----------------------------------------------------------------------
-
-type ConfirmTransferDialogProps = InputAmountProps &
+type ConfirmTransferDialogProps = InputProps &
   DialogProps & {
+    onClose: () => void;
     contactInfo?: {
       id: string;
       name: string;
       email: string;
       avatarUrl: string;
     };
-    onClose: () => void;
   };
 
 function ConfirmTransferDialog({
   open,
-  amount,
+  value,
   onBlur,
   onClose,
   onChange,
-  autoWidth,
   contactInfo,
 }: ConfirmTransferDialogProps) {
   return (
     <Dialog open={open} fullWidth maxWidth="xs" onClose={onClose}>
       <DialogTitle>Transfer to</DialogTitle>
 
-      <Box sx={{ px: 3, gap: 3, display: 'flex', flexDirection: 'column' }}>
+      <Box
+        sx={{
+          px: 3,
+          gap: 3,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
         <Box sx={{ gap: 2, display: 'flex', alignItems: 'center' }}>
           <Avatar src={contactInfo?.avatarUrl} sx={{ width: 48, height: 48 }} />
 
           <ListItemText
             primary={contactInfo?.name}
             secondary={contactInfo?.email}
-            secondaryTypographyProps={{ component: 'span', mt: 0.5 }}
+            slotProps={{
+              secondary: { sx: { mt: 0.5 } },
+            }}
           />
         </Box>
 
-        <InputAmount
-          onBlur={onBlur}
-          onChange={onChange}
-          autoWidth={autoWidth}
-          amount={amount}
-          disableUnderline={false}
-          sx={{ justifyContent: 'flex-end' }}
-        />
+        <InputAmount onBlur={onBlur} onChange={onChange} value={value} />
 
         <TextField fullWidth multiline rows={3} placeholder="Write a message..." />
       </Box>
@@ -311,10 +283,66 @@ function ConfirmTransferDialog({
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
 
-        <Button variant="contained" disabled={amount === 0} onClick={onClose}>
+        <Button variant="contained" disabled={value === '0'} onClick={onClose}>
           Transfer
         </Button>
       </DialogActions>
     </Dialog>
+  );
+}
+
+// ----------------------------------------------------------------------
+
+function InputAmount({ value, sx, inputProps, ...other }: InputProps) {
+  const id = useId();
+
+  const inputStyles: SxProps<Theme> = {
+    p: 0,
+    typography: 'h3',
+    textAlign: 'center',
+  };
+
+  const renderAdornment = () => (
+    <Box
+      sx={{
+        gap: 0.5,
+        height: 1,
+        mx: 'auto',
+        display: 'flex',
+        transform: 'translateX(-8px)',
+      }}
+    >
+      <Box component="span" sx={{ typography: 'h5', transform: 'translate(0px, 4px)' }}>
+        $
+      </Box>
+      <Box component="span" sx={{ ...inputStyles, mx: 'auto', visibility: 'hidden' }}>
+        {value as string}
+      </Box>
+    </Box>
+  );
+
+  return (
+    <Input
+      value={value}
+      inputProps={{
+        id: `amount-${id}-input`,
+        ...inputProps,
+      }}
+      endAdornment={renderAdornment()}
+      sx={[
+        {
+          height: 48,
+          display: 'flex',
+          alignSelf: 'center',
+          [`& .${inputClasses.input}`]: {
+            ...inputStyles,
+            position: 'absolute',
+            zIndex: 1,
+          },
+        },
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
+      {...other}
+    />
   );
 }

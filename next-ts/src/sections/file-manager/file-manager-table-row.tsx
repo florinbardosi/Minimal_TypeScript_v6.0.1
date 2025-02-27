@@ -1,8 +1,11 @@
 import type { IFileManager } from 'src/types/file';
+import type { Theme, SxProps } from '@mui/material/styles';
 
 import { useState, useCallback } from 'react';
+import { varAlpha } from 'minimal-shared/utils';
+import { useBoolean, usePopover, useDoubleClick, useCopyToClipboard } from 'minimal-shared/hooks';
 
-import Stack from '@mui/material/Stack';
+import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import Divider from '@mui/material/Divider';
@@ -17,20 +20,14 @@ import TableRow, { tableRowClasses } from '@mui/material/TableRow';
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
 import AvatarGroup, { avatarGroupClasses } from '@mui/material/AvatarGroup';
 
-import { useBoolean } from 'src/hooks/use-boolean';
-import { useDoubleClick } from 'src/hooks/use-double-click';
-import { useCopyToClipboard } from 'src/hooks/use-copy-to-clipboard';
-
 import { fData } from 'src/utils/format-number';
 import { fDate, fTime } from 'src/utils/format-time';
-
-import { varAlpha } from 'src/theme/styles';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { FileThumbnail } from 'src/components/file-thumbnail';
-import { usePopover, CustomPopover } from 'src/components/custom-popover';
+import { CustomPopover } from 'src/components/custom-popover';
 
 import { FileManagerShareDialog } from './file-manager-share-dialog';
 import { FileManagerFileDetails } from './file-manager-file-details';
@@ -51,15 +48,11 @@ export function FileManagerTableRow({ row, selected, onSelectRow, onDeleteRow }:
 
   const [inviteEmail, setInviteEmail] = useState('');
 
+  const shareDialog = useBoolean();
+  const detailsDrawer = useBoolean();
+  const confirmDialog = useBoolean();
+  const menuActions = usePopover();
   const favorite = useBoolean(row.isFavorited);
-
-  const details = useBoolean();
-
-  const share = useBoolean();
-
-  const confirm = useBoolean();
-
-  const popover = usePopover();
 
   const handleChangeInvite = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setInviteEmail(event.target.value);
@@ -67,7 +60,7 @@ export function FileManagerTableRow({ row, selected, onSelectRow, onDeleteRow }:
 
   const handleClick = useDoubleClick({
     click: () => {
-      details.onTrue();
+      detailsDrawer.onTrue();
     },
     doubleClick: () => console.info('DOUBLE CLICK'),
   });
@@ -77,7 +70,7 @@ export function FileManagerTableRow({ row, selected, onSelectRow, onDeleteRow }:
     copy(row.url);
   }, [copy, row.url]);
 
-  const defaultStyles = {
+  const defaultStyles: SxProps<Theme> = {
     borderTop: `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.16)}`,
     borderBottom: `solid 1px ${varAlpha(theme.vars.palette.grey['500Channel'], 0.16)}`,
     '&:first-of-type': {
@@ -92,6 +85,90 @@ export function FileManagerTableRow({ row, selected, onSelectRow, onDeleteRow }:
     },
   };
 
+  const renderMenuActions = () => (
+    <CustomPopover
+      open={menuActions.open}
+      anchorEl={menuActions.anchorEl}
+      onClose={menuActions.onClose}
+      slotProps={{ arrow: { placement: 'right-top' } }}
+    >
+      <MenuList>
+        <MenuItem
+          onClick={() => {
+            menuActions.onClose();
+            handleCopy();
+          }}
+        >
+          <Iconify icon="eva:link-2-fill" />
+          Copy Link
+        </MenuItem>
+
+        <MenuItem
+          onClick={() => {
+            menuActions.onClose();
+            shareDialog.onTrue();
+          }}
+        >
+          <Iconify icon="solar:share-bold" />
+          Share
+        </MenuItem>
+
+        <Divider sx={{ borderStyle: 'dashed' }} />
+
+        <MenuItem
+          onClick={() => {
+            confirmDialog.onTrue();
+            menuActions.onClose();
+          }}
+          sx={{ color: 'error.main' }}
+        >
+          <Iconify icon="solar:trash-bin-trash-bold" />
+          Delete
+        </MenuItem>
+      </MenuList>
+    </CustomPopover>
+  );
+
+  const renderFileDetailsDrawer = () => (
+    <FileManagerFileDetails
+      file={row}
+      favorited={favorite.value}
+      onFavorite={favorite.onToggle}
+      onCopyLink={handleCopy}
+      open={detailsDrawer.value}
+      onClose={detailsDrawer.onFalse}
+      onDelete={onDeleteRow}
+    />
+  );
+
+  const renderShareDialog = () => (
+    <FileManagerShareDialog
+      open={shareDialog.value}
+      shared={row.shared}
+      inviteEmail={inviteEmail}
+      onChangeInvite={handleChangeInvite}
+      onCopyLink={handleCopy}
+      onClose={() => {
+        shareDialog.onFalse();
+        setInviteEmail('');
+      }}
+    />
+  );
+
+  const renderConfirmDialog = () => (
+    <ConfirmDialog
+      open={confirmDialog.value}
+      onClose={confirmDialog.onFalse}
+      title="Delete"
+      content="Are you sure want to delete?"
+      action={
+        <Button variant="contained" color="error" onClick={onDeleteRow}>
+          Delete
+        </Button>
+      }
+    />
+  );
+
   return (
     <>
       <TableRow
@@ -100,27 +177,39 @@ export function FileManagerTableRow({ row, selected, onSelectRow, onDeleteRow }:
           borderRadius: 2,
           [`&.${tableRowClasses.selected}, &:hover`]: {
             backgroundColor: 'background.paper',
-            boxShadow: theme.customShadows.z20,
+            boxShadow: theme.vars.customShadows.z20,
             transition: theme.transitions.create(['background-color', 'box-shadow'], {
               duration: theme.transitions.duration.shortest,
             }),
-            '&:hover': { backgroundColor: 'background.paper', boxShadow: theme.customShadows.z20 },
+            '&:hover': {
+              backgroundColor: 'background.paper',
+              boxShadow: theme.vars.customShadows.z20,
+            },
           },
-          [`& .${tableCellClasses.root}`]: { ...defaultStyles },
-          ...(details.value && { [`& .${tableCellClasses.root}`]: { ...defaultStyles } }),
+          [`& .${tableCellClasses.root}`]: {
+            ...defaultStyles,
+          },
+          ...(detailsDrawer.value && {
+            [`& .${tableCellClasses.root}`]: {
+              ...defaultStyles,
+            },
+          }),
         }}
       >
         <TableCell padding="checkbox">
           <Checkbox
             checked={selected}
-            onDoubleClick={() => console.info('ON DOUBLE CLICK')}
             onClick={onSelectRow}
-            inputProps={{ id: `row-checkbox-${row.id}`, 'aria-label': `row-checkbox` }}
+            onDoubleClick={() => console.info('ON DOUBLE CLICK')}
+            inputProps={{
+              id: `${row.id}-checkbox`,
+              'aria-label': `${row.id} checkbox`,
+            }}
           />
         </TableCell>
 
         <TableCell onClick={handleClick}>
-          <Stack direction="row" alignItems="center" spacing={2}>
+          <Box sx={{ gap: 2, display: 'flex', alignItems: 'center' }}>
             <FileThumbnail file={row.type} />
 
             <Typography
@@ -129,12 +218,12 @@ export function FileManagerTableRow({ row, selected, onSelectRow, onDeleteRow }:
               sx={{
                 maxWidth: 360,
                 cursor: 'pointer',
-                ...(details.value && { fontWeight: 'fontWeightBold' }),
+                ...(detailsDrawer.value && { fontWeight: 'fontWeightBold' }),
               }}
             >
               {row.name}
             </Typography>
-          </Stack>
+          </Box>
         </TableCell>
 
         <TableCell onClick={handleClick} sx={{ whiteSpace: 'nowrap' }}>
@@ -149,8 +238,12 @@ export function FileManagerTableRow({ row, selected, onSelectRow, onDeleteRow }:
           <ListItemText
             primary={fDate(row.modifiedAt)}
             secondary={fTime(row.modifiedAt)}
-            primaryTypographyProps={{ typography: 'body2' }}
-            secondaryTypographyProps={{ mt: 0.5, component: 'span', typography: 'caption' }}
+            slotProps={{
+              primary: { sx: { typography: 'body2' } },
+              secondary: {
+                sx: { mt: 0.5, typography: 'caption' },
+              },
+            }}
           />
         </TableCell>
 
@@ -181,89 +274,23 @@ export function FileManagerTableRow({ row, selected, onSelectRow, onDeleteRow }:
             checked={favorite.value}
             onChange={favorite.onToggle}
             sx={{ p: 0.75 }}
+            inputProps={{
+              id: `favorite-checkbox-${row.id}`,
+              'aria-label': 'Favorite checkbox',
+            }}
           />
 
-          <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
+          <IconButton color={menuActions.open ? 'inherit' : 'default'} onClick={menuActions.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
         </TableCell>
       </TableRow>
 
-      <CustomPopover
-        open={popover.open}
-        anchorEl={popover.anchorEl}
-        onClose={popover.onClose}
-        slotProps={{ arrow: { placement: 'right-top' } }}
-      >
-        <MenuList>
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-              handleCopy();
-            }}
-          >
-            <Iconify icon="eva:link-2-fill" />
-            Copy Link
-          </MenuItem>
+      {renderFileDetailsDrawer()}
+      {renderShareDialog()}
 
-          <MenuItem
-            onClick={() => {
-              popover.onClose();
-              share.onTrue();
-            }}
-          >
-            <Iconify icon="solar:share-bold" />
-            Share
-          </MenuItem>
-
-          <Divider sx={{ borderStyle: 'dashed' }} />
-
-          <MenuItem
-            onClick={() => {
-              confirm.onTrue();
-              popover.onClose();
-            }}
-            sx={{ color: 'error.main' }}
-          >
-            <Iconify icon="solar:trash-bin-trash-bold" />
-            Delete
-          </MenuItem>
-        </MenuList>
-      </CustomPopover>
-
-      <FileManagerFileDetails
-        item={row}
-        favorited={favorite.value}
-        onFavorite={favorite.onToggle}
-        onCopyLink={handleCopy}
-        open={details.value}
-        onClose={details.onFalse}
-        onDelete={onDeleteRow}
-      />
-
-      <FileManagerShareDialog
-        open={share.value}
-        shared={row.shared}
-        inviteEmail={inviteEmail}
-        onChangeInvite={handleChangeInvite}
-        onCopyLink={handleCopy}
-        onClose={() => {
-          share.onFalse();
-          setInviteEmail('');
-        }}
-      />
-
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content="Are you sure want to delete?"
-        action={
-          <Button variant="contained" color="error" onClick={onDeleteRow}>
-            Delete
-          </Button>
-        }
-      />
+      {renderMenuActions()}
+      {renderConfirmDialog()}
     </>
   );
 }

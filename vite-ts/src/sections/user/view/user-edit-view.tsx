@@ -19,6 +19,7 @@ export function UserEditView({ user: currentUser }: Props) {
     <DashboardContent>
       <CustomBreadcrumbs
         heading="Edit"
+        backHref={paths.dashboard.user.list}
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'User', href: paths.dashboard.user.root },

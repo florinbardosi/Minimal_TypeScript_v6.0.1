@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 
-import { useRouter, useSearchParams } from 'src/routes/hooks';
+import { useSearchParams } from 'src/routes/hooks';
 
-import { CONFIG } from 'src/config-global';
+import { CONFIG } from 'src/global-config';
 
 import { SplashScreen } from 'src/components/loading-screen';
 
@@ -10,20 +10,17 @@ import { useAuthContext } from '../hooks';
 
 // ----------------------------------------------------------------------
 
-type Props = {
+type GuestGuardProps = {
   children: React.ReactNode;
 };
 
-export function GuestGuard({ children }: Props) {
-  const router = useRouter();
-
-  const searchParams = useSearchParams();
-
+export function GuestGuard({ children }: GuestGuardProps) {
   const { loading, authenticated } = useAuthContext();
 
-  const [isChecking, setIsChecking] = useState<boolean>(true);
-
+  const searchParams = useSearchParams();
   const returnTo = searchParams.get('returnTo') || CONFIG.auth.redirectPath;
+
+  const [isChecking, setIsChecking] = useState<boolean>(true);
 
   const checkPermissions = async (): Promise<void> => {
     if (loading) {
@@ -31,7 +28,10 @@ export function GuestGuard({ children }: Props) {
     }
 
     if (authenticated) {
-      router.replace(returnTo);
+      // Redirect authenticated users to the returnTo path
+      // Using `window.location.href` instead of `router.replace` to avoid unnecessary re-rendering
+      // that might be caused by the AuthGuard component
+      window.location.href = returnTo;
       return;
     }
 

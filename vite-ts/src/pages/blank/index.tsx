@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 
-import { CONFIG } from 'src/config-global';
+import { CONFIG } from 'src/global-config';
 
 // ----------------------------------------------------------------------
 

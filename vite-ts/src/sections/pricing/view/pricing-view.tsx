@@ -1,5 +1,4 @@
 import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
 import Switch from '@mui/material/Switch';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
@@ -40,13 +39,26 @@ export function PricingView() {
       </Typography>
 
       <Box sx={{ mt: 9, mb: 5, position: 'relative' }}>
-        <Stack direction="row" alignItems="center" justifyContent="center">
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Typography variant="overline">MONTHLY</Typography>
 
-          <Switch sx={{ mx: 1 }} />
+          <Switch
+            sx={{ mx: 1 }}
+            inputProps={{
+              id: 'yearly-pricing-switch',
+              'aria-label': 'Yearly pricing switch',
+            }}
+          />
 
           <Box sx={{ position: 'relative' }}>
-            <Stack direction="row" sx={{ position: 'absolute', left: 12, bottom: 12 }}>
+            <Box
+              sx={{
+                left: 12,
+                bottom: 12,
+                display: 'flex',
+                position: 'absolute',
+              }}
+            >
               {arrowIcon}
               <Box
                 component="span"
@@ -54,18 +66,20 @@ export function PricingView() {
               >
                 save 10%
               </Box>
-            </Stack>
+            </Box>
 
             <Typography variant="overline">YEARLY</Typography>
           </Box>
-        </Stack>
+        </Box>
       </Box>
 
       <Box
-        gap={{ xs: 3, md: 0 }}
-        display="grid"
-        alignItems={{ md: 'center' }}
-        gridTemplateColumns={{ md: 'repeat(3, 1fr)' }}
+        sx={{
+          display: 'grid',
+          gap: { xs: 3, md: 0 },
+          alignItems: { md: 'center' },
+          gridTemplateColumns: { md: 'repeat(3, 1fr)' },
+        }}
       >
         {_pricingPlans.map((card, index) => (
           <PricingCard key={card.subscription} card={card} index={index} />

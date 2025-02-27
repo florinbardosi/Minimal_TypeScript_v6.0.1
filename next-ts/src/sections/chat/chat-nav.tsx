@@ -3,17 +3,16 @@ import type { IChatParticipant, IChatConversations } from 'src/types/chat';
 import { useMemo, useState, useEffect, useCallback } from 'react';
 
 import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
 import Drawer from '@mui/material/Drawer';
 import TextField from '@mui/material/TextField';
+import { useTheme } from '@mui/material/styles';
 import IconButton from '@mui/material/IconButton';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import InputAdornment from '@mui/material/InputAdornment';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
-
-import { useResponsive } from 'src/hooks/use-responsive';
 
 import { today } from 'src/utils/format-time';
 
@@ -56,9 +55,10 @@ export function ChatNav({
 }: Props) {
   const router = useRouter();
 
-  const mdUp = useResponsive('up', 'md');
-
   const { user } = useMockedUser();
+
+  const theme = useTheme();
+  const mdUp = useMediaQuery(theme.breakpoints.up('md'));
 
   const {
     openMobile,
@@ -72,12 +72,9 @@ export function ChatNav({
   const [searchContacts, setSearchContacts] = useState<{
     query: string;
     results: IChatParticipant[];
-  }>({
-    query: '',
-    results: [],
-  });
+  }>({ query: '', results: [] });
 
-  const myContact = useMemo(
+  const myContact: IChatParticipant = useMemo(
     () => ({
       id: `${user?.id}`,
       role: `${user?.role}`,
@@ -87,7 +84,7 @@ export function ChatNav({
       lastActivity: today(),
       avatarUrl: `${user?.photoURL}`,
       phoneNumber: `${user?.phoneNumber}`,
-      status: 'online' as 'online' | 'offline' | 'alway' | 'busy',
+      status: 'online',
     }),
     [user]
   );
@@ -119,7 +116,7 @@ export function ChatNav({
 
       if (inputValue) {
         const results = contacts.filter((contact) =>
-          contact.name.toLowerCase().includes(inputValue)
+          contact.name.toLowerCase().includes(inputValue.toLowerCase())
         );
 
         setSearchContacts((prevState) => ({ ...prevState, results }));
@@ -174,9 +171,9 @@ export function ChatNav({
     [contacts, conversations.allIds, handleClickAwaySearch, myContact, router]
   );
 
-  const renderLoading = <ChatNavItemSkeleton />;
+  const renderLoading = () => <ChatNavItemSkeleton />;
 
-  const renderList = (
+  const renderList = () => (
     <nav>
       <Box component="ul">
         {conversations.allIds.map((conversationId) => (
@@ -192,7 +189,7 @@ export function ChatNav({
     </nav>
   );
 
-  const renderListResults = (
+  const renderListResults = () => (
     <ChatNavSearchResults
       query={searchContacts.query}
       results={searchContacts.results}
@@ -200,28 +197,38 @@ export function ChatNav({
     />
   );
 
-  const renderSearchInput = (
+  const renderSearchInput = () => (
     <ClickAwayListener onClickAway={handleClickAwaySearch}>
       <TextField
         fullWidth
         value={searchContacts.query}
         onChange={(event) => handleSearchContacts(event.target.value)}
         placeholder="Search contacts..."
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-            </InputAdornment>
-          ),
+        slotProps={{
+          input: {
+            startAdornment: (
+              <InputAdornment position="start">
+                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+              </InputAdornment>
+            ),
+          },
         }}
         sx={{ mt: 2.5 }}
       />
     </ClickAwayListener>
   );
 
-  const renderContent = (
+  const renderContent = () => (
     <>
-      <Stack direction="row" alignItems="center" justifyContent="center" sx={{ p: 2.5, pb: 0 }}>
+      <Box
+        sx={{
+          p: 2.5,
+          pb: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
         {!collapseDesktop && (
           <>
             <ChatNavAccount />
@@ -240,15 +247,17 @@ export function ChatNav({
             <Iconify width={24} icon="solar:user-plus-bold" />
           </IconButton>
         )}
-      </Stack>
+      </Box>
 
-      <Box sx={{ p: 2.5, pt: 0 }}>{!collapseDesktop && renderSearchInput}</Box>
+      <Box sx={{ p: 2.5, pt: 0 }}>{!collapseDesktop && renderSearchInput()}</Box>
 
       {loading ? (
-        renderLoading
+        renderLoading()
       ) : (
         <Scrollbar sx={{ pb: 1 }}>
-          {searchContacts.query && !!conversations.allIds.length ? renderListResults : renderList}
+          {searchContacts.query && !!conversations.allIds.length
+            ? renderListResults()
+            : renderList()}
         </Scrollbar>
       )}
     </>
@@ -260,22 +269,22 @@ export function ChatNav({
         <Iconify width={16} icon="solar:users-group-rounded-bold" />
       </ToggleButton>
 
-      <Stack
+      <Box
         sx={{
           minHeight: 0,
           flex: '1 1 auto',
           width: NAV_WIDTH,
+          flexDirection: 'column',
           display: { xs: 'none', md: 'flex' },
-          borderRight: (theme) => `solid 1px ${theme.vars.palette.divider}`,
-          transition: (theme) =>
-            theme.transitions.create(['width'], {
-              duration: theme.transitions.duration.shorter,
-            }),
+          borderRight: `solid 1px ${theme.vars.palette.divider}`,
+          transition: theme.transitions.create(['width'], {
+            duration: theme.transitions.duration.shorter,
+          }),
           ...(collapseDesktop && { width: NAV_COLLAPSE_WIDTH }),
         }}
       >
-        {renderContent}
-      </Stack>
+        {renderContent()}
+      </Box>
 
       <Drawer
         open={openMobile}
@@ -283,7 +292,7 @@ export function ChatNav({
         slotProps={{ backdrop: { invisible: true } }}
         PaperProps={{ sx: { width: NAV_WIDTH } }}
       >
-        {renderContent}
+        {renderContent()}
       </Drawer>
     </>
   );

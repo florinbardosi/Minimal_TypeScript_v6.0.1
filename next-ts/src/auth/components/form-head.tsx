@@ -15,16 +15,23 @@ export function FormHead({ sx, icon, title, description, ...other }: FormHeadPro
   return (
     <>
       {icon && (
-        <Box component="span" display="inline-flex" sx={{ mx: 'auto', mb: 3 }}>
+        <Box component="span" sx={{ mb: 3, mx: 'auto', display: 'inline-flex' }}>
           {icon}
         </Box>
       )}
 
       <Box
-        gap={1.5}
-        display="flex"
-        flexDirection="column"
-        sx={{ mb: 5, textAlign: 'center', whiteSpace: 'pre-line', ...sx }}
+        sx={[
+          () => ({
+            mb: 5,
+            gap: 1.5,
+            display: 'flex',
+            textAlign: 'center',
+            whiteSpace: 'pre-line',
+            flexDirection: 'column',
+          }),
+          ...(Array.isArray(sx) ? sx : [sx]),
+        ]}
         {...other}
       >
         <Typography variant="h5">{title}</Typography>

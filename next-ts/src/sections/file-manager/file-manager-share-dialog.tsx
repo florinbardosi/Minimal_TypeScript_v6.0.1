@@ -47,19 +47,21 @@ export function FileManagerShareDialog({
             value={inviteEmail}
             placeholder="Email"
             onChange={onChangeInvite}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <Button
-                    color="inherit"
-                    variant="contained"
-                    disabled={!inviteEmail}
-                    sx={{ mr: -0.75 }}
-                  >
-                    Send Invite
-                  </Button>
-                </InputAdornment>
-              ),
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <Button
+                      color="inherit"
+                      variant="contained"
+                      disabled={!inviteEmail}
+                      sx={{ mr: -0.75 }}
+                    >
+                      Send Invite
+                    </Button>
+                  </InputAdornment>
+                ),
+              },
             }}
             sx={{ mb: 2 }}
           />

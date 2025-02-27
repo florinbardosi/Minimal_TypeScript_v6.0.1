@@ -1,43 +1,54 @@
-import type { BoxProps } from '@mui/material/Box';
+import type { Theme, SxProps } from '@mui/material/styles';
 
-import Box from '@mui/material/Box';
+import { Fragment } from 'react';
+
 import Portal from '@mui/material/Portal';
+import { styled } from '@mui/material/styles';
 
-import { AnimateLogo1 } from 'src/components/animate';
+import { AnimateLogoZoom } from 'src/components/animate';
 
 // ----------------------------------------------------------------------
 
-type Props = BoxProps & {
+export type SplashScreenProps = React.ComponentProps<'div'> & {
   portal?: boolean;
+  sx?: SxProps<Theme>;
+  slotProps?: {
+    wrapper?: React.ComponentProps<typeof LoadingWrapper>;
+  };
 };
 
-export function SplashScreen({ portal = true, sx, ...other }: Props) {
-  const content = (
-    <Box sx={{ overflow: 'hidden' }}>
-      <Box
-        sx={{
-          right: 0,
-          width: 1,
-          bottom: 0,
-          height: 1,
-          zIndex: 9998,
-          display: 'flex',
-          position: 'fixed',
-          alignItems: 'center',
-          justifyContent: 'center',
-          bgcolor: 'background.default',
-          ...sx,
-        }}
-        {...other}
-      >
-        <AnimateLogo1 />
-      </Box>
-    </Box>
+export function SplashScreen({ portal = true, slotProps, sx, ...other }: SplashScreenProps) {
+  const PortalWrapper = portal ? Portal : Fragment;
+
+  return (
+    <PortalWrapper>
+      <LoadingWrapper {...slotProps?.wrapper}>
+        <LoadingContent sx={sx} {...other}>
+          <AnimateLogoZoom />
+        </LoadingContent>
+      </LoadingWrapper>
+    </PortalWrapper>
   );
-
-  if (portal) {
-    return <Portal>{content}</Portal>;
-  }
-
-  return content;
 }
+
+// ----------------------------------------------------------------------
+
+const LoadingWrapper = styled('div')({
+  flexGrow: 1,
+  display: 'flex',
+  flexDirection: 'column',
+});
+
+const LoadingContent = styled('div')(({ theme }) => ({
+  right: 0,
+  bottom: 0,
+  zIndex: 9998,
+  flexGrow: 1,
+  width: '100%',
+  height: '100%',
+  display: 'flex',
+  position: 'fixed',
+  alignItems: 'center',
+  justifyContent: 'center',
+  backgroundColor: theme.vars.palette.background.default,
+}));

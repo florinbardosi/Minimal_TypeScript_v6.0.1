@@ -1,7 +1,7 @@
-import axios, { endpoints } from 'src/utils/axios';
+import axios, { endpoints } from 'src/lib/axios';
 
 import { setSession } from './utils';
-import { STORAGE_KEY } from './constant';
+import { JWT_STORAGE_KEY } from './constant';
 
 // ----------------------------------------------------------------------
 
@@ -64,7 +64,7 @@ export const signUp = async ({
       throw new Error('Access token not found in response');
     }
 
-    sessionStorage.setItem(STORAGE_KEY, accessToken);
+    sessionStorage.setItem(JWT_STORAGE_KEY, accessToken);
   } catch (error) {
     console.error('Error during sign up:', error);
     throw error;

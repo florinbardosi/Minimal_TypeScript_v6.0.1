@@ -1,27 +1,26 @@
 import type { ITourBooker } from 'src/types/tour';
+import type { BoxProps } from '@mui/material/Box';
 
 import { useState, useCallback } from 'react';
+import { varAlpha } from 'minimal-shared/utils';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import Pagination from '@mui/material/Pagination';
 import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
 
-import { varAlpha } from 'src/theme/styles';
-
 import { Iconify } from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-type Props = {
+type Props = BoxProps & {
   bookers?: ITourBooker[];
 };
 
-export function TourDetailsBookers({ bookers }: Props) {
+export function TourDetailsBookers({ bookers, sx, ...other }: Props) {
   const [approved, setApproved] = useState<string[]>([]);
 
   const handleClick = useCallback(
@@ -38,9 +37,19 @@ export function TourDetailsBookers({ bookers }: Props) {
   return (
     <>
       <Box
-        gap={3}
-        display="grid"
-        gridTemplateColumns={{ xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }}
+        sx={[
+          {
+            gap: 3,
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: 'repeat(1, 1fr)',
+              sm: 'repeat(2, 1fr)',
+              md: 'repeat(3, 1fr)',
+            },
+          },
+          ...(Array.isArray(sx) ? sx : [sx]),
+        ]}
+        {...other}
       >
         {bookers?.map((booker) => (
           <BookerItem
@@ -66,71 +75,75 @@ type BookerItemProps = {
 };
 
 function BookerItem({ booker, selected, onSelected }: BookerItemProps) {
+  const renderActions = () => (
+    <Box sx={{ mt: 2, gap: 1, display: 'flex' }}>
+      <IconButton
+        size="small"
+        color="error"
+        sx={[
+          (theme) => ({
+            borderRadius: 1,
+            bgcolor: varAlpha(theme.vars.palette.error.mainChannel, 0.08),
+            '&:hover': { bgcolor: varAlpha(theme.vars.palette.error.mainChannel, 0.16) },
+          }),
+        ]}
+      >
+        <Iconify width={18} icon="solar:phone-bold" />
+      </IconButton>
+
+      <IconButton
+        size="small"
+        color="info"
+        sx={[
+          (theme) => ({
+            borderRadius: 1,
+            bgcolor: varAlpha(theme.vars.palette.info.mainChannel, 0.08),
+            '&:hover': { bgcolor: varAlpha(theme.vars.palette.info.mainChannel, 0.16) },
+          }),
+        ]}
+      >
+        <Iconify width={18} icon="solar:chat-round-dots-bold" />
+      </IconButton>
+
+      <IconButton
+        size="small"
+        color="primary"
+        sx={[
+          (theme) => ({
+            borderRadius: 1,
+            bgcolor: varAlpha(theme.vars.palette.primary.mainChannel, 0.08),
+            '&:hover': { bgcolor: varAlpha(theme.vars.palette.primary.mainChannel, 0.16) },
+          }),
+        ]}
+      >
+        <Iconify width={18} icon="fluent:mail-24-filled" />
+      </IconButton>
+    </Box>
+  );
+
   return (
     <Card key={booker.id} sx={{ p: 3, gap: 2, display: 'flex' }}>
       <Avatar alt={booker.name} src={booker.avatarUrl} sx={{ width: 48, height: 48 }} />
 
-      <Stack spacing={2} flexGrow={1}>
+      <Box sx={{ minWidth: 0, flex: '1 1 auto' }}>
         <ListItemText
           primary={booker.name}
           secondary={
-            <Stack direction="row" alignItems="center" spacing={0.5}>
+            <Box sx={{ gap: 0.5, display: 'flex', alignItems: 'center' }}>
               <Iconify icon="solar:users-group-rounded-bold" width={16} />
               {booker.guests} guests
-            </Stack>
+            </Box>
           }
-          secondaryTypographyProps={{
-            mt: 0.5,
-            component: 'span',
-            typography: 'caption',
-            color: 'text.disabled',
+          slotProps={{
+            primary: { noWrap: true },
+            secondary: {
+              sx: { mt: 0.5, typography: 'caption', color: 'text.disabled' },
+            },
           }}
         />
 
-        <Stack spacing={1} direction="row">
-          <IconButton
-            size="small"
-            color="error"
-            sx={{
-              borderRadius: 1,
-              bgcolor: (theme) => varAlpha(theme.vars.palette.error.mainChannel, 0.08),
-              '&:hover': {
-                bgcolor: (theme) => varAlpha(theme.vars.palette.error.mainChannel, 0.16),
-              },
-            }}
-          >
-            <Iconify width={18} icon="solar:phone-bold" />
-          </IconButton>
-
-          <IconButton
-            size="small"
-            color="info"
-            sx={{
-              borderRadius: 1,
-              bgcolor: (theme) => varAlpha(theme.vars.palette.info.mainChannel, 0.08),
-              '&:hover': {
-                bgcolor: (theme) => varAlpha(theme.vars.palette.info.mainChannel, 0.16),
-              },
-            }}
-          >
-            <Iconify width={18} icon="solar:chat-round-dots-bold" />
-          </IconButton>
-
-          <IconButton
-            size="small"
-            color="primary"
-            sx={{
-              borderRadius: 1,
-              bgcolor: (theme) => varAlpha(theme.vars.palette.primary.mainChannel, 0.08),
-              '&:hover': {
-                bgcolor: (theme) => varAlpha(theme.vars.palette.primary.mainChannel, 0.16),
-              },
-            }}
-          >
-            <Iconify width={18} icon="fluent:mail-24-filled" />
-          </IconButton>
-        </Stack>
-      </Stack>
+        {renderActions()}
+      </Box>
 
       <Button
         size="small"

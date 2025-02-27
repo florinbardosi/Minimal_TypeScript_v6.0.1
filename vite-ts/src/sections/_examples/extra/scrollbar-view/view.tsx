@@ -1,219 +1,213 @@
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Alert from '@mui/material/Alert';
-import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-import { paths } from 'src/routes/paths';
-
 import { Scrollbar } from 'src/components/scrollbar';
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { ComponentHero } from '../../component-hero';
-import { ComponentBlock, ComponentContainer } from '../../component-block';
+import { ComponentBox, ComponentLayout } from '../../layout';
 
 // ----------------------------------------------------------------------
 
-export function ScrollbarView() {
-  return (
-    <>
-      <ComponentHero>
-        <CustomBreadcrumbs
-          heading="Scrollbar"
-          links={[{ name: 'Components', href: paths.components }, { name: 'Scrollbar' }]}
-        />
-      </ComponentHero>
-
-      <ComponentContainer>
+const DEMO_COMPONENTS = [
+  {
+    name: 'Vertical',
+    component: (
+      <ComponentBox sx={{ py: 3, pr: 1 }}>
+        <Scrollbar sx={[{ height: 320 }]}>
+          Donec mi odio, faucibus at, scelerisque quis, convallis in, nisi. Quisque ut nisi.
+          Suspendisse nisl elit, rhoncus eget, elementum ac, condimentum eget, diam. Vestibulum eu
+          odio. Proin sapien ipsum, porta a, auctor quis, euismod ut, mi. Cras ultricies mi eu
+          turpis hendrerit fringilla. Phasellus consectetuer vestibulum elit. Phasellus magna.
+          Nullam tincidunt adipiscing enim. Vestibulum volutpat pretium libero. Nullam quis ante.
+          Morbi mollis tellus ac sapien. Donec orci lectus, aliquam ut, faucibus non, euismod id,
+          nulla. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac
+          turpis egestas. Fusce ac felis sit amet ligula pharetra condimentum. Morbi mattis
+          ullamcorper velit. Vivamus consectetuer hendrerit lacus. Nullam quis ante. Praesent
+          turpis. Praesent porttitor, nulla vitae posuere iaculis, arcu nisl dignissim dolor, a
+          pretium mi sem ut ipsum. Donec mi odio, faucibus at, scelerisque quis, convallis in, nisi.
+          Quisque ut nisi. Suspendisse nisl elit, rhoncus eget, elementum ac, condimentum eget,
+          diam. Vestibulum eu odio. Proin sapien ipsum, porta a, auctor quis, euismod ut, mi. Cras
+          ultricies mi eu turpis hendrerit fringilla. Phasellus consectetuer vestibulum elit.
+          Phasellus magna. Nullam tincidunt adipiscing enim. Vestibulum volutpat pretium libero.
+          Nullam quis ante. Morbi mollis tellus ac sapien. Donec orci lectus, aliquam ut, faucibus
+          non, euismod id, nulla. Pellentesque habitant morbi tristique senectus et netus et
+          malesuada fames ac turpis egestas. Fusce ac felis sit amet ligula pharetra condimentum.
+          Morbi mattis ullamcorper velit. Vivamus consectetuer hendrerit lacus. Nullam quis ante.
+          Praesent turpis. Praesent porttitor, nulla vitae posuere iaculis, arcu nisl dignissim
+          dolor, a pretium mi sem ut ipsum.
+        </Scrollbar>
+      </ComponentBox>
+    ),
+  },
+  {
+    name: 'Horizontal',
+    component: (
+      <ComponentBox>
+        <Scrollbar sx={[{ height: 320 }]}>
+          <Box sx={{ width: '150%' }}>
+            Donec mi odio, faucibus at, scelerisque quis, convallis in, nisi. Quisque ut nisi.
+            Suspendisse nisl elit, rhoncus eget, elementum ac, condimentum eget, diam. Vestibulum eu
+            odio. Proin sapien ipsum, porta a, auctor quis, euismod ut, mi. Cras ultricies mi eu
+            turpis hendrerit fringilla. Phasellus consectetuer vestibulum elit. Phasellus magna.
+            Nullam tincidunt adipiscing enim. Vestibulum volutpat pretium libero. Nullam quis ante.
+            Morbi mollis tellus ac sapien. Donec orci lectus, aliquam ut, faucibus non, euismod id,
+            nulla. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac
+            turpis egestas. Fusce ac felis sit amet ligula pharetra condimentum. Morbi mattis
+            ullamcorper velit. Vivamus consectetuer hendrerit lacus. Nullam quis ante. Praesent
+            turpis. Praesent porttitor, nulla vitae posuere iaculis, arcu nisl dignissim dolor, a
+            pretium mi sem ut ipsum. Donec mi odio, faucibus at, scelerisque quis, convallis in,
+            nisi. Quisque ut nisi. Suspendisse nisl elit, rhoncus eget, elementum ac, condimentum
+            eget, diam. Vestibulum eu odio. Proin sapien ipsum, porta a, auctor quis, euismod ut,
+            mi. Cras ultricies mi eu turpis hendrerit fringilla. Phasellus consectetuer vestibulum
+            elit. Phasellus magna. Nullam tincidunt adipiscing enim. Vestibulum volutpat pretium
+            libero. Nullam quis ante. Morbi mollis tellus ac sapien. Donec orci lectus, aliquam ut,
+            faucibus non, euismod id, nulla. Pellentesque habitant morbi tristique senectus et netus
+            et malesuada fames ac turpis egestas. Fusce ac felis sit amet ligula pharetra
+            condimentum. Morbi mattis ullamcorper velit. Vivamus consectetuer hendrerit lacus.
+            Nullam quis ante. Praesent turpis. Praesent porttitor, nulla vitae posuere iaculis, arcu
+            nisl dignissim dolor, a pretium mi sem ut ipsum.
+          </Box>
+        </Scrollbar>
+      </ComponentBox>
+    ),
+  },
+  {
+    name: 'Layout',
+    component: (
+      <ComponentBox sx={{ p: 0, overflow: 'hidden' }}>
         <Box
-          gap={3}
-          display="grid"
-          alignItems="flex-start"
-          gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)' }}
-        >
-          <ComponentBlock title="Vertical" sx={{ flexDirection: 'column', alignItems: 'unset' }}>
-            <Scrollbar
-              sx={{
-                p: 3,
-                height: 320,
-                borderRadius: 1,
-                border: (theme) => `solid 1px ${theme.vars.palette.divider}`,
-              }}
-            >
-              Donec mi odio, faucibus at, scelerisque quis, convallis in, nisi. Quisque ut nisi.
-              Suspendisse nisl elit, rhoncus eget, elementum ac, condimentum eget, diam. Vestibulum
-              eu odio. Proin sapien ipsum, porta a, auctor quis, euismod ut, mi. Cras ultricies mi
-              eu turpis hendrerit fringilla. Phasellus consectetuer vestibulum elit. Phasellus
-              magna. Nullam tincidunt adipiscing enim. Vestibulum volutpat pretium libero. Nullam
-              quis ante. Morbi mollis tellus ac sapien. Donec orci lectus, aliquam ut, faucibus non,
-              euismod id, nulla. Pellentesque habitant morbi tristique senectus et netus et
-              malesuada fames ac turpis egestas. Fusce ac felis sit amet ligula pharetra
-              condimentum. Morbi mattis ullamcorper velit. Vivamus consectetuer hendrerit lacus.
-              Nullam quis ante. Praesent turpis. Praesent porttitor, nulla vitae posuere iaculis,
-              arcu nisl dignissim dolor, a pretium mi sem ut ipsum. Donec mi odio, faucibus at,
-              scelerisque quis, convallis in, nisi. Quisque ut nisi. Suspendisse nisl elit, rhoncus
-              eget, elementum ac, condimentum eget, diam. Vestibulum eu odio. Proin sapien ipsum,
-              porta a, auctor quis, euismod ut, mi. Cras ultricies mi eu turpis hendrerit fringilla.
-              Phasellus consectetuer vestibulum elit. Phasellus magna. Nullam tincidunt adipiscing
-              enim. Vestibulum volutpat pretium libero. Nullam quis ante. Morbi mollis tellus ac
-              sapien. Donec orci lectus, aliquam ut, faucibus non, euismod id, nulla. Pellentesque
-              habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Fusce
-              ac felis sit amet ligula pharetra condimentum. Morbi mattis ullamcorper velit. Vivamus
-              consectetuer hendrerit lacus. Nullam quis ante. Praesent turpis. Praesent porttitor,
-              nulla vitae posuere iaculis, arcu nisl dignissim dolor, a pretium mi sem ut ipsum.
-            </Scrollbar>
-          </ComponentBlock>
-
-          <ComponentBlock title="Horizontal" sx={{ flexDirection: 'column', alignItems: 'unset' }}>
-            <Scrollbar
-              sx={{
-                p: 3,
-                height: 320,
-                borderRadius: 1,
-                border: (theme) => `solid 1px ${theme.vars.palette.divider}`,
-              }}
-            >
-              <Box sx={{ width: '200%' }}>
-                Donec mi odio, faucibus at, scelerisque quis, convallis in, nisi. Quisque ut nisi.
-                Suspendisse nisl elit, rhoncus eget, elementum ac, condimentum eget, diam.
-                Vestibulum eu odio. Proin sapien ipsum, porta a, auctor quis, euismod ut, mi. Cras
-                ultricies mi eu turpis hendrerit fringilla. Phasellus consectetuer vestibulum elit.
-                Phasellus magna. Nullam tincidunt adipiscing enim. Vestibulum volutpat pretium
-                libero. Nullam quis ante. Morbi mollis tellus ac sapien. Donec orci lectus, aliquam
-                ut, faucibus non, euismod id, nulla. Pellentesque habitant morbi tristique senectus
-                et netus et malesuada fames ac turpis egestas. Fusce ac felis sit amet ligula
-                pharetra condimentum. Morbi mattis ullamcorper velit. Vivamus consectetuer hendrerit
-                lacus. Nullam quis ante. Praesent turpis. Praesent porttitor, nulla vitae posuere
-                iaculis, arcu nisl dignissim dolor, a pretium mi sem ut ipsum. Donec mi odio,
-                faucibus at, scelerisque quis, convallis in, nisi. Quisque ut nisi. Suspendisse nisl
-                elit, rhoncus eget, elementum ac, condimentum eget, diam. Vestibulum eu odio. Proin
-                sapien ipsum, porta a, auctor quis, euismod ut, mi. Cras ultricies mi eu turpis
-                hendrerit fringilla. Phasellus consectetuer vestibulum elit. Phasellus magna. Nullam
-                tincidunt adipiscing enim. Vestibulum volutpat pretium libero. Nullam quis ante.
-                Morbi mollis tellus ac sapien. Donec orci lectus, aliquam ut, faucibus non, euismod
-                id, nulla. Pellentesque habitant morbi tristique senectus et netus et malesuada
-                fames ac turpis egestas. Fusce ac felis sit amet ligula pharetra condimentum. Morbi
-                mattis ullamcorper velit. Vivamus consectetuer hendrerit lacus. Nullam quis ante.
-                Praesent turpis. Praesent porttitor, nulla vitae posuere iaculis, arcu nisl
-                dignissim dolor, a pretium mi sem ut ipsum.
-              </Box>
-            </Scrollbar>
-          </ComponentBlock>
-        </Box>
-
-        <ComponentBlock
-          title="Layout"
           sx={{
-            px: 5,
-            py: 5,
-            alignItems: 'unset',
+            width: 1,
+            height: 560,
+            display: 'flex',
             flexDirection: 'column',
           }}
         >
-          <Stack
-            direction="column"
+          <Box
             sx={{
-              height: 560,
-              borderRadius: 1,
-              border: (theme) => `solid 1px ${theme.vars.palette.divider}`,
+              py: 2,
+              px: 3,
+              typography: 'subtitle2',
+              bgcolor: 'text.primary',
+              color: 'background.default',
             }}
           >
-            <Stack
-              sx={{
-                p: 3,
-                typography: 'subtitle2',
-                bgcolor: 'text.primary',
-                color: 'background.default',
-              }}
-            >
-              Top
-            </Stack>
+            Top
+          </Box>
 
-            <Stack direction={{ xs: 'column', md: 'row' }} sx={{ minHeight: 0, flex: '1 1 auto' }}>
-              <Stack
-                sx={{
+          <Box
+            sx={{
+              minHeight: 0,
+              display: 'flex',
+              flex: '1 1 auto',
+              flexDirection: { xs: 'column', md: 'row' },
+            }}
+          >
+            <Box
+              sx={[
+                (theme) => ({
                   p: 3,
                   typography: 'subtitle2',
-                  flex: { xs: '0 0 72px', md: '0 0 240px' },
-                  borderRight: (theme) => `solid 1px ${theme.vars.palette.divider}`,
-                }}
-              >
-                Left
-              </Stack>
+                  flex: { xs: '0 0 72px', md: '0 0 160px' },
+                  borderRight: { md: `solid 1px ${theme.vars.palette.divider}` },
+                }),
+              ]}
+            >
+              Left
+            </Box>
 
-              <Stack
-                sx={{
-                  minWidth: 0,
-                  minHeight: 0,
-                  flex: '1 1 auto',
-                  bgcolor: 'background.neutral',
-                }}
-              >
-                <Alert severity="success" sx={{ borderRadius: 0 }}>
-                  Here is a gentle confirmation that your action was successful.
-                </Alert>
-
-                <Scrollbar sx={{ px: 3, py: 3 }}>
-                  <Typography variant="h6" paragraph>
-                    Vestibulum ante ipsum primis in
-                  </Typography>
-                  <Typography paragraph>
-                    Donec mi odio, faucibus at, scelerisque quis, convallis in, nisi. Quisque ut
-                    nisi. Suspendisse nisl elit, rhoncus eget, elementum ac, condimentum eget, diam.
-                    Vestibulum eu odio. Proin sapien ipsum, porta a, auctor quis, euismod ut, mi.
-                    Cras ultricies mi eu turpis hendrerit fringilla. Phasellus consectetuer
-                    vestibulum elit. Phasellus magna. Nullam tincidunt adipiscing enim. Vestibulum
-                    volutpat pretium libero. Nullam quis ante. Morbi mollis tellus ac sapien. Donec
-                    orci lectus, aliquam ut, faucibus non, euismod id, nulla. Pellentesque habitant
-                    morbi tristique senectus et netus et malesuada fames ac turpis egestas. Fusce ac
-                    felis sit amet ligula pharetra condimentum. Morbi mattis ullamcorper velit.
-                    Vivamus consectetuer hendrerit lacus. Nullam quis ante. Praesent turpis.
-                    Praesent porttitor, nulla vitae posuere iaculis, arcu nisl dignissim dolor, a
-                    pretium mi sem ut ipsum. Donec mi odio, faucibus at, scelerisque quis, convallis
-                    in, nisi. Quisque ut nisi.
-                  </Typography>
-                  <Typography paragraph>
-                    Suspendisse nisl elit, rhoncus eget, elementum ac, condimentum eget, diam.
-                    Vestibulum eu odio. Proin sapien ipsum, porta a, auctor quis, euismod ut, mi.
-                    Cras ultricies mi eu turpis hendrerit fringilla. Phasellus consectetuer
-                    vestibulum elit. Phasellus magna. Nullam tincidunt adipiscing enim. Vestibulum
-                    volutpat pretium libero. Nullam quis ante. Morbi mollis tellus ac sapien. Donec
-                    orci lectus, aliquam ut, faucibus non, euismod id, nulla. Pellentesque habitant
-                    morbi tristique senectus et netus et malesuada fames ac turpis egestas. Fusce ac
-                    felis sit amet ligula pharetra condimentum. Morbi mattis ullamcorper velit.
-                    Vivamus consectetuer hendrerit lacus. Nullam quis ante. Praesent turpis.
-                    Praesent porttitor, nulla vitae posuere iaculis, arcu nisl dignissim dolor, a
-                    pretium mi sem ut ipsum.
-                  </Typography>
-
-                  <Paper variant="outlined" sx={{ width: 1, aspectRatio: '16/9' }} />
-                </Scrollbar>
-              </Stack>
-
-              <Stack
-                sx={{
-                  p: 3,
-                  typography: 'subtitle2',
-                  flex: { xs: '0 0 72px', md: '0 0 240px' },
-                  borderLeft: (theme) => `solid 1px ${theme.vars.palette.divider}`,
-                }}
-              >
-                Right
-              </Stack>
-            </Stack>
-
-            <Stack
+            <Box
               sx={{
-                p: 3,
-                typography: 'subtitle2',
-                borderTop: (theme) => `solid 1px ${theme.vars.palette.divider}`,
+                minWidth: 0,
+                minHeight: 0,
+                display: 'flex',
+                flex: '1 1 auto',
+                flexDirection: 'column',
+                bgcolor: 'background.neutral',
               }}
             >
-              Bottom
-            </Stack>
-          </Stack>
-        </ComponentBlock>
-      </ComponentContainer>
-    </>
+              <Alert severity="success" sx={{ borderRadius: 0 }}>
+                Here is a gentle confirmation that your action was successful.
+              </Alert>
+
+              <Scrollbar sx={{ px: 3, py: 3 }}>
+                <Typography variant="h6" sx={{ mb: 2 }}>
+                  Vestibulum ante ipsum primis in
+                </Typography>
+                <Typography sx={{ mb: 2 }}>
+                  Donec mi odio, faucibus at, scelerisque quis, convallis in, nisi. Quisque ut nisi.
+                  Suspendisse nisl elit, rhoncus eget, elementum ac, condimentum eget, diam.
+                  Vestibulum eu odio. Proin sapien ipsum, porta a, auctor quis, euismod ut, mi. Cras
+                  ultricies mi eu turpis hendrerit fringilla. Phasellus consectetuer vestibulum
+                  elit. Phasellus magna. Nullam tincidunt adipiscing enim. Vestibulum volutpat
+                  pretium libero. Nullam quis ante. Morbi mollis tellus ac sapien. Donec orci
+                  lectus, aliquam ut, faucibus non, euismod id, nulla. Pellentesque habitant morbi
+                  tristique senectus et netus et malesuada fames ac turpis egestas. Fusce ac felis
+                  sit amet ligula pharetra condimentum. Morbi mattis ullamcorper velit. Vivamus
+                  consectetuer hendrerit lacus. Nullam quis ante. Praesent turpis. Praesent
+                  porttitor, nulla vitae posuere iaculis, arcu nisl dignissim dolor, a pretium mi
+                  sem ut ipsum. Donec mi odio, faucibus at, scelerisque quis, convallis in, nisi.
+                  Quisque ut nisi.
+                </Typography>
+                <Typography sx={{ mb: 2 }}>
+                  Suspendisse nisl elit, rhoncus eget, elementum ac, condimentum eget, diam.
+                  Vestibulum eu odio. Proin sapien ipsum, porta a, auctor quis, euismod ut, mi. Cras
+                  ultricies mi eu turpis hendrerit fringilla. Phasellus consectetuer vestibulum
+                  elit. Phasellus magna. Nullam tincidunt adipiscing enim. Vestibulum volutpat
+                  pretium libero. Nullam quis ante. Morbi mollis tellus ac sapien. Donec orci
+                  lectus, aliquam ut, faucibus non, euismod id, nulla. Pellentesque habitant morbi
+                  tristique senectus et netus et malesuada fames ac turpis egestas. Fusce ac felis
+                  sit amet ligula pharetra condimentum. Morbi mattis ullamcorper velit. Vivamus
+                  consectetuer hendrerit lacus. Nullam quis ante. Praesent turpis. Praesent
+                  porttitor, nulla vitae posuere iaculis, arcu nisl dignissim dolor, a pretium mi
+                  sem ut ipsum.
+                </Typography>
+
+                <Paper variant="outlined" sx={{ width: 1, aspectRatio: '16/9' }} />
+              </Scrollbar>
+            </Box>
+
+            <Box
+              sx={[
+                (theme) => ({
+                  p: 3,
+                  typography: 'subtitle2',
+                  flex: { xs: '0 0 72px', md: '0 0 160px' },
+                  borderLeft: { md: `solid 1px ${theme.vars.palette.divider}` },
+                }),
+              ]}
+            >
+              Right
+            </Box>
+          </Box>
+
+          <Box
+            sx={[
+              (theme) => ({
+                py: 2,
+                px: 3,
+                typography: 'subtitle2',
+                borderTop: `solid 1px ${theme.vars.palette.divider}`,
+              }),
+            ]}
+          >
+            Bottom
+          </Box>
+        </Box>
+      </ComponentBox>
+    ),
+  },
+];
+
+export function ScrollbarView() {
+  return (
+    <ComponentLayout
+      sectionData={DEMO_COMPONENTS}
+      heroProps={{
+        heading: 'Scrollbar',
+        moreLinks: ['https://grsmto.github.io/simplebar/'],
+      }}
+    />
   );
 }

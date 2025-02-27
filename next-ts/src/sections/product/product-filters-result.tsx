@@ -1,75 +1,83 @@
 import type { IProductFilters } from 'src/types/product';
-import type { Theme, SxProps } from '@mui/material/styles';
-import type { UseSetStateReturn } from 'src/hooks/use-set-state';
+import type { UseSetStateReturn } from 'minimal-shared/hooks';
+import type { FiltersResultProps } from 'src/components/filters-result';
+
+import { useCallback } from 'react';
+import { varAlpha } from 'minimal-shared/utils';
 
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
-
-import { varAlpha } from 'src/theme/styles';
 
 import { chipProps, FiltersBlock, FiltersResult } from 'src/components/filters-result';
 
 // ----------------------------------------------------------------------
 
-type Props = {
-  totalResults: number;
-  sx?: SxProps<Theme>;
+type Props = FiltersResultProps & {
   filters: UseSetStateReturn<IProductFilters>;
 };
 
 export function ProductFiltersResult({ filters, totalResults, sx }: Props) {
-  const handleRemoveGender = (inputValue: string) => {
-    const newValue = filters.state.gender.filter((item) => item !== inputValue);
+  const { state: currentFilters, setState: updateFilters, resetState: resetFilters } = filters;
 
-    filters.setState({ gender: newValue });
-  };
+  const handleRemoveGender = useCallback(
+    (inputValue: string) => {
+      const newValue = currentFilters.gender.filter((item) => item !== inputValue);
 
-  const handleRemoveCategory = () => {
-    filters.setState({ category: 'all' });
-  };
+      updateFilters({ gender: newValue });
+    },
+    [updateFilters, currentFilters.gender]
+  );
 
-  const handleRemoveColor = (inputValue: string | string[]) => {
-    const newValue = filters.state.colors.filter((item: string) => item !== inputValue);
+  const handleRemoveCategory = useCallback(() => {
+    updateFilters({ category: 'all' });
+  }, [updateFilters]);
 
-    filters.setState({ colors: newValue });
-  };
+  const handleRemoveColor = useCallback(
+    (inputValue: string | string[]) => {
+      const newValue = currentFilters.colors.filter((item: string) => item !== inputValue);
 
-  const handleRemovePrice = () => {
-    filters.setState({ priceRange: [0, 200] });
-  };
+      updateFilters({ colors: newValue });
+    },
+    [updateFilters, currentFilters.colors]
+  );
 
-  const handleRemoveRating = () => {
-    filters.setState({ rating: '' });
-  };
+  const handleRemovePrice = useCallback(() => {
+    updateFilters({ priceRange: [0, 200] });
+  }, [updateFilters]);
+
+  const handleRemoveRating = useCallback(() => {
+    updateFilters({ rating: '' });
+  }, [updateFilters]);
 
   return (
-    <FiltersResult totalResults={totalResults} onReset={filters.onResetState} sx={sx}>
-      <FiltersBlock label="Gender:" isShow={!!filters.state.gender.length}>
-        {filters.state.gender.map((item) => (
+    <FiltersResult totalResults={totalResults} onReset={() => resetFilters()} sx={sx}>
+      <FiltersBlock label="Gender:" isShow={!!currentFilters.gender.length}>
+        {currentFilters.gender.map((item) => (
           <Chip {...chipProps} key={item} label={item} onDelete={() => handleRemoveGender(item)} />
         ))}
       </FiltersBlock>
 
-      <FiltersBlock label="Category:" isShow={filters.state.category !== 'all'}>
-        <Chip {...chipProps} label={filters.state.category} onDelete={handleRemoveCategory} />
+      <FiltersBlock label="Category:" isShow={currentFilters.category !== 'all'}>
+        <Chip {...chipProps} label={currentFilters.category} onDelete={handleRemoveCategory} />
       </FiltersBlock>
 
-      <FiltersBlock label="Colors:" isShow={!!filters.state.colors.length}>
-        {filters.state.colors.map((item) => (
+      <FiltersBlock label="Colors:" isShow={!!currentFilters.colors.length}>
+        {currentFilters.colors.map((item) => (
           <Chip
             {...chipProps}
             key={item}
             label={
               <Box
-                sx={{
-                  ml: -0.5,
-                  width: 18,
-                  height: 18,
-                  bgcolor: item,
-                  borderRadius: '50%',
-                  border: (theme) =>
-                    `solid 1px ${varAlpha(theme.vars.palette.common.whiteChannel, 0.24)}`,
-                }}
+                sx={[
+                  (theme) => ({
+                    ml: -0.5,
+                    width: 18,
+                    height: 18,
+                    bgcolor: item,
+                    borderRadius: '50%',
+                    border: `solid 1px ${varAlpha(theme.vars.palette.common.whiteChannel, 0.24)}`,
+                  }),
+                ]}
               />
             }
             onDelete={() => handleRemoveColor(item)}
@@ -79,17 +87,17 @@ export function ProductFiltersResult({ filters, totalResults, sx }: Props) {
 
       <FiltersBlock
         label="Price:"
-        isShow={filters.state.priceRange[0] !== 0 || filters.state.priceRange[1] !== 200}
+        isShow={currentFilters.priceRange[0] !== 0 || currentFilters.priceRange[1] !== 200}
       >
         <Chip
           {...chipProps}
-          label={`$${filters.state.priceRange[0]} - ${filters.state.priceRange[1]}`}
+          label={`$${currentFilters.priceRange[0]} - ${currentFilters.priceRange[1]}`}
           onDelete={handleRemovePrice}
         />
       </FiltersBlock>
 
-      <FiltersBlock label="Rating:" isShow={!!filters.state.rating}>
-        <Chip {...chipProps} label={filters.state.rating} onDelete={handleRemoveRating} />
+      <FiltersBlock label="Rating:" isShow={!!currentFilters.rating}>
+        <Chip {...chipProps} label={currentFilters.rating} onDelete={handleRemoveRating} />
       </FiltersBlock>
     </FiltersResult>
   );

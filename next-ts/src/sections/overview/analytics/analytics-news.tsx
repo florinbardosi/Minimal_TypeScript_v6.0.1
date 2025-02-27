@@ -3,6 +3,7 @@ import type { IDateValue } from 'src/types/common';
 import type { CardProps } from '@mui/material/Card';
 
 import Box from '@mui/material/Box';
+import Link from '@mui/material/Link';
 import Card from '@mui/material/Card';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
@@ -28,9 +29,9 @@ type Props = CardProps & {
   }[];
 };
 
-export function AnalyticsNews({ title, subheader, list, ...other }: Props) {
+export function AnalyticsNews({ title, subheader, list, sx, ...other }: Props) {
   return (
-    <Card {...other}>
+    <Card sx={sx} {...other}>
       <CardHeader title={title} subheader={subheader} sx={{ mb: 1 }} />
 
       <Scrollbar sx={{ minHeight: 405 }}>
@@ -63,15 +64,17 @@ type ItemProps = BoxProps & {
 function Item({ item, sx, ...other }: ItemProps) {
   return (
     <Box
-      sx={{
-        py: 2,
-        px: 3,
-        gap: 2,
-        display: 'flex',
-        alignItems: 'center',
-        borderBottom: (theme) => `dashed 1px ${theme.vars.palette.divider}`,
-        ...sx,
-      }}
+      sx={[
+        (theme) => ({
+          py: 2,
+          px: 3,
+          gap: 2,
+          display: 'flex',
+          alignItems: 'center',
+          borderBottom: `dashed 1px ${theme.vars.palette.divider}`,
+        }),
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...other}
     >
       <Avatar
@@ -82,13 +85,18 @@ function Item({ item, sx, ...other }: ItemProps) {
       />
 
       <ListItemText
-        primary={item.title}
+        primary={<Link color="inherit">{item.title}</Link>}
         secondary={item.description}
-        primaryTypographyProps={{ noWrap: true, typography: 'subtitle2' }}
-        secondaryTypographyProps={{ mt: 0.5, noWrap: true, component: 'span' }}
+        slotProps={{
+          primary: { noWrap: true },
+          secondary: {
+            noWrap: true,
+            sx: { mt: 0.5 },
+          },
+        }}
       />
 
-      <Box sx={{ flexShrink: 0, color: 'text.disabled', typography: 'caption' }}>
+      <Box sx={{ flexShrink: 0, typography: 'caption', color: 'text.disabled' }}>
         {fToNow(item.postedAt)}
       </Box>
     </Box>

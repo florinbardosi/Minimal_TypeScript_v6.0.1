@@ -1,133 +1,119 @@
 'use client';
 
-import Tooltip from '@mui/material/Tooltip';
+import type { Theme, SxProps } from '@mui/material/styles';
 
-import { paths } from 'src/routes/paths';
+import Tooltip from '@mui/material/Tooltip';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { ComponentHero } from '../../component-hero';
-import { ComponentBlock } from '../../component-block';
-import { ScrollToViewTemplate } from '../../component-template';
+import { ComponentBox, ComponentLayout } from '../../layout';
 
 // ----------------------------------------------------------------------
 
+const componentBoxStyles: SxProps<Theme> = {
+  gap: 1,
+};
+
 const COLORS = ['default', 'primary', 'secondary', 'info', 'success', 'warning', 'error'] as const;
+
+const DEMO_COMPONENTS = [
+  {
+    name: 'Filled',
+    component: (
+      <ComponentBox sx={componentBoxStyles}>
+        {COLORS.map((color) => (
+          <Tooltip key={color} title={color}>
+            <Label color={color} variant="filled">
+              {color}
+            </Label>
+          </Tooltip>
+        ))}
+      </ComponentBox>
+    ),
+  },
+  {
+    name: 'Outlined',
+    component: (
+      <ComponentBox sx={componentBoxStyles}>
+        {COLORS.map((color) => (
+          <Label key={color} color={color} variant="outlined">
+            {color}
+          </Label>
+        ))}
+      </ComponentBox>
+    ),
+  },
+  {
+    name: 'Soft',
+    component: (
+      <ComponentBox sx={componentBoxStyles}>
+        {COLORS.map((color) => (
+          <Label key={color} color={color} variant="soft">
+            {color}
+          </Label>
+        ))}
+      </ComponentBox>
+    ),
+  },
+  {
+    name: 'Inverted',
+    component: (
+      <ComponentBox sx={componentBoxStyles}>
+        {COLORS.map((color) => (
+          <Label key={color} color={color} variant="inverted">
+            {color}
+          </Label>
+        ))}
+      </ComponentBox>
+    ),
+  },
+  {
+    name: 'With icon',
+    component: (
+      <ComponentBox sx={componentBoxStyles}>
+        <Label
+          variant="filled"
+          color="primary"
+          startIcon={<Iconify icon="fluent:mail-24-filled" />}
+        >
+          Start icon
+        </Label>
+
+        <Label variant="filled" color="primary" endIcon={<Iconify icon="fluent:mail-24-filled" />}>
+          End icon
+        </Label>
+
+        <Label
+          variant="outlined"
+          color="primary"
+          startIcon={<Iconify icon="fluent:mail-24-filled" />}
+        >
+          Start icon
+        </Label>
+
+        <Label
+          variant="outlined"
+          color="primary"
+          endIcon={<Iconify icon="fluent:mail-24-filled" />}
+        >
+          End icon
+        </Label>
+
+        <Label color="primary" startIcon={<Iconify icon="fluent:mail-24-filled" />}>
+          Start icon
+        </Label>
+
+        <Label color="primary" endIcon={<Iconify icon="fluent:mail-24-filled" />}>
+          End icon
+        </Label>
+      </ComponentBox>
+    ),
+  },
+];
 
 // ----------------------------------------------------------------------
 
 export function LabelView() {
-  const DEMO = [
-    {
-      name: 'Filled',
-      component: (
-        <ComponentBlock sx={{ gap: 1 }}>
-          {COLORS.map((color) => (
-            <Tooltip key={color} title={color}>
-              <Label color={color} variant="filled">
-                {color}
-              </Label>
-            </Tooltip>
-          ))}
-        </ComponentBlock>
-      ),
-    },
-    {
-      name: 'Outlined',
-      component: (
-        <ComponentBlock sx={{ gap: 1 }}>
-          {COLORS.map((color) => (
-            <Label key={color} color={color} variant="outlined">
-              {color}
-            </Label>
-          ))}
-        </ComponentBlock>
-      ),
-    },
-    {
-      name: 'Soft',
-      component: (
-        <ComponentBlock sx={{ gap: 1 }}>
-          {COLORS.map((color) => (
-            <Label key={color} color={color} variant="soft">
-              {color}
-            </Label>
-          ))}
-        </ComponentBlock>
-      ),
-    },
-    {
-      name: 'Inverted',
-      component: (
-        <ComponentBlock sx={{ gap: 1 }}>
-          {COLORS.map((color) => (
-            <Label key={color} color={color} variant="inverted">
-              {color}
-            </Label>
-          ))}
-        </ComponentBlock>
-      ),
-    },
-    {
-      name: 'With icon',
-      component: (
-        <ComponentBlock sx={{ gap: 1 }}>
-          <Label
-            variant="filled"
-            color="primary"
-            startIcon={<Iconify icon="fluent:mail-24-filled" />}
-          >
-            Start icon
-          </Label>
-
-          <Label
-            variant="filled"
-            color="primary"
-            endIcon={<Iconify icon="fluent:mail-24-filled" />}
-          >
-            End icon
-          </Label>
-
-          <Label
-            variant="outlined"
-            color="primary"
-            startIcon={<Iconify icon="fluent:mail-24-filled" />}
-          >
-            Start icon
-          </Label>
-
-          <Label
-            variant="outlined"
-            color="primary"
-            endIcon={<Iconify icon="fluent:mail-24-filled" />}
-          >
-            End icon
-          </Label>
-
-          <Label color="primary" startIcon={<Iconify icon="fluent:mail-24-filled" />}>
-            Start icon
-          </Label>
-
-          <Label color="primary" endIcon={<Iconify icon="fluent:mail-24-filled" />}>
-            End icon
-          </Label>
-        </ComponentBlock>
-      ),
-    },
-  ];
-
-  return (
-    <>
-      <ComponentHero>
-        <CustomBreadcrumbs
-          heading="Label"
-          links={[{ name: 'Components', href: paths.components }, { name: 'Label' }]}
-        />
-      </ComponentHero>
-
-      <ScrollToViewTemplate data={DEMO} />
-    </>
-  );
+  return <ComponentLayout sectionData={DEMO_COMPONENTS} heroProps={{ heading: 'Label' }} />;
 }

@@ -5,9 +5,9 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'src/components/snackbar';
 
 import { allLangs } from './all-langs';
-import { fallbackLng, changeLangMessages as messages } from './config-locales';
+import { fallbackLng, changeLangMessages as messages } from './locales-config';
 
-import type { LanguageValue } from './config-locales';
+import type { LanguageValue } from './locales-config';
 
 // ----------------------------------------------------------------------
 

@@ -5,26 +5,26 @@ import Skeleton from '@mui/material/Skeleton';
 
 // ----------------------------------------------------------------------
 
-export function KanbanColumnSkeleton({
-  amount = 3,
-  sx,
-  ...other
-}: PaperProps & {
-  amount?: number;
-}) {
-  return [...Array(amount)].map((_, index) => (
+type KanbanColumnSkeletonProps = PaperProps & {
+  itemCount?: number;
+};
+
+export function KanbanColumnSkeleton({ itemCount = 3, sx, ...other }: KanbanColumnSkeletonProps) {
+  return Array.from({ length: itemCount }, (_, index) => (
     <Paper
       key={index}
       variant="outlined"
-      sx={{
-        display: 'flex',
-        gap: 'var(--item-gap)',
-        flexDirection: 'column',
-        p: 'var(--column-padding)',
-        width: 'var(--column-width)',
-        borderRadius: 'var(--column-radius)',
-        ...sx,
-      }}
+      sx={[
+        () => ({
+          display: 'flex',
+          gap: 'var(--item-gap)',
+          flexDirection: 'column',
+          p: 'var(--column-padding)',
+          width: 'var(--column-width)',
+          borderRadius: 'var(--column-radius)',
+        }),
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...other}
     >
       <Skeleton sx={{ pt: '75%', borderRadius: 1.5 }} />

@@ -19,12 +19,16 @@ type Props = {
 };
 
 export function ProductReviewItem({ review }: Props) {
-  const renderInfo = (
-    <Stack
-      spacing={2}
-      alignItems="center"
-      direction={{ xs: 'row', md: 'column' }}
-      sx={{ width: { md: 240 }, textAlign: { md: 'center' } }}
+  const renderInfo = () => (
+    <Box
+      sx={{
+        gap: 2,
+        display: 'flex',
+        width: { md: 240 },
+        alignItems: 'center',
+        textAlign: { md: 'center' },
+        flexDirection: { xs: 'row', md: 'column' },
+      }}
     >
       <Avatar
         src={review.avatarUrl}
@@ -34,31 +38,46 @@ export function ProductReviewItem({ review }: Props) {
       <ListItemText
         primary={review.name}
         secondary={fDate(review.postedAt)}
-        primaryTypographyProps={{ noWrap: true, typography: 'subtitle2', mb: 0.5 }}
-        secondaryTypographyProps={{ noWrap: true, typography: 'caption', component: 'span' }}
+        slotProps={{
+          primary: { noWrap: true },
+          secondary: {
+            noWrap: true,
+            sx: { mt: 0.5, typography: 'caption' },
+          },
+        }}
       />
-    </Stack>
+    </Box>
   );
 
-  const renderContent = (
+  const renderContent = () => (
     <Stack spacing={1} flexGrow={1}>
       <Rating size="small" value={review.rating} precision={0.1} readOnly />
 
       {review.isPurchased && (
-        <Stack
-          direction="row"
-          alignItems="center"
-          sx={{ color: 'success.main', typography: 'caption' }}
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            color: 'success.main',
+            typography: 'caption',
+          }}
         >
           <Iconify icon="ic:round-verified" width={16} sx={{ mr: 0.5 }} />
           Verified purchase
-        </Stack>
+        </Box>
       )}
 
       <Typography variant="body2">{review.comment}</Typography>
 
       {!!review.attachments?.length && (
-        <Stack direction="row" flexWrap="wrap" spacing={1} sx={{ pt: 1 }}>
+        <Box
+          sx={{
+            pt: 1,
+            gap: 1,
+            display: 'flex',
+            flexWrap: 'wrap',
+          }}
+        >
           {review.attachments.map((attachment) => (
             <Box
               key={attachment}
@@ -68,10 +87,10 @@ export function ProductReviewItem({ review }: Props) {
               sx={{ width: 64, height: 64, borderRadius: 1.5 }}
             />
           ))}
-        </Stack>
+        </Box>
       )}
 
-      <Stack direction="row" spacing={2} sx={{ pt: 1.5 }}>
+      <Box sx={{ gap: 2, pt: 1.5, display: 'flex' }}>
         <ButtonBase disableRipple sx={{ gap: 0.5, typography: 'caption' }}>
           <Iconify icon="solar:like-outline" width={16} />
           123
@@ -81,19 +100,22 @@ export function ProductReviewItem({ review }: Props) {
           <Iconify icon="solar:dislike-outline" width={16} />
           34
         </ButtonBase>
-      </Stack>
+      </Box>
     </Stack>
   );
 
   return (
-    <Stack
-      spacing={2}
-      direction={{ xs: 'column', md: 'row' }}
-      sx={{ mt: 5, px: { xs: 2.5, md: 0 } }}
+    <Box
+      sx={{
+        mt: 5,
+        gap: 2,
+        display: 'flex',
+        px: { xs: 2.5, md: 0 },
+        flexDirection: { xs: 'column', md: 'row' },
+      }}
     >
-      {renderInfo}
-
-      {renderContent}
-    </Stack>
+      {renderInfo()}
+      {renderContent()}
+    </Box>
   );
 }

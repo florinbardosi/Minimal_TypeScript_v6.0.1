@@ -35,11 +35,16 @@ export function BookingNewest({ title, subheader, list, sx, ...other }: Props) {
   const carousel = useCarousel({
     align: 'start',
     slideSpacing: '24px',
-    slidesToShow: { xs: 1, sm: 2, md: 3, lg: 4 },
+    slidesToShow: {
+      xs: 1,
+      sm: 2,
+      md: 3,
+      lg: 4,
+    },
   });
 
   return (
-    <Box sx={{ py: 2, ...sx }} {...other}>
+    <Box sx={[{ py: 2 }, ...(Array.isArray(sx) ? sx : [sx])]} {...other}>
       <CardHeader
         title={title}
         subheader={subheader}
@@ -65,26 +70,40 @@ type ItemProps = BoxProps & {
 function Item({ item, sx, ...other }: ItemProps) {
   return (
     <Box
-      sx={{
-        width: 1,
-        borderRadius: 2,
-        position: 'relative',
-        bgcolor: 'background.neutral',
-        ...sx,
-      }}
+      sx={[
+        {
+          width: 1,
+          borderRadius: 2,
+          position: 'relative',
+          bgcolor: 'background.neutral',
+        },
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...other}
     >
-      <Box sx={{ px: 2, pb: 1, gap: 2, pt: 2.5, display: 'flex', flexDirection: 'column' }}>
+      <Box
+        sx={{
+          px: 2,
+          pb: 1,
+          gap: 2,
+          pt: 2.5,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
         <Box sx={{ gap: 2, display: 'flex', alignItems: 'center' }}>
           <Avatar alt={item.name} src={item.avatarUrl} />
           <ListItemText
             primary={item.name}
             secondary={fDateTime(item.bookedAt)}
-            secondaryTypographyProps={{
-              mt: 0.5,
-              component: 'span',
-              typography: 'caption',
-              color: 'text.disabled',
+            slotProps={{
+              secondary: {
+                sx: {
+                  mt: 0.5,
+                  typography: 'caption',
+                  color: 'text.disabled',
+                },
+              },
             }}
           />
         </Box>
@@ -112,15 +131,7 @@ function Item({ item, sx, ...other }: ItemProps) {
         </Box>
       </Box>
 
-      <Label
-        variant="filled"
-        sx={{
-          right: 16,
-          zIndex: 9,
-          bottom: 16,
-          position: 'absolute',
-        }}
-      >
+      <Label variant="filled" sx={{ right: 16, zIndex: 9, bottom: 16, position: 'absolute' }}>
         {item.isHot && '🔥'} ${item.price}
       </Label>
 

@@ -6,7 +6,7 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 
-import { CONFIG } from 'src/config-global';
+import { CONFIG } from 'src/global-config';
 
 import { varFade, AnimateText, MotionContainer, animateTextClasses } from 'src/components/animate';
 
@@ -16,16 +16,21 @@ export function AboutHero({ sx, ...other }: BoxProps) {
   return (
     <Box
       component="section"
-      sx={{
-        height: { md: 560 },
-        py: { xs: 10, md: 0 },
-        overflow: 'hidden',
-        position: 'relative',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundImage: `url(${CONFIG.assetsDir}/assets/background/overlay.svg), url(${CONFIG.assetsDir}/assets/images/about/hero.webp)`,
-        ...sx,
-      }}
+      sx={[
+        (theme) => ({
+          ...theme.mixins.bgGradient({
+            images: [
+              `url(${CONFIG.assetsDir}/assets/background/overlay.svg)`,
+              `url(${CONFIG.assetsDir}/assets/images/about/hero.webp)`,
+            ],
+          }),
+          height: { md: 560 },
+          py: { xs: 10, md: 0 },
+          overflow: 'hidden',
+          position: 'relative',
+        }),
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...other}
     >
       <Container component={MotionContainer}>
@@ -39,8 +44,8 @@ export function AboutHero({ sx, ...other }: BoxProps) {
           <AnimateText
             component="h1"
             variant="h1"
-            text={['Who', 'we are?']}
-            variants={varFade({ distance: 24 }).inRight}
+            textContent={['Who', 'we are?']}
+            variants={varFade('inRight', { distance: 24 })}
             sx={{
               color: 'common.white',
               [`& .${animateTextClasses.line}[data-index="0"]`]: {
@@ -49,7 +54,7 @@ export function AboutHero({ sx, ...other }: BoxProps) {
             }}
           />
 
-          <m.div variants={varFade({ distance: 24 }).inUp}>
+          <m.div variants={varFade('inUp', { distance: 24 })}>
             <Typography
               variant="h4"
               sx={{ mt: 3, color: 'common.white', fontWeight: 'fontWeightSemiBold' }}

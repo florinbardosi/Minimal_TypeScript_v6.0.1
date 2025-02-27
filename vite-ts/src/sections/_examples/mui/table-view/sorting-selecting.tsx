@@ -1,8 +1,9 @@
+import type { TableHeadCellProps } from 'src/components/table';
+
 import { useState, useEffect } from 'react';
 
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
-import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
@@ -25,53 +26,43 @@ import {
 
 // ----------------------------------------------------------------------
 
-type RowDataType = {
+type RowData = {
   name: string;
   calories: number;
   fat: number;
-  carbs: number;
-  protein: number;
+  nested: {
+    protein: number;
+  };
 };
 
-function createData(name: string, calories: number, fat: number, carbs: number, protein: number) {
-  return {
-    name,
-    calories,
-    fat,
-    carbs,
-    protein,
-  };
-}
-
-const TABLE_DATA = [
-  createData('Cupcake', 305, 3.7, 67, 4.3),
-  createData('Donut', 452, 25.0, 51, 4.9),
-  createData('Eclair', 262, 16.0, 24, 6.0),
-  createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-  createData('Gingerbread', 356, 16.0, 49, 3.9),
-  createData('Honeycomb', 408, 3.2, 87, 6.5),
-  createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-  createData('Jelly Bean', 375, 0.0, 94, 0.0),
-  createData('KitKat', 518, 26.0, 65, 7.0),
-  createData('Lollipop', 392, 0.2, 98, 0.0),
-  createData('Marshmallow', 318, 0, 81, 2.0),
-  createData('Nougat', 360, 19.0, 9, 37.0),
-];
-
-const TABLE_HEAD = [
+const TABLE_HEAD: TableHeadCellProps[] = [
   { id: 'name', label: 'Dessert (100g serving)', align: 'left' },
   { id: 'calories', label: 'Calories', align: 'center' },
   { id: 'fat', label: 'Fat (g)', align: 'center' },
-  { id: 'carbs', label: 'Carbs (g)', align: 'center' },
-  { id: 'protein', label: 'Protein (g)', align: 'center' },
+  { id: 'nested.protein', label: 'Protein (g)', align: 'center' },
+];
+
+const TABLE_DATA: RowData[] = [
+  { name: 'Cupcake', calories: 305, fat: 3.7, nested: { protein: 4.3 } },
+  { name: 'Donut', calories: 452, fat: 25, nested: { protein: 4.9 } },
+  { name: 'Eclair', calories: 262, fat: 16, nested: { protein: 6 } },
+  { name: 'Frozen yoghurt', calories: 159, fat: 6, nested: { protein: 4 } },
+  { name: 'Gingerbread', calories: 356, fat: 16, nested: { protein: 3.9 } },
+  { name: 'Honeycomb', calories: 408, fat: 3.2, nested: { protein: 6.5 } },
+  { name: 'Ice cream sandwich', calories: 237, fat: 9, nested: { protein: 4.3 } },
+  { name: 'Jelly Bean', calories: 375, fat: 0, nested: { protein: 0 } },
+  { name: 'KitKat', calories: 518, fat: 26, nested: { protein: 7 } },
+  { name: 'Lollipop', calories: 392, fat: 0.2, nested: { protein: 0 } },
+  { name: 'Marshmallow', calories: 318, fat: 0, nested: { protein: 2 } },
+  { name: 'Nougat', calories: 360, fat: 19, nested: { protein: 37 } },
 ];
 
 // ----------------------------------------------------------------------
 
 export function SortingSelectingTable() {
-  const table = useTable({ defaultOrderBy: 'calories' });
+  const table = useTable({ defaultOrderBy: 'nested.protein' });
 
-  const [tableData, setTableData] = useState<RowDataType[]>([]);
+  const [tableData, setTableData] = useState<RowData[]>([]);
 
   useEffect(() => {
     setTableData(TABLE_DATA);
@@ -83,16 +74,18 @@ export function SortingSelectingTable() {
   });
 
   return (
-    <div>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ p: 3 }}>
-        <Typography variant="h6"> Title</Typography>
+    <>
+      <Box sx={{ p: 3, display: 'flex', alignItems: 'center' }}>
+        <Typography variant="h6" sx={{ flexGrow: 1 }}>
+          Title
+        </Typography>
 
         <Tooltip title="Filter list">
           <IconButton>
             <Iconify icon="ic:round-filter-list" />
           </IconButton>
         </Tooltip>
-      </Stack>
+      </Box>
 
       <Box sx={{ position: 'relative' }}>
         <TableSelectedAction
@@ -114,12 +107,12 @@ export function SortingSelectingTable() {
           }
         />
 
-        <Scrollbar>
+        <Scrollbar sx={{ minHeight: 332 }}>
           <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 800 }}>
             <TableHeadCustom
               order={table.order}
               orderBy={table.orderBy}
-              headLabel={TABLE_HEAD}
+              headCells={TABLE_HEAD}
               rowCount={tableData.length}
               numSelected={table.selected.length}
               onSort={table.onSort}
@@ -145,13 +138,18 @@ export function SortingSelectingTable() {
                     selected={table.selected.includes(row.name)}
                   >
                     <TableCell padding="checkbox">
-                      <Checkbox checked={table.selected.includes(row.name)} />
+                      <Checkbox
+                        checked={table.selected.includes(row.name)}
+                        inputProps={{
+                          id: `${row.name}-checkbox`,
+                          'aria-label': `${row.name} checkbox`,
+                        }}
+                      />
                     </TableCell>
                     <TableCell> {row.name} </TableCell>
                     <TableCell align="center">{row.calories}</TableCell>
                     <TableCell align="center">{row.fat}</TableCell>
-                    <TableCell align="center">{row.carbs}</TableCell>
-                    <TableCell align="center">{row.protein}</TableCell>
+                    <TableCell align="center">{row.nested.protein}</TableCell>
                   </TableRow>
                 ))}
 
@@ -173,14 +171,14 @@ export function SortingSelectingTable() {
         onChangeDense={table.onChangeDense}
         onRowsPerPageChange={table.onChangeRowsPerPage}
       />
-    </div>
+    </>
   );
 }
 
 // ----------------------------------------------------------------------
 
 type ApplyFilterProps = {
-  inputData: RowDataType[];
+  inputData: RowData[];
   comparator: (a: any, b: any) => number;
 };
 

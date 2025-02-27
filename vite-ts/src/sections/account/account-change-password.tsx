@@ -1,14 +1,13 @@
 import { z as zod } from 'zod';
 import { useForm } from 'react-hook-form';
+import { useBoolean } from 'minimal-shared/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
 
+import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import Stack from '@mui/material/Stack';
 import IconButton from '@mui/material/IconButton';
 import LoadingButton from '@mui/lab/LoadingButton';
 import InputAdornment from '@mui/material/InputAdornment';
-
-import { useBoolean } from 'src/hooks/use-boolean';
 
 import { toast } from 'src/components/snackbar';
 import { Iconify } from 'src/components/iconify';
@@ -39,9 +38,13 @@ export const ChangePassWordSchema = zod
 // ----------------------------------------------------------------------
 
 export function AccountChangePassword() {
-  const password = useBoolean();
+  const showPassword = useBoolean();
 
-  const defaultValues = { oldPassword: '', newPassword: '', confirmNewPassword: '' };
+  const defaultValues: ChangePassWordSchemaType = {
+    oldPassword: '',
+    newPassword: '',
+    confirmNewPassword: '',
+  };
 
   const methods = useForm<ChangePassWordSchemaType>({
     mode: 'all',
@@ -68,55 +71,73 @@ export function AccountChangePassword() {
 
   return (
     <Form methods={methods} onSubmit={onSubmit}>
-      <Card sx={{ p: 3, gap: 3, display: 'flex', flexDirection: 'column' }}>
+      <Card
+        sx={{
+          p: 3,
+          gap: 3,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
         <Field.Text
           name="oldPassword"
-          type={password.value ? 'text' : 'password'}
+          type={showPassword.value ? 'text' : 'password'}
           label="Old password"
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton onClick={password.onToggle} edge="end">
-                  <Iconify icon={password.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
-                </IconButton>
-              </InputAdornment>
-            ),
+          slotProps={{
+            input: {
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={showPassword.onToggle} edge="end">
+                    <Iconify
+                      icon={showPassword.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'}
+                    />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            },
           }}
         />
 
         <Field.Text
           name="newPassword"
           label="New password"
-          type={password.value ? 'text' : 'password'}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton onClick={password.onToggle} edge="end">
-                  <Iconify icon={password.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
-                </IconButton>
-              </InputAdornment>
-            ),
+          type={showPassword.value ? 'text' : 'password'}
+          slotProps={{
+            input: {
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={showPassword.onToggle} edge="end">
+                    <Iconify
+                      icon={showPassword.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'}
+                    />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            },
           }}
           helperText={
-            <Stack component="span" direction="row" alignItems="center">
-              <Iconify icon="eva:info-fill" width={16} sx={{ mr: 0.5 }} /> Password must be minimum
-              6+
-            </Stack>
+            <Box component="span" sx={{ gap: 0.5, display: 'flex', alignItems: 'center' }}>
+              <Iconify icon="eva:info-fill" width={16} /> Password must be minimum 6+
+            </Box>
           }
         />
 
         <Field.Text
           name="confirmNewPassword"
-          type={password.value ? 'text' : 'password'}
+          type={showPassword.value ? 'text' : 'password'}
           label="Confirm new password"
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton onClick={password.onToggle} edge="end">
-                  <Iconify icon={password.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
-                </IconButton>
-              </InputAdornment>
-            ),
+          slotProps={{
+            input: {
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={showPassword.onToggle} edge="end">
+                    <Iconify
+                      icon={showPassword.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'}
+                    />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            },
           }}
         />
 

@@ -1,21 +1,24 @@
-import { useMemo, useState, useCallback, createContext } from 'react';
+import { isEqual } from 'es-toolkit';
+import { useLocalStorage } from 'minimal-shared/hooks';
+import { useMemo, useState, useEffect, useCallback } from 'react';
+import { getStorage as getStorageValue } from 'minimal-shared/utils';
 
-import { useLocalStorage } from 'src/hooks/use-local-storage';
+import { SettingsContext } from './settings-context';
+import { SETTINGS_STORAGE_KEY } from '../settings-config';
 
-import { STORAGE_KEY } from '../config-settings';
-
-import type { SettingsState, SettingsContextValue, SettingsProviderProps } from '../types';
-
-// ----------------------------------------------------------------------
-
-export const SettingsContext = createContext<SettingsContextValue | undefined>(undefined);
-
-export const SettingsConsumer = SettingsContext.Consumer;
+import type { SettingsState, SettingsProviderProps } from '../types';
 
 // ----------------------------------------------------------------------
 
-export function SettingsProvider({ children, settings }: SettingsProviderProps) {
-  const values = useLocalStorage<SettingsState>(STORAGE_KEY, settings);
+export function SettingsProvider({
+  children,
+  defaultSettings,
+  storageKey = SETTINGS_STORAGE_KEY,
+}: SettingsProviderProps) {
+  const { state, setState, resetState, setField } = useLocalStorage<SettingsState>(
+    storageKey,
+    defaultSettings
+  );
 
   const [openDrawer, setOpenDrawer] = useState(false);
 
@@ -27,27 +30,40 @@ export function SettingsProvider({ children, settings }: SettingsProviderProps) 
     setOpenDrawer(false);
   }, []);
 
+  const canReset = !isEqual(state, defaultSettings);
+
+  const onReset = useCallback(() => {
+    resetState(defaultSettings);
+  }, [defaultSettings, resetState]);
+
+  // Version check and reset handling
+  useEffect(() => {
+    const storedValue = getStorageValue<SettingsState>(storageKey);
+
+    if (storedValue) {
+      try {
+        if (!storedValue.version || storedValue.version !== defaultSettings.version) {
+          onReset();
+        }
+      } catch {
+        onReset();
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const memoizedValue = useMemo(
     () => ({
-      ...values.state,
-      canReset: values.canReset,
-      onReset: values.resetState,
-      onUpdate: values.setState,
-      onUpdateField: values.setField,
+      canReset,
+      onReset,
       openDrawer,
       onCloseDrawer,
       onToggleDrawer,
+      state,
+      setState,
+      setField,
     }),
-    [
-      values.state,
-      values.setField,
-      values.setState,
-      values.canReset,
-      values.resetState,
-      openDrawer,
-      onCloseDrawer,
-      onToggleDrawer,
-    ]
+    [canReset, onReset, openDrawer, onCloseDrawer, onToggleDrawer, state, setField, setState]
   );
 
   return <SettingsContext.Provider value={memoizedValue}>{children}</SettingsContext.Provider>;

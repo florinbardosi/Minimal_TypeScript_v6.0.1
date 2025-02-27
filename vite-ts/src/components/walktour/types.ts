@@ -1,18 +1,24 @@
-import type * as NsWalktourRoot from 'react-joyride';
+import type { BoxProps } from '@mui/material/Box';
 import type { ButtonProps } from '@mui/material/Button';
-import type { Theme, SxProps } from '@mui/material/styles';
 import type { IconButtonProps } from '@mui/material/IconButton';
+import type { TypographyProps } from '@mui/material/Typography';
+import type { LinearProgressProps } from '@mui/material/LinearProgress';
+import type {
+  Step,
+  StoreHelpers,
+  CallBackProps,
+  TooltipRenderProps,
+  Props as JoyrideProps,
+} from 'react-joyride';
 
 // ----------------------------------------------------------------------
 
-export { NsWalktourRoot };
-
-export type WalktourCustomStep = NsWalktourRoot.Step & {
+export type WalktourCustomStep = Step & {
   slotProps?: {
-    root?: SxProps<Theme>;
-    title?: SxProps<Theme>;
-    content?: SxProps<Theme>;
-    progress?: SxProps<Theme>;
+    root?: BoxProps;
+    title?: TypographyProps;
+    content?: BoxProps;
+    progress?: LinearProgressProps;
     closeBtn?: IconButtonProps;
     skipBtn?: ButtonProps;
     backBtn?: ButtonProps;
@@ -20,17 +26,11 @@ export type WalktourCustomStep = NsWalktourRoot.Step & {
   };
 };
 
-export type WalktourTooltipProps = NsWalktourRoot.TooltipRenderProps & {
+export type WalktourTooltipProps = TooltipRenderProps & {
   step: WalktourCustomStep;
 };
 
-export type WalktourProps = NsWalktourRoot.Props;
-
-export type WalktourProgressBarProps = {
-  totalSteps: number;
-  currentStep: number;
-  onGoStep: (index: number) => void;
-};
+export type WalktourProps = JoyrideProps;
 
 export type UseWalktourProps = {
   defaultRun?: boolean;
@@ -41,6 +41,6 @@ export type UseWalktourReturn = {
   run: boolean;
   steps: WalktourCustomStep[];
   setRun: React.Dispatch<React.SetStateAction<boolean>>;
-  onCallback: (data: NsWalktourRoot.CallBackProps) => void;
-  setHelpers: (storeHelpers: NsWalktourRoot.StoreHelpers) => void;
+  onCallback: (data: CallBackProps) => void;
+  setHelpers: (storeHelpers: StoreHelpers) => void;
 };

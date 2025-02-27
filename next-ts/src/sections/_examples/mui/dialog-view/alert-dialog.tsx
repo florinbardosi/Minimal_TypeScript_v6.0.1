@@ -1,23 +1,23 @@
+import { useBoolean } from 'minimal-shared/hooks';
+
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 
-import { useBoolean } from 'src/hooks/use-boolean';
-
 // ----------------------------------------------------------------------
 
 export function AlertDialog() {
-  const dialog = useBoolean();
+  const openDialog = useBoolean();
 
   return (
     <>
-      <Button color="info" variant="outlined" onClick={dialog.onTrue}>
+      <Button color="info" variant="outlined" onClick={openDialog.onTrue}>
         Open alert dialog
       </Button>
 
-      <Dialog open={dialog.value} onClose={dialog.onFalse}>
+      <Dialog open={openDialog.value} onClose={openDialog.onFalse}>
         <DialogTitle>{`Use Google's location service?`}</DialogTitle>
 
         <DialogContent sx={{ color: 'text.secondary' }}>
@@ -26,10 +26,10 @@ export function AlertDialog() {
         </DialogContent>
 
         <DialogActions>
-          <Button variant="outlined" onClick={dialog.onFalse}>
+          <Button variant="outlined" onClick={openDialog.onFalse}>
             Disagree
           </Button>
-          <Button variant="contained" onClick={dialog.onFalse} autoFocus>
+          <Button variant="contained" onClick={openDialog.onFalse} autoFocus>
             Agree
           </Button>
         </DialogActions>

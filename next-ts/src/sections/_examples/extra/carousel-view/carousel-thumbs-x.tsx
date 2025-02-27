@@ -22,11 +22,7 @@ type Props = {
 };
 
 export function CarouselThumbsX({ data }: Props) {
-  const carousel = useCarousel({
-    thumbs: {
-      slidesToShow: 'auto',
-    },
-  });
+  const carousel = useCarousel({ thumbs: { slidesToShow: 'auto' } });
 
   return (
     <div>
@@ -40,10 +36,7 @@ export function CarouselThumbsX({ data }: Props) {
                 component="img"
                 alt={item.title}
                 src={item.coverUrl}
-                sx={{
-                  objectFit: 'cover',
-                  aspectRatio: { xs: '4/3', sm: '16/10' },
-                }}
+                sx={{ objectFit: 'cover', aspectRatio: { xs: '4/3', sm: '16/10' } }}
               />
             </Box>
           ))}
@@ -61,9 +54,7 @@ export function CarouselThumbsX({ data }: Props) {
       <CarouselThumbs
         ref={carousel.thumbs.thumbsRef}
         options={carousel.options?.thumbs}
-        sx={{
-          width: { xs: 1, sm: 360 },
-        }}
+        sx={{ width: { xs: 1, sm: 360 } }}
       >
         {data.map((item, index) => (
           <CarouselThumb
@@ -72,10 +63,7 @@ export function CarouselThumbsX({ data }: Props) {
             src={item.coverUrl}
             selected={index === carousel.thumbs.selectedIndex}
             onClick={() => carousel.thumbs.onClickThumb(index)}
-            sx={{
-              width: { xs: 48, sm: 64 },
-              height: { xs: 48, sm: 64 },
-            }}
+            sx={{ width: { xs: 48, sm: 64 }, height: { xs: 48, sm: 64 } }}
           />
         ))}
       </CarouselThumbs>

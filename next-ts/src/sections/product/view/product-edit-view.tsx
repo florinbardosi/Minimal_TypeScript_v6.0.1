@@ -21,6 +21,7 @@ export function ProductEditView({ product }: Props) {
     <DashboardContent>
       <CustomBreadcrumbs
         heading="Edit"
+        backHref={paths.dashboard.product.root}
         links={[
           { name: 'Dashboard', href: paths.dashboard.root },
           { name: 'Product', href: paths.dashboard.product.root },

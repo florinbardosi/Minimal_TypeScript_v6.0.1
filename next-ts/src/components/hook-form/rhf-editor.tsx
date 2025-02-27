@@ -6,11 +6,11 @@ import type { EditorProps } from '../editor';
 
 // ----------------------------------------------------------------------
 
-type Props = EditorProps & {
+export type RHFEditorProps = EditorProps & {
   name: string;
 };
 
-export function RHFEditor({ name, helperText, ...other }: Props) {
+export function RHFEditor({ name, helperText, ...other }: RHFEditorProps) {
   const {
     control,
     formState: { isSubmitSuccessful },

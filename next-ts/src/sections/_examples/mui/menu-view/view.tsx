@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
+import { usePopover } from 'minimal-shared/hooks';
 
 import Menu from '@mui/material/Menu';
 import Button from '@mui/material/Button';
@@ -9,13 +10,9 @@ import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemButton from '@mui/material/ListItemButton';
 
-import { paths } from 'src/routes/paths';
-
 import { Iconify } from 'src/components/iconify';
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { ComponentHero } from '../../component-hero';
-import { ComponentBlock, ComponentContainer } from '../../component-block';
+import { ComponentBox, ComponentLayout } from '../../layout';
 
 // ----------------------------------------------------------------------
 
@@ -26,7 +23,7 @@ const OPTIONS = [
   'Hide all notification content',
 ];
 
-const OPTIONS_MAXHEIGHT = [
+const MAX_HEIGHT_OPTIONS = [
   'None',
   'Atria',
   'Callisto',
@@ -46,121 +43,112 @@ const OPTIONS_MAXHEIGHT = [
 // ----------------------------------------------------------------------
 
 export function MenuView() {
+  const simpleMenu = usePopover();
+  const selectedMenu = usePopover();
+  const maxHeightMenu = usePopover();
+
   const [selectedIndex, setSelectedIndex] = useState(1);
 
-  const [isOpen, setOpen] = useState<null | HTMLElement>(null);
-
-  const [isOpenList, setOpenList] = useState<null | HTMLElement>(null);
-
-  const [isOpenMaxHeight, setOpenMaxHeight] = useState<null | HTMLElement>(null);
-
-  const handleClick = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
-    setOpenMaxHeight(event.currentTarget);
-  }, []);
-
-  const handleClickListItem = useCallback((event: React.MouseEvent<HTMLElement>) => {
-    setOpenList(event.currentTarget);
-  }, []);
-
-  const handleMenuItemClick = useCallback((event: React.MouseEvent<HTMLElement>, index: number) => {
-    setSelectedIndex(index);
-    setOpenList(null);
-  }, []);
-
-  const handleOpen = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
-    setOpen(event.currentTarget);
-  }, []);
-
-  const handleClose = useCallback(() => {
-    setOpen(null);
-  }, []);
-
-  const handleMaxHeightClose = useCallback(() => {
-    setOpenMaxHeight(null);
-  }, []);
-
-  return (
-    <>
-      <ComponentHero>
-        <CustomBreadcrumbs
-          heading="Menu"
-          links={[{ name: 'Components', href: paths.components }, { name: 'Menu' }]}
-          moreLink={['https://mui.com/components/menus']}
-        />
-      </ComponentHero>
-
-      <ComponentContainer
-        sx={{
-          rowGap: 5,
-          columnGap: 3,
-          display: 'grid',
-          gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' },
-        }}
-      >
-        <ComponentBlock title="Simple">
-          <Button variant="outlined" onClick={handleOpen}>
+  const DEMO_COMPONENTS = [
+    {
+      name: 'Simple',
+      component: (
+        <ComponentBox>
+          <Button variant="outlined" onClick={simpleMenu.onOpen}>
             Open Menu
           </Button>
-          <Menu id="simple-menu" anchorEl={isOpen} onClose={handleClose} open={!!isOpen}>
+          <Menu
+            id="simple-menu"
+            open={simpleMenu.open}
+            onClose={simpleMenu.onClose}
+            anchorEl={simpleMenu.anchorEl}
+          >
             {['Profile', 'My account', 'Logout'].map((option) => (
-              <MenuItem key={option} selected={option === 'Profile'} onClick={handleClose}>
+              <MenuItem key={option} selected={option === 'Profile'} onClick={simpleMenu.onClose}>
                 {option}
               </MenuItem>
             ))}
           </Menu>
-        </ComponentBlock>
-
-        <ComponentBlock title="Selected">
+        </ComponentBox>
+      ),
+    },
+    {
+      name: 'Selected',
+      component: (
+        <ComponentBox>
           <nav aria-label="Device settings">
             <ListItemButton
               aria-haspopup="true"
               aria-controls="lock-menu"
               aria-label="when device is locked"
-              onClick={handleClickListItem}
+              onClick={selectedMenu.onOpen}
             >
               <ListItemText primary="When device is locked" secondary={OPTIONS[selectedIndex]} />
             </ListItemButton>
           </nav>
 
-          <Menu id="lock-menu" anchorEl={isOpenList} onClose={handleClose} open={!!isOpenList}>
+          <Menu
+            id="lock-menu"
+            open={selectedMenu.open}
+            onClose={selectedMenu.onClose}
+            anchorEl={selectedMenu.anchorEl}
+          >
             {OPTIONS.map((option, index) => (
               <MenuItem
                 key={option}
                 disabled={index === 0}
                 selected={index === selectedIndex}
-                onClick={(event) => handleMenuItemClick(event, index)}
+                onClick={() => {
+                  setSelectedIndex(index);
+                  selectedMenu.onClose();
+                }}
               >
                 {option}
               </MenuItem>
             ))}
           </Menu>
-        </ComponentBlock>
-
-        <ComponentBlock title="Max height">
+        </ComponentBox>
+      ),
+    },
+    {
+      name: 'Max height',
+      component: (
+        <ComponentBox>
           <IconButton
             aria-label="more"
             aria-controls="long-menu"
             aria-haspopup="true"
-            onClick={handleClick}
+            onClick={maxHeightMenu.onOpen}
+            color={maxHeightMenu.open ? 'inherit' : 'default'}
           >
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
 
           <Menu
             id="long-menu"
-            anchorEl={isOpenMaxHeight}
-            onClose={handleMaxHeightClose}
-            open={!!isOpenMaxHeight}
+            open={maxHeightMenu.open}
+            onClose={maxHeightMenu.onClose}
+            anchorEl={maxHeightMenu.anchorEl}
             slotProps={{ paper: { sx: { width: '20ch', maxHeight: 48 * 4.5 } } }}
           >
-            {OPTIONS_MAXHEIGHT.map((option) => (
-              <MenuItem key={option} selected={option === 'Pyxis'} onClick={handleMaxHeightClose}>
+            {MAX_HEIGHT_OPTIONS.map((option) => (
+              <MenuItem key={option} selected={option === 'Pyxis'} onClick={maxHeightMenu.onClose}>
                 {option}
               </MenuItem>
             ))}
           </Menu>
-        </ComponentBlock>
-      </ComponentContainer>
-    </>
+        </ComponentBox>
+      ),
+    },
+  ];
+
+  return (
+    <ComponentLayout
+      sectionData={DEMO_COMPONENTS}
+      heroProps={{
+        heading: 'Menu',
+        moreLinks: ['https://mui.com/material-ui/react-menu/'],
+      }}
+    />
   );
 }

@@ -23,12 +23,9 @@ export function ChartArea({ chart }: Props) {
   const chartOptions = useChart({
     colors: chartColors,
     legend: { show: true },
-    xaxis: {
-      type: 'datetime',
-      categories: chart.categories,
-    },
+    xaxis: { type: 'datetime', categories: chart.categories },
     tooltip: { x: { format: 'dd/MM/yy HH:mm' } },
   });
 
-  return <Chart type="area" series={chart.series} options={chartOptions} height={320} />;
+  return <Chart type="area" series={chart.series} options={chartOptions} sx={{ height: 320 }} />;
 }

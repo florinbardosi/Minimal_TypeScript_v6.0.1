@@ -3,8 +3,6 @@ import { Tree, TreeNode } from 'react-organizational-chart';
 
 import { useTheme } from '@mui/material/styles';
 
-import { flattenArray } from 'src/utils/helper';
-
 import type { OrgChartProps, OrgChartListProps, OrgChartSubListProps } from './types';
 
 // ----------------------------------------------------------------------
@@ -34,7 +32,7 @@ export function OrganizationalChart<T>({ data, nodeItem, ...other }: OrgChartPro
 
 // ----------------------------------------------------------------------
 
-export function TreeList<T>({ data, depth, nodeItem }: OrgChartListProps<T>) {
+function TreeList<T>({ data, depth, nodeItem }: OrgChartListProps<T>) {
   const childs = (data as any).children;
 
   const cloneNode = (props: T) => cloneElement(nodeItem(props));
@@ -60,4 +58,19 @@ function TreeSubList<T>({ data, depth, nodeItem }: OrgChartSubListProps<T>) {
       ))}
     </>
   );
+}
+
+// ----------------------------------------------------------------------
+
+function flattenArray<T extends Record<string, any>>(list: T[], key: string = 'children'): T[] {
+  let children: T[] = [];
+
+  const flatten = list.map((item: T) => {
+    if (Array.isArray(item[key]) && item[key].length) {
+      children = [...children, ...item[key]];
+    }
+    return item;
+  });
+
+  return flatten.concat(children.length ? flattenArray(children, key) : []);
 }

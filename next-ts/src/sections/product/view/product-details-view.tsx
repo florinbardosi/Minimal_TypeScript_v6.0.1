@@ -2,20 +2,19 @@
 
 import type { IProductItem } from 'src/types/product';
 
+import { useTabs } from 'minimal-shared/hooks';
+import { varAlpha } from 'minimal-shared/utils';
 import { useState, useEffect, useCallback } from 'react';
 
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
-import Grid from '@mui/material/Unstable_Grid2';
+import Grid from '@mui/material/Grid2';
 import Typography from '@mui/material/Typography';
 
 import { paths } from 'src/routes/paths';
 
-import { useTabs } from 'src/hooks/use-tabs';
-
-import { varAlpha } from 'src/theme/styles';
 import { PRODUCT_PUBLISH_OPTIONS } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
 
@@ -71,29 +70,31 @@ export function ProductDetailsView({ product }: Props) {
   return (
     <DashboardContent>
       <ProductDetailsToolbar
-        backLink={paths.dashboard.product.root}
-        editLink={paths.dashboard.product.edit(`${product?.id}`)}
-        liveLink={paths.product.details(`${product?.id}`)}
+        backHref={paths.dashboard.product.root}
+        liveHref={paths.product.details(`${product?.id}`)}
+        editHref={paths.dashboard.product.edit(`${product?.id}`)}
         publish={publish}
         onChangePublish={handleChangePublish}
         publishOptions={PRODUCT_PUBLISH_OPTIONS}
       />
 
       <Grid container spacing={{ xs: 3, md: 5, lg: 8 }}>
-        <Grid xs={12} md={6} lg={7}>
+        <Grid size={{ xs: 12, md: 6, lg: 7 }}>
           <ProductDetailsCarousel images={product?.images ?? []} />
         </Grid>
 
-        <Grid xs={12} md={6} lg={5}>
+        <Grid size={{ xs: 12, md: 6, lg: 5 }}>
           {product && <ProductDetailsSummary disableActions product={product} />}
         </Grid>
       </Grid>
 
       <Box
-        gap={5}
-        display="grid"
-        gridTemplateColumns={{ xs: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' }}
-        sx={{ my: 10 }}
+        sx={{
+          gap: 5,
+          my: 10,
+          display: 'grid',
+          gridTemplateColumns: { xs: 'repeat(1, 1fr)', md: 'repeat(3, 1fr)' },
+        }}
       >
         {SUMMARY.map((item) => (
           <Box key={item.title} sx={{ textAlign: 'center', px: 5 }}>
@@ -114,11 +115,12 @@ export function ProductDetailsView({ product }: Props) {
         <Tabs
           value={tabs.value}
           onChange={tabs.onChange}
-          sx={{
-            px: 3,
-            boxShadow: (theme) =>
-              `inset 0 -2px 0 0 ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}`,
-          }}
+          sx={[
+            (theme) => ({
+              px: 3,
+              boxShadow: `inset 0 -2px 0 0 ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}`,
+            }),
+          ]}
         >
           {[
             { value: 'description', label: 'Description' },

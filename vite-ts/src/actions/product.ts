@@ -1,13 +1,14 @@
+import type { SWRConfiguration } from 'swr';
 import type { IProductItem } from 'src/types/product';
 
 import useSWR from 'swr';
 import { useMemo } from 'react';
 
-import { fetcher, endpoints } from 'src/utils/axios';
+import { fetcher, endpoints } from 'src/lib/axios';
 
 // ----------------------------------------------------------------------
 
-const swrOptions = {
+const swrOptions: SWRConfiguration = {
   revalidateIfStale: false,
   revalidateOnFocus: false,
   revalidateOnReconnect: false,
@@ -30,7 +31,7 @@ export function useGetProducts() {
       productsLoading: isLoading,
       productsError: error,
       productsValidating: isValidating,
-      productsEmpty: !isLoading && !data?.products.length,
+      productsEmpty: !isLoading && !isValidating && !data?.products.length,
     }),
     [data?.products, error, isLoading, isValidating]
   );
@@ -82,7 +83,7 @@ export function useSearchProducts(query: string) {
       searchLoading: isLoading,
       searchError: error,
       searchValidating: isValidating,
-      searchEmpty: !isLoading && !data?.results.length,
+      searchEmpty: !isLoading && !isValidating && !data?.results.length,
     }),
     [data?.results, error, isLoading, isValidating]
   );

@@ -1,3 +1,6 @@
+import type { Theme, SxProps } from '@mui/material/styles';
+import type { CheckoutContextValue } from 'src/types/checkout';
+
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -15,23 +18,19 @@ import { Iconify } from 'src/components/iconify';
 // ----------------------------------------------------------------------
 
 type Props = {
-  total: number;
-  subtotal: number;
-  discount?: number;
-  shipping?: number;
   onEdit?: () => void;
-  onApplyDiscount?: (discount: number) => void;
+  checkoutState: CheckoutContextValue['state'];
+  onApplyDiscount?: CheckoutContextValue['onApplyDiscount'];
 };
 
-export function CheckoutSummary({
-  total,
-  onEdit,
-  discount,
-  subtotal,
-  shipping,
-  onApplyDiscount,
-}: Props) {
+export function CheckoutSummary({ onEdit, checkoutState, onApplyDiscount }: Props) {
+  const { shipping, subtotal, discount, total } = checkoutState;
+
   const displayShipping = shipping !== null ? 'Free' : '-';
+
+  const rowStyles: SxProps<Theme> = {
+    display: 'flex',
+  };
 
   return (
     <Card sx={{ mb: 3 }}>
@@ -45,22 +44,21 @@ export function CheckoutSummary({
           )
         }
       />
-
       <Stack spacing={2} sx={{ p: 3 }}>
-        <Box display="flex">
+        <Box sx={{ ...rowStyles }}>
           <Typography
             component="span"
             variant="body2"
             sx={{ flexGrow: 1, color: 'text.secondary' }}
           >
-            Sub total
+            Subtotal
           </Typography>
           <Typography component="span" variant="subtitle2">
             {fCurrency(subtotal)}
           </Typography>
         </Box>
 
-        <Box display="flex">
+        <Box sx={{ ...rowStyles }}>
           <Typography
             component="span"
             variant="body2"
@@ -73,7 +71,7 @@ export function CheckoutSummary({
           </Typography>
         </Box>
 
-        <Box display="flex">
+        <Box sx={{ ...rowStyles }}>
           <Typography
             component="span"
             variant="body2"
@@ -88,7 +86,7 @@ export function CheckoutSummary({
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 
-        <Box display="flex">
+        <Box sx={{ ...rowStyles }}>
           <Typography component="span" variant="subtitle1" sx={{ flexGrow: 1 }}>
             Total
           </Typography>
@@ -112,14 +110,16 @@ export function CheckoutSummary({
             fullWidth
             placeholder="Discount codes / Gifts"
             value="DISCOUNT5"
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <Button color="primary" onClick={() => onApplyDiscount(5)} sx={{ mr: -0.5 }}>
-                    Apply
-                  </Button>
-                </InputAdornment>
-              ),
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <Button color="primary" onClick={() => onApplyDiscount(5)} sx={{ mr: -0.5 }}>
+                      Apply
+                    </Button>
+                  </InputAdornment>
+                ),
+              },
             }}
           />
         )}

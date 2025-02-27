@@ -6,8 +6,8 @@ export type ITourFilters = {
   services: string[];
   destination: string[];
   tourGuides: ITourGuide[];
-  startDate: IDatePickerControl;
   endDate: IDatePickerControl;
+  startDate: IDatePickerControl;
 };
 
 export type ITourGuide = {
@@ -28,21 +28,21 @@ export type ITourItem = {
   id: string;
   name: string;
   price: number;
-  totalViews: number;
   tags: string[];
   content: string;
   publish: string;
   images: string[];
   durations: string;
   priceSale: number;
+  totalViews: number;
   services: string[];
   destination: string;
   ratingNumber: number;
+  createdAt: IDateValue;
   bookers: ITourBooker[];
   tourGuides: ITourGuide[];
-  createdAt: IDateValue;
   available: {
-    startDate: IDateValue;
     endDate: IDateValue;
+    startDate: IDateValue;
   };
 };

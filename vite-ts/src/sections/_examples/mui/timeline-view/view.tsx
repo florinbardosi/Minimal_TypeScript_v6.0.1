@@ -1,3 +1,5 @@
+import { varAlpha } from 'minimal-shared/utils';
+
 import Paper from '@mui/material/Paper';
 import Timeline from '@mui/lab/Timeline';
 import TimelineDot from '@mui/lab/TimelineDot';
@@ -8,16 +10,9 @@ import TimelineSeparator from '@mui/lab/TimelineSeparator';
 import TimelineConnector from '@mui/lab/TimelineConnector';
 import TimelineOppositeContent from '@mui/lab/TimelineOppositeContent';
 
-import { paths } from 'src/routes/paths';
-
-import { varAlpha } from 'src/theme/styles';
-
 import { Iconify } from 'src/components/iconify';
-import { CustomBreadcrumbs } from 'src/components/custom-breadcrumbs';
 
-import { ComponentHero } from '../../component-hero';
-import { ComponentBlock } from '../../component-block';
-import { ScrollToViewTemplate } from '../../component-template';
+import { ComponentBox, ComponentLayout } from '../../layout';
 
 // ----------------------------------------------------------------------
 
@@ -36,7 +31,7 @@ const TIMELINES: TimelineType[] = [
     title: 'Default',
     des: 'Morbi mattis ullamcorper',
     time: '09:30 am',
-    icon: <Iconify icon="eva:folder-add-fill" width={24} />,
+    icon: <Iconify width={24} icon="eva:folder-add-fill" />,
   },
   {
     key: 2,
@@ -44,7 +39,7 @@ const TIMELINES: TimelineType[] = [
     des: 'Morbi mattis ullamcorper',
     time: '10:00 am',
     color: 'primary',
-    icon: <Iconify icon="eva:image-2-fill" width={24} />,
+    icon: <Iconify width={24} icon="eva:image-2-fill" />,
   },
   {
     key: 3,
@@ -52,7 +47,7 @@ const TIMELINES: TimelineType[] = [
     des: 'Morbi mattis ullamcorper',
     time: '10:00 am',
     color: 'secondary',
-    icon: <Iconify icon="eva:pantone-fill" width={24} />,
+    icon: <Iconify width={24} icon="eva:pantone-fill" />,
   },
   {
     key: 4,
@@ -60,7 +55,7 @@ const TIMELINES: TimelineType[] = [
     des: 'Morbi mattis ullamcorper',
     time: '10:30 am',
     color: 'info',
-    icon: <Iconify icon="eva:tv-fill" width={24} />,
+    icon: <Iconify width={24} icon="eva:tv-fill" />,
   },
   {
     key: 5,
@@ -68,7 +63,7 @@ const TIMELINES: TimelineType[] = [
     des: 'Morbi mattis ullamcorper',
     time: '11:00 am',
     color: 'success',
-    icon: <Iconify icon="eva:activity-fill" width={24} />,
+    icon: <Iconify width={24} icon="eva:activity-fill" />,
   },
   {
     key: 6,
@@ -76,7 +71,7 @@ const TIMELINES: TimelineType[] = [
     des: 'Morbi mattis ullamcorper',
     time: '11:30 am',
     color: 'warning',
-    icon: <Iconify icon="eva:cube-fill" width={24} />,
+    icon: <Iconify width={24} icon="eva:cube-fill" />,
   },
   {
     key: 7,
@@ -84,7 +79,7 @@ const TIMELINES: TimelineType[] = [
     des: 'Morbi mattis ullamcorper',
     time: '12:00 am',
     color: 'error',
-    icon: <Iconify icon="eva:film-fill" width={24} />,
+    icon: <Iconify width={24} icon="eva:film-fill" />,
   },
 ];
 
@@ -95,11 +90,11 @@ export function TimelineView() {
 
   const reduceTimeLine = TIMELINES.slice(TIMELINES.length - 3);
 
-  const DEMO = [
+  const DEMO_COMPONENTS = [
     {
       name: 'Left',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <Timeline position="left">
             {reduceTimeLine.map((item) => (
               <TimelineItem key={item.key}>
@@ -111,13 +106,13 @@ export function TimelineView() {
               </TimelineItem>
             ))}
           </Timeline>
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Right',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <Timeline position="right">
             {reduceTimeLine.map((item) => (
               <TimelineItem key={item.key}>
@@ -129,13 +124,13 @@ export function TimelineView() {
               </TimelineItem>
             ))}
           </Timeline>
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Alternating',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <Timeline position="alternate">
             {reduceTimeLine.map((item) => (
               <TimelineItem key={item.key}>
@@ -147,13 +142,13 @@ export function TimelineView() {
               </TimelineItem>
             ))}
           </Timeline>
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Filled',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <Timeline position="alternate">
             {TIMELINES.map((item) => (
               <TimelineItem key={item.key}>
@@ -165,13 +160,13 @@ export function TimelineView() {
               </TimelineItem>
             ))}
           </Timeline>
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Outlined',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <Timeline position="alternate">
             {TIMELINES.map((item) => (
               <TimelineItem key={item.key}>
@@ -183,13 +178,13 @@ export function TimelineView() {
               </TimelineItem>
             ))}
           </Timeline>
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Opposite content',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <Timeline position="alternate">
             {TIMELINES.map((item) => (
               <TimelineItem key={item.key}>
@@ -206,13 +201,13 @@ export function TimelineView() {
               </TimelineItem>
             ))}
           </Timeline>
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
     {
       name: 'Customized',
       component: (
-        <ComponentBlock>
+        <ComponentBox>
           <Timeline position="alternate">
             {TIMELINES.map((item) => (
               <TimelineItem key={item.key}>
@@ -227,10 +222,12 @@ export function TimelineView() {
                 </TimelineSeparator>
                 <TimelineContent>
                   <Paper
-                    sx={{
-                      p: 3,
-                      bgcolor: (theme) => varAlpha(theme.vars.palette.grey['500Channel'], 0.12),
-                    }}
+                    sx={[
+                      (theme) => ({
+                        p: 3,
+                        bgcolor: varAlpha(theme.vars.palette.grey['500Channel'], 0.12),
+                      }),
+                    ]}
                   >
                     <Typography variant="subtitle2">{item.title}</Typography>
                     <Typography variant="body2" sx={{ color: 'text.secondary' }}>
@@ -241,22 +238,18 @@ export function TimelineView() {
               </TimelineItem>
             ))}
           </Timeline>
-        </ComponentBlock>
+        </ComponentBox>
       ),
     },
   ];
 
   return (
-    <>
-      <ComponentHero>
-        <CustomBreadcrumbs
-          heading="Timeline"
-          links={[{ name: 'Components', href: paths.components }, { name: 'Timeline' }]}
-          moreLink={['https://mui.com/components/timeline']}
-        />
-      </ComponentHero>
-
-      <ScrollToViewTemplate data={DEMO} />
-    </>
+    <ComponentLayout
+      sectionData={DEMO_COMPONENTS}
+      heroProps={{
+        heading: 'Timeline',
+        moreLinks: ['https://mui.com/material-ui/react-timeline/'],
+      }}
+    />
   );
 }

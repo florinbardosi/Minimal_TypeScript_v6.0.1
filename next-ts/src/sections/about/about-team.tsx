@@ -23,25 +23,34 @@ export function AboutTeam({ sx, ...other }: BoxProps) {
   const carousel = useCarousel({
     align: 'start',
     slideSpacing: '24px',
-    slidesToShow: { xs: 1, sm: 2, md: 3, lg: 4 },
+    slidesToShow: {
+      xs: 1,
+      sm: 2,
+      md: 3,
+      lg: 4,
+    },
   });
 
   return (
-    <Box component="section" sx={{ overflow: 'hidden', ...sx }} {...other}>
+    <Box
+      component="section"
+      sx={[{ overflow: 'hidden' }, ...(Array.isArray(sx) ? sx : [sx])]}
+      {...other}
+    >
       <Container component={MotionViewport} sx={{ textAlign: 'center', py: { xs: 10, md: 15 } }}>
-        <m.div variants={varFade().inDown}>
+        <m.div variants={varFade('inDown')}>
           <Typography variant="overline" sx={{ color: 'text.disabled' }}>
             Dream team
           </Typography>
         </m.div>
 
-        <m.div variants={varFade().inUp}>
+        <m.div variants={varFade('inUp')}>
           <Typography variant="h2" sx={{ my: 3 }}>
             Great team is the key
           </Typography>
         </m.div>
 
-        <m.div variants={varFade().inUp}>
+        <m.div variants={varFade('inUp')}>
           <Typography sx={{ mx: 'auto', maxWidth: 640, color: 'text.secondary' }}>
             Minimal will provide you support if you have any problems, our support team will reply
             within a day and we also have detailed documentation.
@@ -56,7 +65,7 @@ export function AboutTeam({ sx, ...other }: BoxProps) {
               <Box
                 key={member.id}
                 component={m.div}
-                variants={varFade().in}
+                variants={varFade('in')}
                 sx={{ py: { xs: 8, md: 10 } }}
               >
                 <MemberCard member={member} />
@@ -100,9 +109,16 @@ function MemberCard({ member }: MemberCardProps) {
         <Image alt={member.name} src={member.avatarUrl} ratio="1/1" sx={{ borderRadius: 2 }} />
       </Box>
 
-      <Box display="flex" alignItems="center" justifyContent="center" sx={{ p: 2 }}>
+      <Box
+        sx={{
+          p: 2,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
         {_socials.map((social) => (
-          <IconButton key={social.label} color="inherit">
+          <IconButton key={social.label}>
             {social.value === 'facebook' && <FacebookIcon />}
             {social.value === 'instagram' && <InstagramIcon />}
             {social.value === 'linkedin' && <LinkedinIcon />}

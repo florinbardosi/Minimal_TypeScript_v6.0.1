@@ -1,13 +1,12 @@
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
-import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 
 import { Label } from 'src/components/label';
 import { Iconify } from 'src/components/iconify';
 import { MegaMenuHorizontal } from 'src/components/mega-menu';
 
-import { navItems2 } from './data';
+import { MEGA_MENU_ITEMS_WITH_RENDER } from './data';
 
 // ----------------------------------------------------------------------
 
@@ -15,39 +14,38 @@ export function DemoMegaMenuHorizontal() {
   return (
     <AppBar
       position="sticky"
-      sx={{ bgcolor: 'background.paper', boxShadow: (theme) => theme.customShadows.z8 }}
+      sx={(theme) => ({ bgcolor: 'background.paper', boxShadow: theme.vars.customShadows.z8 })}
     >
-      <Toolbar component={Container}>
-        <Typography variant="h6" sx={{ flexGrow: 1 }}>
+      <Toolbar
+        sx={(theme) => ({
+          width: 1,
+          mx: 'auto',
+          maxWidth: theme.breakpoints.values.lg,
+        })}
+      >
+        <Typography variant="h6" sx={{ flex: '1 0 auto' }}>
           Horizontal menu
         </Typography>
 
         <MegaMenuHorizontal
-          data={navItems2}
-          render={{
-            navIcon: NAV_ICONS,
-            navInfo: NAV_INFO,
-          }}
-          cssVars={{
-            '--nav-item-gap': '8px',
-          }}
+          data={MEGA_MENU_ITEMS_WITH_RENDER}
+          render={{ navIcon: NAV_ICONS, navInfo: NAV_INFO }}
+          cssVars={{ '--nav-item-gap': '8px' }}
           slotProps={{
             rootItem: {
               sx: {},
               icon: {},
-              title: {
-                typography: 'subtitle1',
-                fontFamily: (theme) => theme.typography.fontSecondaryFamily,
-              },
+              title: {},
               info: {},
               arrow: {},
             },
             subItem: {},
-            paper: {},
+            dropdown: {},
             subheader: {},
             tags: {},
             moreLink: {},
-            carousel: { sx: {}, displayCount: 8 },
+            carousel: { sx: {}, options: {} },
+            masonry: { sx: {}, columns: 4, defaultColumns: 4 },
           }}
         />
       </Toolbar>

@@ -1,5 +1,6 @@
 import type { IInvoiceItem } from 'src/types/invoice';
 
+import { sumBy } from 'es-toolkit';
 import { useEffect, useCallback } from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 
@@ -12,128 +13,51 @@ import Typography from '@mui/material/Typography';
 import InputAdornment from '@mui/material/InputAdornment';
 import { inputBaseClasses } from '@mui/material/InputBase';
 
-import { fCurrency } from 'src/utils/format-number';
-
 import { INVOICE_SERVICE_OPTIONS } from 'src/_mock';
 
 import { Field } from 'src/components/hook-form';
 import { Iconify } from 'src/components/iconify';
 
+import { InvoiceTotalSummary } from './invoice-total-summary';
+
 // ----------------------------------------------------------------------
 
+export const defaultItem: Omit<IInvoiceItem, 'id'> = {
+  title: '',
+  description: '',
+  service: INVOICE_SERVICE_OPTIONS[0].name,
+  price: INVOICE_SERVICE_OPTIONS[0].price,
+  quantity: 1,
+  total: 0,
+};
+
+const getFieldNames = (index: number): Record<keyof typeof defaultItem, string> => ({
+  title: `items[${index}].title`,
+  description: `items[${index}].description`,
+  service: `items[${index}].service`,
+  quantity: `items[${index}].quantity`,
+  price: `items[${index}].price`,
+  total: `items[${index}].total`,
+});
+
 export function InvoiceNewEditDetails() {
-  const { control, setValue, watch } = useFormContext();
+  const { control, setValue, getValues } = useFormContext();
 
   const { fields, append, remove } = useFieldArray({ control, name: 'items' });
 
-  const values = watch();
+  const items = getValues('items');
+  const taxes = getValues('taxes');
+  const discount = getValues('discount');
+  const shipping = getValues('shipping');
 
-  const totalOnRow: number[] = values.items.map((item: IInvoiceItem) => item.quantity * item.price);
-
-  const subtotal = totalOnRow.reduce((acc, num) => acc + num, 0);
-
-  const totalAmount = subtotal - values.discount - values.shipping + values.taxes;
+  const subtotal = sumBy(items, (item: IInvoiceItem) => item.quantity * item.price);
+  const subtotalWithTax = subtotal + subtotal * (taxes / 100);
+  const totalAmount = subtotalWithTax - discount - shipping;
 
   useEffect(() => {
+    setValue('subtotal', subtotal);
     setValue('totalAmount', totalAmount);
-  }, [setValue, totalAmount]);
-
-  const handleAdd = () => {
-    append({
-      title: '',
-      description: '',
-      service: '',
-      quantity: 1,
-      price: 0,
-      total: 0,
-    });
-  };
-
-  const handleRemove = (index: number) => {
-    remove(index);
-  };
-
-  const handleClearService = useCallback(
-    (index: number) => {
-      setValue(`items[${index}].quantity`, 1);
-      setValue(`items[${index}].price`, 0);
-      setValue(`items[${index}].total`, 0);
-    },
-    [setValue]
-  );
-
-  const handleSelectService = useCallback(
-    (index: number, option: string) => {
-      setValue(
-        `items[${index}].price`,
-        INVOICE_SERVICE_OPTIONS.find((service) => service.name === option)?.price
-      );
-      setValue(
-        `items[${index}].total`,
-        values.items.map((item: IInvoiceItem) => item.quantity * item.price)[index]
-      );
-    },
-    [setValue, values.items]
-  );
-
-  const handleChangeQuantity = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, index: number) => {
-      setValue(`items[${index}].quantity`, Number(event.target.value));
-      setValue(
-        `items[${index}].total`,
-        values.items.map((item: IInvoiceItem) => item.quantity * item.price)[index]
-      );
-    },
-    [setValue, values.items]
-  );
-
-  const handleChangePrice = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, index: number) => {
-      setValue(`items[${index}].price`, Number(event.target.value));
-      setValue(
-        `items[${index}].total`,
-        values.items.map((item: IInvoiceItem) => item.quantity * item.price)[index]
-      );
-    },
-    [setValue, values.items]
-  );
-
-  const renderTotal = (
-    <Stack
-      spacing={2}
-      alignItems="flex-end"
-      sx={{ mt: 3, textAlign: 'right', typography: 'body2' }}
-    >
-      <Stack direction="row">
-        <Box sx={{ color: 'text.secondary' }}>Subtotal</Box>
-        <Box sx={{ width: 160, typography: 'subtitle2' }}>{fCurrency(subtotal) || '-'}</Box>
-      </Stack>
-
-      <Stack direction="row">
-        <Box sx={{ color: 'text.secondary' }}>Shipping</Box>
-        <Box sx={{ width: 160, ...(values.shipping && { color: 'error.main' }) }}>
-          {values.shipping ? `- ${fCurrency(values.shipping)}` : '-'}
-        </Box>
-      </Stack>
-
-      <Stack direction="row">
-        <Box sx={{ color: 'text.secondary' }}>Discount</Box>
-        <Box sx={{ width: 160, ...(values.discount && { color: 'error.main' }) }}>
-          {values.discount ? `- ${fCurrency(values.discount)}` : '-'}
-        </Box>
-      </Stack>
-
-      <Stack direction="row">
-        <Box sx={{ color: 'text.secondary' }}>Taxes</Box>
-        <Box sx={{ width: 160 }}>{values.taxes ? fCurrency(values.taxes) : '-'}</Box>
-      </Stack>
-
-      <Stack direction="row" sx={{ typography: 'subtitle1' }}>
-        <div>Total</div>
-        <Box sx={{ width: 160 }}>{fCurrency(totalAmount) || '-'}</Box>
-      </Stack>
-    </Stack>
-  );
+  }, [setValue, subtotal, totalAmount]);
 
   return (
     <Box sx={{ p: 3 }}>
@@ -143,135 +67,42 @@ export function InvoiceNewEditDetails() {
 
       <Stack divider={<Divider flexItem sx={{ borderStyle: 'dashed' }} />} spacing={3}>
         {fields.map((item, index) => (
-          <Stack key={item.id} alignItems="flex-end" spacing={1.5}>
-            <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ width: 1 }}>
-              <Field.Text
-                size="small"
-                name={`items[${index}].title`}
-                label="Title"
-                InputLabelProps={{ shrink: true }}
-              />
-
-              <Field.Text
-                size="small"
-                name={`items[${index}].description`}
-                label="Description"
-                InputLabelProps={{ shrink: true }}
-              />
-
-              <Field.Select
-                name={`items[${index}].service`}
-                size="small"
-                label="Service"
-                InputLabelProps={{ shrink: true }}
-                sx={{ maxWidth: { md: 160 } }}
-              >
-                <MenuItem
-                  value=""
-                  onClick={() => handleClearService(index)}
-                  sx={{ fontStyle: 'italic', color: 'text.secondary' }}
-                >
-                  None
-                </MenuItem>
-
-                <Divider sx={{ borderStyle: 'dashed' }} />
-
-                {INVOICE_SERVICE_OPTIONS.map((service) => (
-                  <MenuItem
-                    key={service.id}
-                    value={service.name}
-                    onClick={() => handleSelectService(index, service.name)}
-                  >
-                    {service.name}
-                  </MenuItem>
-                ))}
-              </Field.Select>
-
-              <Field.Text
-                size="small"
-                type="number"
-                name={`items[${index}].quantity`}
-                label="Quantity"
-                placeholder="0"
-                onChange={(event) => handleChangeQuantity(event, index)}
-                InputLabelProps={{ shrink: true }}
-                sx={{ maxWidth: { md: 96 } }}
-              />
-
-              <Field.Text
-                size="small"
-                type="number"
-                name={`items[${index}].price`}
-                label="Price"
-                placeholder="0.00"
-                onChange={(event) => handleChangePrice(event, index)}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Box sx={{ typography: 'subtitle2', color: 'text.disabled' }}>$</Box>
-                    </InputAdornment>
-                  ),
-                }}
-                sx={{ maxWidth: { md: 96 } }}
-              />
-
-              <Field.Text
-                disabled
-                size="small"
-                type="number"
-                name={`items[${index}].total`}
-                label="Total"
-                placeholder="0.00"
-                value={values.items[index].total === 0 ? '' : values.items[index].total.toFixed(2)}
-                onChange={(event) => handleChangePrice(event, index)}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Box sx={{ typography: 'subtitle2', color: 'text.disabled' }}>$</Box>
-                    </InputAdornment>
-                  ),
-                }}
-                sx={{
-                  maxWidth: { md: 104 },
-                  [`& .${inputBaseClasses.input}`]: { textAlign: { md: 'right' } },
-                }}
-              />
-            </Stack>
-
-            <Button
-              size="small"
-              color="error"
-              startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
-              onClick={() => handleRemove(index)}
-            >
-              Remove
-            </Button>
-          </Stack>
+          <InvoiceItem
+            key={item.id}
+            fieldNames={getFieldNames(index)}
+            onRemoveItem={() => remove(index)}
+          />
         ))}
       </Stack>
 
       <Divider sx={{ my: 3, borderStyle: 'dashed' }} />
 
-      <Stack
-        spacing={3}
-        direction={{ xs: 'column', md: 'row' }}
-        alignItems={{ xs: 'flex-end', md: 'center' }}
+      <Box
+        sx={{
+          gap: 3,
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          alignItems: { xs: 'flex-end', md: 'center' },
+        }}
       >
         <Button
           size="small"
           color="primary"
           startIcon={<Iconify icon="mingcute:add-line" />}
-          onClick={handleAdd}
+          onClick={() => append(defaultItem)}
           sx={{ flexShrink: 0 }}
         >
           Add Item
         </Button>
 
-        <Stack
-          spacing={2}
-          justifyContent="flex-end"
-          direction={{ xs: 'column', md: 'row' }}
-          sx={{ width: 1 }}
+        <Box
+          sx={{
+            gap: 2,
+            width: 1,
+            display: 'flex',
+            justifyContent: 'flex-end',
+            flexDirection: { xs: 'column', md: 'row' },
+          }}
         >
           <Field.Text
             size="small"
@@ -279,6 +110,7 @@ export function InvoiceNewEditDetails() {
             name="shipping"
             type="number"
             sx={{ maxWidth: { md: 120 } }}
+            slotProps={{ inputLabel: { shrink: true } }}
           />
 
           <Field.Text
@@ -287,6 +119,7 @@ export function InvoiceNewEditDetails() {
             name="discount"
             type="number"
             sx={{ maxWidth: { md: 120 } }}
+            slotProps={{ inputLabel: { shrink: true } }}
           />
 
           <Field.Text
@@ -295,11 +128,176 @@ export function InvoiceNewEditDetails() {
             name="taxes"
             type="number"
             sx={{ maxWidth: { md: 120 } }}
+            slotProps={{ inputLabel: { shrink: true } }}
           />
-        </Stack>
-      </Stack>
+        </Box>
+      </Box>
 
-      {renderTotal}
+      <InvoiceTotalSummary
+        taxes={taxes}
+        shipping={shipping}
+        subtotal={subtotal}
+        discount={discount}
+        totalAmount={totalAmount}
+      />
+    </Box>
+  );
+}
+
+// ----------------------------------------------------------------------
+
+type InvoiceItemProps = {
+  onRemoveItem: () => void;
+  fieldNames: Record<keyof typeof defaultItem, string>;
+};
+
+export function InvoiceItem({ onRemoveItem, fieldNames }: InvoiceItemProps) {
+  const { getValues, setValue } = useFormContext();
+
+  const priceInput = getValues(fieldNames.price);
+  const quantityInput = getValues(fieldNames.quantity);
+
+  useEffect(() => {
+    const totalValue = Number((priceInput * quantityInput).toFixed(2));
+
+    setValue(fieldNames.total, totalValue);
+  }, [fieldNames.total, priceInput, quantityInput, setValue]);
+
+  const handleSelectService = useCallback(
+    (option: string) => {
+      const selectedService = INVOICE_SERVICE_OPTIONS.find((service) => service.name === option);
+
+      setValue(fieldNames.price, selectedService?.price);
+    },
+    [fieldNames.price, setValue]
+  );
+
+  const handleClearService = useCallback(() => {
+    setValue(fieldNames.quantity, defaultItem.quantity);
+    setValue(fieldNames.price, defaultItem.price);
+    setValue(fieldNames.total, defaultItem.total);
+  }, [fieldNames.price, fieldNames.quantity, fieldNames.total, setValue]);
+
+  return (
+    <Box
+      sx={{
+        gap: 1.5,
+        display: 'flex',
+        alignItems: 'flex-end',
+        flexDirection: 'column',
+      }}
+    >
+      <Box
+        sx={{
+          gap: 2,
+          width: 1,
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+        }}
+      >
+        <Field.Text
+          size="small"
+          name={fieldNames.title}
+          label="Title"
+          slotProps={{ inputLabel: { shrink: true } }}
+        />
+
+        <Field.Text
+          multiline
+          maxRows={3}
+          size="small"
+          name={fieldNames.description}
+          label="Description"
+          slotProps={{ inputLabel: { shrink: true } }}
+        />
+
+        <Field.Select
+          size="small"
+          name={fieldNames.service}
+          label="Service"
+          slotProps={{ inputLabel: { shrink: true } }}
+          sx={{ maxWidth: { md: 160 } }}
+        >
+          <MenuItem
+            value=""
+            onClick={handleClearService}
+            sx={{ fontStyle: 'italic', color: 'text.secondary' }}
+          >
+            None
+          </MenuItem>
+
+          <Divider sx={{ borderStyle: 'dashed' }} />
+
+          {INVOICE_SERVICE_OPTIONS.map((service) => (
+            <MenuItem
+              key={service.id}
+              value={service.name}
+              onClick={() => handleSelectService(service.name)}
+            >
+              {service.name}
+            </MenuItem>
+          ))}
+        </Field.Select>
+
+        <Field.Text
+          size="small"
+          type="number"
+          name={fieldNames.quantity}
+          label="Quantity"
+          placeholder="0"
+          slotProps={{ inputLabel: { shrink: true } }}
+          sx={{ maxWidth: { md: 96 } }}
+        />
+
+        <Field.Text
+          size="small"
+          type="number"
+          name={fieldNames.price}
+          label="Price"
+          placeholder="0.00"
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Box sx={{ typography: 'subtitle2', color: 'text.disabled' }}>$</Box>
+                </InputAdornment>
+              ),
+            },
+          }}
+          sx={{ maxWidth: { md: 96 } }}
+        />
+
+        <Field.Text
+          disabled
+          size="small"
+          name={fieldNames.total}
+          type="number"
+          label="Total"
+          placeholder="0.00"
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Box sx={{ typography: 'subtitle2', color: 'text.disabled' }}>$</Box>
+                </InputAdornment>
+              ),
+            },
+          }}
+          sx={{
+            maxWidth: { md: 128 },
+            [`& .${inputBaseClasses.input}`]: { textAlign: { md: 'right' } },
+          }}
+        />
+      </Box>
+
+      <Button
+        size="small"
+        color="error"
+        startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
+        onClick={onRemoveItem}
+      >
+        Remove
+      </Button>
     </Box>
   );
 }

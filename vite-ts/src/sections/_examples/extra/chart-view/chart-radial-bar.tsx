@@ -1,8 +1,8 @@
+import { varAlpha } from 'minimal-shared/utils';
+
 import { useTheme } from '@mui/material/styles';
 
 import { fNumber } from 'src/utils/format-number';
-
-import { varAlpha } from 'src/theme/styles';
 
 import { Chart, useChart, ChartLegends } from 'src/components/chart';
 
@@ -33,41 +33,19 @@ export function ChartRadialBar({ chart }: Props) {
       type: 'gradient',
       gradient: {
         colorStops: chartColors.map((color) => [
-          {
-            offset: 0,
-            color: color[0],
-            opacity: 1,
-          },
-          {
-            offset: 100,
-            color: color[1],
-            opacity: 1,
-          },
+          { offset: 0, color: color[0], opacity: 1 },
+          { offset: 100, color: color[1], opacity: 1 },
         ]),
       },
     },
-    grid: {
-      padding: {
-        top: -40,
-        bottom: -40,
-      },
-    },
+    grid: { padding: { top: -40, bottom: -40 } },
     plotOptions: {
       radialBar: {
-        hollow: {
-          margin: 14,
-          size: '32%',
-        },
-        track: {
-          margin: 14,
-          background: varAlpha(theme.vars.palette.grey['500Channel'], 0.08),
-        },
+        hollow: { margin: 14, size: '32%' },
+        track: { margin: 14, background: varAlpha(theme.vars.palette.grey['500Channel'], 0.08) },
         dataLabels: {
           total: { formatter: () => fNumber(2324) },
-          value: {
-            offsetY: 2,
-            fontSize: theme.typography.h5.fontSize as string,
-          },
+          value: { offsetY: 2, fontSize: theme.typography.h5.fontSize as string },
           name: { offsetY: -10 },
         },
       },
@@ -80,18 +58,14 @@ export function ChartRadialBar({ chart }: Props) {
         type="radialBar"
         series={chart.series}
         options={chartOptions}
-        width={320}
-        height={320}
-        sx={{ mx: 'auto' }}
+        slotProps={{ loading: { p: 4 } }}
+        sx={{ mx: 'auto', width: 320, height: 320 }}
       />
 
       <ChartLegends
         labels={chartOptions?.labels}
         colors={chartOptions?.colors}
-        sx={{
-          p: 3,
-          justifyContent: 'center',
-        }}
+        sx={{ p: 3, justifyContent: 'center' }}
       />
     </>
   );

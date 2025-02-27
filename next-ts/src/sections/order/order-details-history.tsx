@@ -22,7 +22,7 @@ type Props = {
 };
 
 export function OrderDetailsHistory({ history }: Props) {
-  const renderSummary = (
+  const renderSummary = () => (
     <Paper
       variant="outlined"
       sx={{
@@ -41,6 +41,7 @@ export function OrderDetailsHistory({ history }: Props) {
         <Box sx={{ color: 'text.disabled' }}>Order time</Box>
         {fDateTime(history?.orderTime)}
       </Stack>
+
       <Stack spacing={0.5}>
         <Box sx={{ color: 'text.disabled' }}>Payment time</Box>
         {fDateTime(history?.orderTime)}
@@ -49,6 +50,7 @@ export function OrderDetailsHistory({ history }: Props) {
         <Box sx={{ color: 'text.disabled' }}>Delivery time for the carrier</Box>
         {fDateTime(history?.orderTime)}
       </Stack>
+
       <Stack spacing={0.5}>
         <Box sx={{ color: 'text.disabled' }}>Completion time</Box>
         {fDateTime(history?.orderTime)}
@@ -56,20 +58,19 @@ export function OrderDetailsHistory({ history }: Props) {
     </Paper>
   );
 
-  const renderTimeline = (
+  const renderTimeline = () => (
     <Timeline
       sx={{ p: 0, m: 0, [`& .${timelineItemClasses.root}:before`]: { flex: 0, padding: 0 } }}
     >
       {history?.timeline.map((item, index) => {
-        const firstTimeline = index === 0;
-
-        const lastTimeline = index === history.timeline.length - 1;
+        const firstTime = index === 0;
+        const lastTime = index === history.timeline.length - 1;
 
         return (
           <TimelineItem key={item.title}>
             <TimelineSeparator>
-              <TimelineDot color={(firstTimeline && 'primary') || 'grey'} />
-              {lastTimeline ? null : <TimelineConnector />}
+              <TimelineDot color={(firstTime && 'primary') || 'grey'} />
+              {lastTime ? null : <TimelineConnector />}
             </TimelineSeparator>
 
             <TimelineContent>
@@ -88,16 +89,18 @@ export function OrderDetailsHistory({ history }: Props) {
   return (
     <Card>
       <CardHeader title="History" />
-      <Stack
-        spacing={3}
-        alignItems={{ md: 'flex-start' }}
-        direction={{ xs: 'column-reverse', md: 'row' }}
-        sx={{ p: 3 }}
+      <Box
+        sx={{
+          p: 3,
+          gap: 3,
+          display: 'flex',
+          alignItems: { md: 'flex-start' },
+          flexDirection: { xs: 'column-reverse', md: 'row' },
+        }}
       >
-        {renderTimeline}
-
-        {renderSummary}
-      </Stack>
+        {renderTimeline()}
+        {renderSummary()}
+      </Box>
     </Card>
   );
 }

@@ -1,17 +1,16 @@
 import type { IUserItem } from 'src/types/user';
 
 import { z as zod } from 'zod';
-import { useMemo } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
 import { isValidPhoneNumber } from 'react-phone-number-input/input';
 
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
+import Grid from '@mui/material/Grid2';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Switch from '@mui/material/Switch';
-import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
 import LoadingButton from '@mui/lab/LoadingButton';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -30,15 +29,16 @@ import { Form, Field, schemaHelper } from 'src/components/hook-form';
 export type NewUserSchemaType = zod.infer<typeof NewUserSchema>;
 
 export const NewUserSchema = zod.object({
-  avatarUrl: schemaHelper.file({ message: { required_error: 'Avatar is required!' } }),
+  avatarUrl: schemaHelper.file({ message: 'Avatar is required!' }),
   name: zod.string().min(1, { message: 'Name is required!' }),
   email: zod
     .string()
     .min(1, { message: 'Email is required!' })
     .email({ message: 'Email must be a valid email address!' }),
-  phoneNumber: schemaHelper.phoneNumber({ isValidPhoneNumber }),
-  country: schemaHelper.objectOrNull<string | null>({
-    message: { required_error: 'Country is required!' },
+  phoneNumber: schemaHelper.phoneNumber({ isValid: isValidPhoneNumber }),
+  country: schemaHelper.nullableInput(zod.string().min(1, { message: 'Country is required!' }), {
+    // message for null value
+    message: 'Country is required!',
   }),
   address: zod.string().min(1, { message: 'Address is required!' }),
   company: zod.string().min(1, { message: 'Company is required!' }),
@@ -60,29 +60,27 @@ type Props = {
 export function UserNewEditForm({ currentUser }: Props) {
   const router = useRouter();
 
-  const defaultValues = useMemo(
-    () => ({
-      status: currentUser?.status || '',
-      avatarUrl: currentUser?.avatarUrl || null,
-      isVerified: currentUser?.isVerified || true,
-      name: currentUser?.name || '',
-      email: currentUser?.email || '',
-      phoneNumber: currentUser?.phoneNumber || '',
-      country: currentUser?.country || '',
-      state: currentUser?.state || '',
-      city: currentUser?.city || '',
-      address: currentUser?.address || '',
-      zipCode: currentUser?.zipCode || '',
-      company: currentUser?.company || '',
-      role: currentUser?.role || '',
-    }),
-    [currentUser]
-  );
+  const defaultValues: NewUserSchemaType = {
+    status: '',
+    avatarUrl: null,
+    isVerified: true,
+    name: '',
+    email: '',
+    phoneNumber: '',
+    country: '',
+    state: '',
+    city: '',
+    address: '',
+    zipCode: '',
+    company: '',
+    role: '',
+  };
 
   const methods = useForm<NewUserSchemaType>({
     mode: 'onSubmit',
     resolver: zodResolver(NewUserSchema),
     defaultValues,
+    values: currentUser,
   });
 
   const {
@@ -110,7 +108,7 @@ export function UserNewEditForm({ currentUser }: Props) {
   return (
     <Form methods={methods} onSubmit={onSubmit}>
       <Grid container spacing={3}>
-        <Grid xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card sx={{ pt: 10, pb: 5, px: 3 }}>
             {currentUser && (
               <Label
@@ -201,7 +199,7 @@ export function UserNewEditForm({ currentUser }: Props) {
             />
 
             {currentUser && (
-              <Stack justifyContent="center" alignItems="center" sx={{ mt: 3 }}>
+              <Stack sx={{ mt: 3, alignItems: 'center', justifyContent: 'center' }}>
                 <Button variant="soft" color="error">
                   Delete user
                 </Button>
@@ -210,17 +208,23 @@ export function UserNewEditForm({ currentUser }: Props) {
           </Card>
         </Grid>
 
-        <Grid xs={12} md={8}>
+        <Grid size={{ xs: 12, md: 8 }}>
           <Card sx={{ p: 3 }}>
             <Box
-              rowGap={3}
-              columnGap={2}
-              display="grid"
-              gridTemplateColumns={{ xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' }}
+              sx={{
+                rowGap: 3,
+                columnGap: 2,
+                display: 'grid',
+                gridTemplateColumns: { xs: 'repeat(1, 1fr)', sm: 'repeat(2, 1fr)' },
+              }}
             >
               <Field.Text name="name" label="Full name" />
               <Field.Text name="email" label="Email address" />
-              <Field.Phone name="phoneNumber" label="Phone number" />
+              <Field.Phone
+                name="phoneNumber"
+                label="Phone number"
+                country={!currentUser ? 'DE' : undefined}
+              />
 
               <Field.CountrySelect
                 fullWidth
@@ -237,7 +241,7 @@ export function UserNewEditForm({ currentUser }: Props) {
               <Field.Text name="role" label="Role" />
             </Box>
 
-            <Stack alignItems="flex-end" sx={{ mt: 3 }}>
+            <Stack sx={{ mt: 3, alignItems: 'flex-end' }}>
               <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                 {!currentUser ? 'Create user' : 'Save changes'}
               </LoadingButton>

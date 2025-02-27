@@ -3,15 +3,14 @@
 import type { IFile, IFileFilters } from 'src/types/file';
 
 import { useState, useCallback } from 'react';
+import { useBoolean, useSetState } from 'minimal-shared/hooks';
 
+import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-
-import { useBoolean } from 'src/hooks/use-boolean';
-import { useSetState } from 'src/hooks/use-set-state';
 
 import { fIsAfter, fIsBetween } from 'src/utils/format-time';
 
@@ -36,13 +35,11 @@ import { FileManagerNewFolderDialog } from '../file-manager-new-folder-dialog';
 export function FileManagerView() {
   const table = useTable({ defaultRowsPerPage: 10 });
 
-  const openDateRange = useBoolean();
+  const dateRange = useBoolean();
+  const confirmDialog = useBoolean();
+  const newFilesDialog = useBoolean();
 
-  const confirm = useBoolean();
-
-  const upload = useBoolean();
-
-  const [view, setView] = useState('list');
+  const [displayMode, setDisplayMode] = useState('list');
 
   const [tableData, setTableData] = useState<IFile[]>(_allFiles);
 
@@ -52,29 +49,30 @@ export function FileManagerView() {
     startDate: null,
     endDate: null,
   });
+  const { state: currentFilters } = filters;
 
-  const dateError = fIsAfter(filters.state.startDate, filters.state.endDate);
+  const dateError = fIsAfter(currentFilters.startDate, currentFilters.endDate);
 
   const dataFiltered = applyFilter({
     inputData: tableData,
     comparator: getComparator(table.order, table.orderBy),
-    filters: filters.state,
+    filters: currentFilters,
     dateError,
   });
 
   const dataInPage = rowInPage(dataFiltered, table.page, table.rowsPerPage);
 
   const canReset =
-    !!filters.state.name ||
-    filters.state.type.length > 0 ||
-    (!!filters.state.startDate && !!filters.state.endDate);
+    !!currentFilters.name ||
+    currentFilters.type.length > 0 ||
+    (!!currentFilters.startDate && !!currentFilters.endDate);
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
   const handleChangeView = useCallback(
     (event: React.MouseEvent<HTMLElement>, newView: string | null) => {
       if (newView !== null) {
-        setView(newView);
+        setDisplayMode(newView);
       }
     },
     []
@@ -100,29 +98,29 @@ export function FileManagerView() {
 
     setTableData(deleteRows);
 
-    table.onUpdatePageDeleteRows({
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
+    table.onUpdatePageDeleteRows(dataInPage.length, dataFiltered.length);
   }, [dataFiltered.length, dataInPage.length, table, tableData]);
 
-  const renderFilters = (
-    <Stack
-      spacing={2}
-      direction={{ xs: 'column', md: 'row' }}
-      alignItems={{ xs: 'flex-end', md: 'center' }}
+  const renderFilters = () => (
+    <Box
+      sx={{
+        gap: 2,
+        display: 'flex',
+        flexDirection: { xs: 'column', md: 'row' },
+        alignItems: { xs: 'flex-end', md: 'center' },
+      }}
     >
       <FileManagerFilters
         filters={filters}
         dateError={dateError}
         onResetPage={table.onResetPage}
-        openDateRange={openDateRange.value}
-        onOpenDateRange={openDateRange.onTrue}
-        onCloseDateRange={openDateRange.onFalse}
+        openDateRange={dateRange.value}
+        onOpenDateRange={dateRange.onTrue}
+        onCloseDateRange={dateRange.onFalse}
         options={{ types: FILE_TYPE_OPTIONS }}
       />
 
-      <ToggleButtonGroup size="small" value={view} exclusive onChange={handleChangeView}>
+      <ToggleButtonGroup size="small" value={displayMode} exclusive onChange={handleChangeView}>
         <ToggleButton value="list">
           <Iconify icon="solar:list-bold" />
         </ToggleButton>
@@ -131,10 +129,10 @@ export function FileManagerView() {
           <Iconify icon="mingcute:dot-grid-fill" />
         </ToggleButton>
       </ToggleButtonGroup>
-    </Stack>
+    </Box>
   );
 
-  const renderResults = (
+  const renderResults = () => (
     <FileManagerFiltersResult
       filters={filters}
       totalResults={dataFiltered.length}
@@ -142,74 +140,77 @@ export function FileManagerView() {
     />
   );
 
+  const renderNewFilesDialog = () => (
+    <FileManagerNewFolderDialog open={newFilesDialog.value} onClose={newFilesDialog.onFalse} />
+  );
+
+  const renderConfirmDialog = () => (
+    <ConfirmDialog
+      open={confirmDialog.value}
+      onClose={confirmDialog.onFalse}
+      title="Delete"
+      content={
+        <>
+          Are you sure want to delete <strong> {table.selected.length} </strong> items?
+        </>
+      }
+      action={
+        <Button
+          variant="contained"
+          color="error"
+          onClick={() => {
+            handleDeleteItems();
+            confirmDialog.onFalse();
+          }}
+        >
+          Delete
+        </Button>
+      }
+    />
+  );
+
+  const renderList = () =>
+    displayMode === 'list' ? (
+      <FileManagerTable
+        table={table}
+        dataFiltered={dataFiltered}
+        onDeleteRow={handleDeleteItem}
+        notFound={notFound}
+        onOpenConfirm={confirmDialog.onTrue}
+      />
+    ) : (
+      <FileManagerGridView
+        table={table}
+        dataFiltered={dataFiltered}
+        onDeleteItem={handleDeleteItem}
+        onOpenConfirm={confirmDialog.onTrue}
+      />
+    );
+
   return (
     <>
       <DashboardContent>
-        <Stack direction="row" alignItems="center" justifyContent="space-between">
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Typography variant="h4">File manager</Typography>
           <Button
             variant="contained"
             startIcon={<Iconify icon="eva:cloud-upload-fill" />}
-            onClick={upload.onTrue}
+            onClick={newFilesDialog.onTrue}
           >
             Upload
           </Button>
-        </Stack>
+        </Box>
 
         <Stack spacing={2.5} sx={{ my: { xs: 3, md: 5 } }}>
-          {renderFilters}
-
-          {canReset && renderResults}
+          {renderFilters()}
+          {canReset && renderResults()}
         </Stack>
 
-        {notFound ? (
-          <EmptyContent filled sx={{ py: 10 }} />
-        ) : (
-          <>
-            {view === 'list' ? (
-              <FileManagerTable
-                table={table}
-                dataFiltered={dataFiltered}
-                onDeleteRow={handleDeleteItem}
-                notFound={notFound}
-                onOpenConfirm={confirm.onTrue}
-              />
-            ) : (
-              <FileManagerGridView
-                table={table}
-                dataFiltered={dataFiltered}
-                onDeleteItem={handleDeleteItem}
-                onOpenConfirm={confirm.onTrue}
-              />
-            )}
-          </>
-        )}
+        {notFound ? <EmptyContent filled sx={{ py: 10 }} /> : renderList()}
       </DashboardContent>
 
-      <FileManagerNewFolderDialog open={upload.value} onClose={upload.onFalse} />
-
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content={
-          <>
-            Are you sure want to delete <strong> {table.selected.length} </strong> items?
-          </>
-        }
-        action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              handleDeleteItems();
-              confirm.onFalse();
-            }}
-          >
-            Delete
-          </Button>
-        }
-      />
+      {renderNewFilesDialog()}
+      {renderConfirmDialog()}
     </>
   );
 }
@@ -237,9 +238,7 @@ function applyFilter({ inputData, comparator, filters, dateError }: ApplyFilterP
   inputData = stabilizedThis.map((el) => el[0]);
 
   if (name) {
-    inputData = inputData.filter(
-      (file) => file.name.toLowerCase().indexOf(name.toLowerCase()) !== -1
-    );
+    inputData = inputData.filter((file) => file.name.toLowerCase().includes(name.toLowerCase()));
   }
 
   if (type.length) {

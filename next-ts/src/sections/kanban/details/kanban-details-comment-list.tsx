@@ -1,5 +1,6 @@
 import type { IKanbanComment } from 'src/types/kanban';
 
+import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
@@ -26,34 +27,34 @@ export function KanbanDetailsCommentList({ comments }: Props) {
     <>
       <Stack component="ul" spacing={3}>
         {comments.map((comment) => (
-          <Stack component="li" key={comment.id} direction="row" spacing={2}>
+          <Box component="li" key={comment.id} sx={{ gap: 2, display: 'flex' }}>
             <Avatar src={comment.avatarUrl} />
 
             <Stack spacing={comment.messageType === 'image' ? 1 : 0.5} flexGrow={1}>
-              <Stack direction="row" alignItems="center" justifyContent="space-between">
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Typography variant="subtitle2"> {comment.name}</Typography>
                 <Typography variant="caption" sx={{ color: 'text.disabled' }}>
                   {fToNow(comment.createdAt)}
                 </Typography>
-              </Stack>
+              </Box>
 
               {comment.messageType === 'image' ? (
                 <Image
                   alt={comment.message}
                   src={comment.message}
                   onClick={() => lightbox.onOpen(comment.message)}
-                  sx={{
+                  sx={(theme) => ({
                     borderRadius: 1.5,
                     cursor: 'pointer',
-                    transition: (theme) => theme.transitions.create(['opacity']),
+                    transition: theme.transitions.create(['opacity']),
                     '&:hover': { opacity: 0.8 },
-                  }}
+                  })}
                 />
               ) : (
                 <Typography variant="body2">{comment.message}</Typography>
               )}
             </Stack>
-          </Stack>
+          </Box>
         ))}
       </Stack>
 

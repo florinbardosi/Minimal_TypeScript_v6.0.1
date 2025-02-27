@@ -2,7 +2,7 @@ import Paper from '@mui/material/Paper';
 
 import { NavSectionMini } from 'src/components/nav-section';
 
-import { NAV_ITEMS } from './data';
+import { NAV_SECTION_ITEMS } from './data';
 
 // ----------------------------------------------------------------------
 
@@ -14,16 +14,13 @@ export function NavMini() {
         p: 0.5,
         mx: 'auto',
         maxWidth: 96,
-        borderRadius: 1,
+        borderRadius: 1.5,
       }}
     >
       <NavSectionMini
-        data={NAV_ITEMS}
-        cssVars={{
-          '--nav-item-gap': '8px',
-        }}
+        data={NAV_SECTION_ITEMS}
+        cssVars={{ '--nav-item-gap': '8px' }}
         slotProps={{
-          paper: {},
           rootItem: {
             sx: {},
             icon: {},
@@ -40,6 +37,7 @@ export function NavMini() {
             info: {},
             arrow: {},
           },
+          dropdown: { paper: {} },
         }}
       />
     </Paper>

@@ -3,6 +3,7 @@ import Box from '@mui/material/Box';
 import {
   Carousel,
   useCarousel,
+  carouselClasses,
   CarouselDotButtons,
   CarouselArrowBasicButtons,
   CarouselArrowFloatButtons,
@@ -43,16 +44,16 @@ export function CarouselCustoms({ data }: Props) {
           options={carousel.options}
           slotProps={{
             prevBtn: {
+              sx: { left: 24 },
               svgIcon: (
                 <path d="M20 11.25a.75.75 0 0 1 0 1.5h-9.25V18a.75.75 0 0 1-1.28.53l-6-6a.75.75 0 0 1 0-1.06l6-6a.75.75 0 0 1 1.28.53v5.25z" />
               ),
-              sx: { left: 0 },
             },
             nextBtn: {
+              sx: { right: 24 },
               svgIcon: (
                 <path d="M4 11.25a.75.75 0 0 0 0 1.5h9.25V18a.75.75 0 0 0 1.28.53l6-6a.75.75 0 0 0 0-1.06l-6-6a.75.75 0 0 0-1.28.53v5.25z" />
               ),
-              sx: { right: 0 },
             },
           }}
           sx={{ bgcolor: 'primary.main', color: 'primary.contrastText' }}
@@ -60,14 +61,14 @@ export function CarouselCustoms({ data }: Props) {
       </Box>
 
       <Box
-        gap={3}
-        display="flex"
-        alignItems="center"
-        flexDirection="column"
         sx={{
           p: 5,
           mt: 5,
+          gap: 3,
+          display: 'flex',
           borderRadius: 2,
+          alignItems: 'center',
+          flexDirection: 'column',
           bgcolor: 'background.neutral',
         }}
       >
@@ -123,12 +124,10 @@ export function CarouselCustoms({ data }: Props) {
           scrollSnaps={carousel.dots.scrollSnaps}
           selectedIndex={carousel.dots.selectedIndex}
           onClickDot={carousel.dots.onClickDot}
-          slotProps={{
-            dot: {
-              selected: {
-                bgcolor: 'warning.main',
-                color: 'warning.contrastText',
-              },
+          sx={{
+            [`& .${carouselClasses.dots.itemSelected}`]: {
+              bgcolor: 'warning.main',
+              color: 'warning.contrastText',
             },
           }}
         />

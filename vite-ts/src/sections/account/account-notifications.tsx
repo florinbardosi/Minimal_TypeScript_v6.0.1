@@ -1,9 +1,11 @@
+import type { CardProps } from '@mui/material/Card';
+
 import { useForm, Controller } from 'react-hook-form';
 
+import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
-import Stack from '@mui/material/Stack';
+import Grid from '@mui/material/Grid2';
 import Switch from '@mui/material/Switch';
-import Grid from '@mui/material/Unstable_Grid2';
 import LoadingButton from '@mui/lab/LoadingButton';
 import ListItemText from '@mui/material/ListItemText';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -36,7 +38,7 @@ const NOTIFICATIONS = [
 
 // ----------------------------------------------------------------------
 
-export function AccountNotifications() {
+export function AccountNotifications({ sx, ...other }: CardProps) {
   const methods = useForm({
     defaultValues: { selected: ['activity_comments', 'application_product'] },
   });
@@ -67,20 +69,42 @@ export function AccountNotifications() {
 
   return (
     <Form methods={methods} onSubmit={onSubmit}>
-      <Card sx={{ p: 3, gap: 3, display: 'flex', flexDirection: 'column' }}>
+      <Card
+        sx={[
+          {
+            p: 3,
+            gap: 3,
+            display: 'flex',
+            flexDirection: 'column',
+          },
+          ...(Array.isArray(sx) ? sx : [sx]),
+        ]}
+        {...other}
+      >
         {NOTIFICATIONS.map((notification) => (
           <Grid key={notification.subheader} container spacing={3}>
-            <Grid xs={12} md={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
               <ListItemText
                 primary={notification.subheader}
                 secondary={notification.caption}
-                primaryTypographyProps={{ typography: 'h6', mb: 0.5 }}
-                secondaryTypographyProps={{ component: 'span' }}
+                slotProps={{
+                  primary: { sx: { typography: 'h6' } },
+                  secondary: { sx: { mt: 0.5 } },
+                }}
               />
             </Grid>
 
-            <Grid xs={12} md={8}>
-              <Stack spacing={1} sx={{ p: 3, borderRadius: 2, bgcolor: 'background.neutral' }}>
+            <Grid size={{ xs: 12, md: 8 }}>
+              <Box
+                sx={{
+                  p: 3,
+                  gap: 1,
+                  borderRadius: 2,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  bgcolor: 'background.neutral',
+                }}
+              >
                 <Controller
                   name="selected"
                   control={control}
@@ -95,6 +119,10 @@ export function AccountNotifications() {
                             <Switch
                               checked={field.value.includes(item.id)}
                               onChange={() => field.onChange(getSelected(values.selected, item.id))}
+                              inputProps={{
+                                id: `${item.label}-switch`,
+                                'aria-label': `${item.label} switch`,
+                              }}
                             />
                           }
                           sx={{ m: 0, width: 1, justifyContent: 'space-between' }}
@@ -103,7 +131,7 @@ export function AccountNotifications() {
                     </>
                   )}
                 />
-              </Stack>
+              </Box>
             </Grid>
           </Grid>
         ))}

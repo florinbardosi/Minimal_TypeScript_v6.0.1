@@ -41,7 +41,6 @@ export function PermissionDeniedView() {
         links={[{ name: 'Dashboard', href: paths.dashboard.root }, { name: 'Permission' }]}
         sx={{ mb: { xs: 3, md: 5 } }}
       />
-
       <ToggleButtonGroup
         exclusive
         value={role}
@@ -58,8 +57,8 @@ export function PermissionDeniedView() {
       </ToggleButtonGroup>
 
       <RoleBasedGuard hasContent currentRole={user?.role} acceptRoles={[role]} sx={{ py: 10 }}>
-        <Box gap={3} display="grid" gridTemplateColumns="repeat(2, 1fr)">
-          {[...Array(8)].map((_, index) => (
+        <Box sx={{ gap: 3, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)' }}>
+          {Array.from({ length: 8 }, (_, index) => (
             <Card key={index}>
               <CardHeader title={`Card ${index + 1}`} subheader="Proin viverra ligula" />
 

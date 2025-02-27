@@ -2,6 +2,7 @@ import type { BoxProps } from '@mui/material/Box';
 
 import { useState } from 'react';
 import { m } from 'framer-motion';
+import { varAlpha } from 'minimal-shared/utils';
 
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
@@ -12,8 +13,6 @@ import Typography from '@mui/material/Typography';
 import Accordion, { accordionClasses } from '@mui/material/Accordion';
 import AccordionDetails, { accordionDetailsClasses } from '@mui/material/AccordionDetails';
 import AccordionSummary, { accordionSummaryClasses } from '@mui/material/AccordionSummary';
-
-import { varAlpha } from 'src/theme/styles';
 
 import { Iconify } from 'src/components/iconify';
 import { varFade, MotionViewport } from 'src/components/animate';
@@ -133,7 +132,7 @@ export function HomeFAQs({ sx, ...other }: BoxProps) {
     setExpanded(isExpanded ? panel : false);
   };
 
-  const renderDescription = (
+  const renderDescription = () => (
     <SectionTitle
       caption="FAQs"
       title="We’ve got the"
@@ -142,39 +141,38 @@ export function HomeFAQs({ sx, ...other }: BoxProps) {
     />
   );
 
-  const renderContent = (
+  const renderContent = () => (
     <Stack
       spacing={1}
-      sx={{
-        mt: 8,
-        mx: 'auto',
-        maxWidth: 720,
-        mb: { xs: 5, md: 8 },
-      }}
+      sx={[
+        () => ({
+          mt: 8,
+          mx: 'auto',
+          maxWidth: 720,
+          mb: { xs: 5, md: 8 },
+        }),
+      ]}
     >
       {FAQs.map((item, index) => (
         <Accordion
           key={item.question}
           component={m.div}
-          variants={varFade({ distance: 24 }).inUp}
+          variants={varFade('inUp', { distance: 24 })}
           expanded={expanded === item.question}
           onChange={handleChange(item.question)}
-          sx={{
+          sx={(theme) => ({
             borderRadius: 2,
-            transition: (theme) =>
-              theme.transitions.create(['background-color'], {
-                duration: theme.transitions.duration.short,
-              }),
+            transition: theme.transitions.create(['background-color'], {
+              duration: theme.transitions.duration.short,
+            }),
             '&::before': { display: 'none' },
-            '&:hover': {
-              bgcolor: (theme) => varAlpha(theme.vars.palette.grey['500Channel'], 0.16),
-            },
+            '&:hover': { bgcolor: varAlpha(theme.vars.palette.grey['500Channel'], 0.16) },
             '&:first-of-type, &:last-of-type': { borderRadius: 2 },
             [`&.${accordionClasses.expanded}`]: {
               m: 0,
               borderRadius: 2,
               boxShadow: 'none',
-              bgcolor: (theme) => varAlpha(theme.vars.palette.grey['500Channel'], 0.08),
+              bgcolor: varAlpha(theme.vars.palette.grey['500Channel'], 0.08),
             },
             [`& .${accordionSummaryClasses.root}`]: {
               py: 3,
@@ -186,7 +184,7 @@ export function HomeFAQs({ sx, ...other }: BoxProps) {
               },
             },
             [`& .${accordionDetailsClasses.root}`]: { px: 2.5, pt: 0, pb: 3 },
-          }}
+          })}
         >
           <AccordionSummary
             expandIcon={
@@ -206,28 +204,28 @@ export function HomeFAQs({ sx, ...other }: BoxProps) {
     </Stack>
   );
 
-  const renderContact = (
-    <Stack
-      alignItems="center"
-      sx={{
-        px: 3,
-        py: 8,
-        textAlign: 'center',
-        background: (theme) =>
-          `linear-gradient(270deg, ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}, ${varAlpha(theme.vars.palette.grey['500Channel'], 0)})`,
-      }}
+  const renderContact = () => (
+    <Box
+      sx={[
+        (theme) => ({
+          px: 3,
+          py: 8,
+          textAlign: 'center',
+          background: `linear-gradient(to left, ${varAlpha(theme.vars.palette.grey['500Channel'], 0.08)}, transparent)`,
+        }),
+      ]}
     >
-      <m.div variants={varFade().in}>
+      <m.div variants={varFade('in')}>
         <Typography variant="h4">Still have questions?</Typography>
       </m.div>
 
-      <m.div variants={varFade().in}>
+      <m.div variants={varFade('in')}>
         <Typography sx={{ mt: 2, mb: 3, color: 'text.secondary' }}>
           Please describe your case to receive the most accurate advice
         </Typography>
       </m.div>
 
-      <m.div variants={varFade().in}>
+      <m.div variants={varFade('in')}>
         <Button
           color="inherit"
           variant="contained"
@@ -237,22 +235,22 @@ export function HomeFAQs({ sx, ...other }: BoxProps) {
           Contact us
         </Button>
       </m.div>
-    </Stack>
+    </Box>
   );
 
   return (
-    <Box component="section" sx={{ ...sx }} {...other}>
+    <Box component="section" sx={sx} {...other}>
       <MotionViewport sx={{ py: 10, position: 'relative' }}>
-        <TopLines />
+        {topLines()}
 
         <Container>
-          {renderDescription}
-          {renderContent}
+          {renderDescription()}
+          {renderContent()}
         </Container>
 
         <Stack sx={{ position: 'relative' }}>
-          <BottomLines />
-          {renderContact}
+          {bottomLines()}
+          {renderContact()}
         </Stack>
       </MotionViewport>
     </Box>
@@ -261,41 +259,38 @@ export function HomeFAQs({ sx, ...other }: BoxProps) {
 
 // ----------------------------------------------------------------------
 
-function TopLines() {
-  return (
-    <>
-      <Stack
-        spacing={8}
-        alignItems="center"
+const topLines = () => (
+  <>
+    <Stack
+      spacing={8}
+      alignItems="center"
+      sx={{
+        top: 64,
+        left: 80,
+        position: 'absolute',
+        transform: 'translateX(-50%)',
+      }}
+    >
+      <FloatTriangleDownIcon sx={{ position: 'static', opacity: 0.12 }} />
+      <FloatTriangleDownIcon
         sx={{
-          top: 64,
-          left: 80,
-          position: 'absolute',
-          transform: 'translateX(-15px)',
+          width: 30,
+          height: 15,
+          opacity: 0.24,
+          position: 'static',
         }}
-      >
-        <FloatTriangleDownIcon sx={{ position: 'static', opacity: 0.12 }} />
-        <FloatTriangleDownIcon
-          sx={{
-            position: 'static',
-            opacity: 0.24,
-            width: 30,
-            height: 15,
-          }}
-        />
-      </Stack>
-      <FloatLine vertical sx={{ top: 0, left: 80 }} />
-    </>
-  );
-}
+      />
+    </Stack>
 
-function BottomLines() {
-  return (
-    <>
-      <FloatLine sx={{ top: 0, left: 0 }} />
-      <FloatLine sx={{ bottom: 0, left: 0 }} />
-      <FloatPlusIcon sx={{ top: -8, left: 72 }} />
-      <FloatPlusIcon sx={{ bottom: -8, left: 72 }} />
-    </>
-  );
-}
+    <FloatLine vertical sx={{ top: 0, left: 80 }} />
+  </>
+);
+
+const bottomLines = () => (
+  <>
+    <FloatLine sx={{ top: 0, left: 0 }} />
+    <FloatLine sx={{ bottom: 0, left: 0 }} />
+    <FloatPlusIcon sx={{ top: -8, left: 72 }} />
+    <FloatPlusIcon sx={{ bottom: -8, left: 72 }} />
+  </>
+);

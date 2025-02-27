@@ -1,13 +1,12 @@
 import { useState } from 'react';
 
 import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 import { Iconify } from 'src/components/iconify';
 
-import { ComponentBlock } from '../../component-block';
+import { ComponentBox } from '../../layout';
 
 // ----------------------------------------------------------------------
 
@@ -18,13 +17,13 @@ const SIZES = ['small', 'medium', 'large'] as const;
 // ----------------------------------------------------------------------
 
 export function ToggleButtons() {
-  const [alignment, setAlignment] = useState<string | null>('left');
-
-  const [formats, setFormats] = useState(() => ['bold', 'italic']);
-
   const [view, setView] = useState('list');
 
   const [selected, setSelected] = useState(true);
+
+  const [formats, setFormats] = useState(() => ['bold', 'italic']);
+
+  const [alignment, setAlignment] = useState<string | null>('left');
 
   const handleAlignment = (event: React.MouseEvent<HTMLElement>, newAlignment: string | null) => {
     setAlignment(newAlignment);
@@ -82,25 +81,20 @@ export function ToggleButtons() {
   ];
 
   return (
-    <Stack
-      rowGap={5}
-      columnGap={2.5}
-      display="grid"
-      gridTemplateColumns={{ xs: 'repeat(1, 1fr)', lg: 'repeat(2, 1fr)' }}
-    >
-      <ComponentBlock title="Exclusive selection">
+    <>
+      <ComponentBox title="Exclusive selection">
         <ToggleButtonGroup value={alignment} exclusive onChange={handleAlignment}>
           {alignContent}
         </ToggleButtonGroup>
-      </ComponentBlock>
+      </ComponentBox>
 
-      <ComponentBlock title="Multiple selection">
+      <ComponentBox title="Multiple selection">
         <ToggleButtonGroup value={formats} onChange={handleFormat}>
           {formatContent}
         </ToggleButtonGroup>
-      </ComponentBlock>
+      </ComponentBox>
 
-      <ComponentBlock title="Sizes">
+      <ComponentBox title="Sizes">
         {SIZES.map((size) => (
           <ToggleButton key={size} size={size} value="check">
             <Iconify icon="eva:checkmark-fill" />
@@ -118,9 +112,9 @@ export function ToggleButtons() {
             {alignContent}
           </ToggleButtonGroup>
         ))}
-      </ComponentBlock>
+      </ComponentBox>
 
-      <ComponentBlock title="Disabled">
+      <ComponentBox title="Disabled">
         <ToggleButton value="check" disabled>
           <Iconify icon="eva:checkmark-fill" />
         </ToggleButton>
@@ -136,9 +130,9 @@ export function ToggleButtons() {
         <ToggleButtonGroup disabled value="left" exclusive>
           {alignContent}
         </ToggleButtonGroup>
-      </ComponentBlock>
+      </ComponentBox>
 
-      <ComponentBlock title="Colors">
+      <ComponentBox title="Colors">
         {COLORS.map((color) => (
           <ToggleButtonGroup
             exclusive
@@ -166,9 +160,9 @@ export function ToggleButtons() {
             <Iconify icon="eva:checkmark-fill" />
           </ToggleButton>
         ))}
-      </ComponentBlock>
+      </ComponentBox>
 
-      <ComponentBlock title="Vertical & Standalone buttons">
+      <ComponentBox title="Vertical & Standalone buttons">
         <ToggleButtonGroup orientation="vertical" value={view} exclusive onChange={handleChange}>
           {viewContent}
         </ToggleButtonGroup>
@@ -182,7 +176,7 @@ export function ToggleButtons() {
         >
           <Iconify icon="eva:checkmark-fill" />
         </ToggleButton>
-      </ComponentBlock>
-    </Stack>
+      </ComponentBox>
+    </>
   );
 }

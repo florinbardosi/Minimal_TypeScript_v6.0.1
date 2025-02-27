@@ -2,9 +2,15 @@ import type { Slide, SlideImage, SlideVideo } from 'yet-another-react-lightbox';
 
 import { useState, useCallback } from 'react';
 
-import type { UseLightBoxReturn } from './types';
-
 // ----------------------------------------------------------------------
+
+export type UseLightBoxReturn = {
+  open: boolean;
+  selected: number;
+  onClose: () => void;
+  onOpen: (slideUrl: string) => void;
+  setSelected: React.Dispatch<React.SetStateAction<number>>;
+};
 
 export function useLightBox(slides: Slide[]): UseLightBoxReturn {
   const [selected, setSelected] = useState(-1);

@@ -1,10 +1,14 @@
+import { createClasses } from 'src/theme/create-classes';
+
+// ----------------------------------------------------------------------
+
 export const itemClasses = {
-  item: 'dnd__item',
-  itemWrap: 'dnd__item__wrap',
-  removeBtn: 'dnd__remove__btn',
+  item: createClasses('dnd__item'),
+  itemWrap: createClasses('dnd__item__wrap'),
+  removeBtn: createClasses('dnd__remove__btn'),
   state: {
-    sorting: 'state-sorting',
-    dragging: 'state-dragging',
-    dragOverlay: 'state-drag-overlay',
+    sorting: '--sorting',
+    dragging: '--dragging',
+    dragOverlay: '--drag-overlay',
   },
 };

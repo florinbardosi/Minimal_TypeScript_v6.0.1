@@ -1,10 +1,10 @@
-import Stack from '@mui/material/Stack';
+import { mergeClasses } from 'minimal-shared/utils';
+
 import { useTheme } from '@mui/material/styles';
 
 import { NavList } from './nav-list';
-import { NavUl } from '../../nav-section';
-import { megaMenuClasses } from '../classes';
-import { megaMenuCssVars } from '../css-vars';
+import { Nav, NavUl } from '../components';
+import { megaMenuVars, megaMenuClasses } from '../styles';
 
 import type { MegaMenuProps } from '../types';
 
@@ -15,22 +15,19 @@ export function MegaMenuHorizontal({
   data,
   render,
   slotProps,
+  className,
   enabledRootRedirect,
   cssVars: overridesVars,
   ...other
 }: MegaMenuProps) {
   const theme = useTheme();
 
-  const cssVars = {
-    ...megaMenuCssVars.horizontal(theme),
-    ...overridesVars,
-  };
+  const cssVars = { ...megaMenuVars(theme, 'horizontal'), ...overridesVars };
 
   return (
-    <Stack
-      component="nav"
-      className={megaMenuClasses.horizontal.root}
-      sx={{ ...cssVars, ...sx }}
+    <Nav
+      className={mergeClasses([megaMenuClasses.horizontal, className])}
+      sx={[{ ...cssVars }, ...(Array.isArray(sx) ? sx : [sx])]}
       {...other}
     >
       <NavUl sx={{ gap: 'var(--nav-item-gap)', flexDirection: 'row' }}>
@@ -39,12 +36,11 @@ export function MegaMenuHorizontal({
             key={list.title}
             data={list}
             render={render}
-            cssVars={cssVars}
             slotProps={slotProps}
             enabledRootRedirect={enabledRootRedirect}
           />
         ))}
       </NavUl>
-    </Stack>
+    </Nav>
   );
 }

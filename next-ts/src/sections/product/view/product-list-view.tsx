@@ -1,19 +1,25 @@
 'use client';
 
-import type { UseSetStateReturn } from 'src/hooks/use-set-state';
+import type { Theme, SxProps } from '@mui/material/styles';
+import type { UseSetStateReturn } from 'minimal-shared/hooks';
 import type { IProductItem, IProductTableFilters } from 'src/types/product';
 import type {
-  GridSlots,
   GridColDef,
+  GridSlotProps,
   GridRowSelectionModel,
+  GridActionsCellItemProps,
   GridColumnVisibilityModel,
 } from '@mui/x-data-grid';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useBoolean, useSetState } from 'minimal-shared/hooks';
+import { useState, useEffect, forwardRef, useCallback } from 'react';
 
+import Box from '@mui/material/Box';
+import Link from '@mui/material/Link';
 import Card from '@mui/material/Card';
-import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
+import MenuItem from '@mui/material/MenuItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
 import {
   DataGrid,
   gridClasses,
@@ -26,11 +32,7 @@ import {
 } from '@mui/x-data-grid';
 
 import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
 import { RouterLink } from 'src/routes/components';
-
-import { useBoolean } from 'src/hooks/use-boolean';
-import { useSetState } from 'src/hooks/use-set-state';
 
 import { PRODUCT_STOCK_OPTIONS } from 'src/_mock';
 import { useGetProducts } from 'src/actions/product';
@@ -66,19 +68,16 @@ const HIDE_COLUMNS_TOGGLABLE = ['category', 'actions'];
 // ----------------------------------------------------------------------
 
 export function ProductListView() {
-  const confirmRows = useBoolean();
-
-  const router = useRouter();
+  const confirmDialog = useBoolean();
 
   const { products, productsLoading } = useGetProducts();
 
-  const filters = useSetState<IProductTableFilters>({ publish: [], stock: [] });
-
-  const [tableData, setTableData] = useState<IProductItem[]>([]);
-
+  const [tableData, setTableData] = useState<IProductItem[]>(products);
   const [selectedRowIds, setSelectedRowIds] = useState<GridRowSelectionModel>([]);
-
   const [filterButtonEl, setFilterButtonEl] = useState<HTMLButtonElement | null>(null);
+
+  const filters = useSetState<IProductTableFilters>({ publish: [], stock: [] });
+  const { state: currentFilters } = filters;
 
   const [columnVisibilityModel, setColumnVisibilityModel] =
     useState<GridColumnVisibilityModel>(HIDE_COLUMNS);
@@ -89,9 +88,12 @@ export function ProductListView() {
     }
   }, [products]);
 
-  const canReset = filters.state.publish.length > 0 || filters.state.stock.length > 0;
+  const canReset = currentFilters.publish.length > 0 || currentFilters.stock.length > 0;
 
-  const dataFiltered = applyFilter({ inputData: tableData, filters: filters.state });
+  const dataFiltered = applyFilter({
+    inputData: tableData,
+    filters: currentFilters,
+  });
 
   const handleDeleteRow = useCallback(
     (id: string) => {
@@ -112,20 +114,6 @@ export function ProductListView() {
     setTableData(deleteRows);
   }, [selectedRowIds, tableData]);
 
-  const handleEditRow = useCallback(
-    (id: string) => {
-      router.push(paths.dashboard.product.edit(id));
-    },
-    [router]
-  );
-
-  const handleViewRow = useCallback(
-    (id: string) => {
-      router.push(paths.dashboard.product.details(id));
-    },
-    [router]
-  );
-
   const CustomToolbarCallback = useCallback(
     () => (
       <CustomToolbar
@@ -134,11 +122,11 @@ export function ProductListView() {
         selectedRowIds={selectedRowIds}
         setFilterButtonEl={setFilterButtonEl}
         filteredResults={dataFiltered.length}
-        onOpenConfirmDeleteRows={confirmRows.onTrue}
+        onOpenConfirmDeleteRows={confirmDialog.onTrue}
       />
     ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [filters.state, selectedRowIds]
+    [currentFilters, selectedRowIds]
   );
 
   const columns: GridColDef[] = [
@@ -150,7 +138,7 @@ export function ProductListView() {
       minWidth: 360,
       hideable: false,
       renderCell: (params) => (
-        <RenderCellProduct params={params} onViewRow={() => handleViewRow(params.row.id)} />
+        <RenderCellProduct params={params} href={paths.dashboard.product.details(params.row.id)} />
       ),
     },
     {
@@ -194,25 +182,23 @@ export function ProductListView() {
       filterable: false,
       disableColumnMenu: true,
       getActions: (params) => [
-        <GridActionsCellItem
+        <GridActionsLinkItem
           showInMenu
           icon={<Iconify icon="solar:eye-bold" />}
           label="View"
-          onClick={() => handleViewRow(params.row.id)}
+          href={paths.dashboard.product.details(params.row.id)}
         />,
-        <GridActionsCellItem
+        <GridActionsLinkItem
           showInMenu
           icon={<Iconify icon="solar:pen-bold" />}
           label="Edit"
-          onClick={() => handleEditRow(params.row.id)}
+          href={paths.dashboard.product.edit(params.row.id)}
         />,
         <GridActionsCellItem
           showInMenu
           icon={<Iconify icon="solar:trash-bin-trash-bold" />}
           label="Delete"
-          onClick={() => {
-            handleDeleteRow(params.row.id);
-          }}
+          onClick={() => handleDeleteRow(params.row.id)}
           sx={{ color: 'error.main' }}
         />,
       ],
@@ -223,6 +209,31 @@ export function ProductListView() {
     columns
       .filter((column) => !HIDE_COLUMNS_TOGGLABLE.includes(column.field))
       .map((column) => column.field);
+
+  const renderConfirmDialog = () => (
+    <ConfirmDialog
+      open={confirmDialog.value}
+      onClose={confirmDialog.onFalse}
+      title="Delete"
+      content={
+        <>
+          Are you sure want to delete <strong> {selectedRowIds.length} </strong> items?
+        </>
+      }
+      action={
+        <Button
+          variant="contained"
+          color="error"
+          onClick={() => {
+            handleDeleteRows();
+            confirmDialog.onFalse();
+          }}
+        >
+          Delete
+        </Button>
+      }
+    />
+  );
 
   return (
     <>
@@ -249,9 +260,10 @@ export function ProductListView() {
 
         <Card
           sx={{
+            minHeight: 640,
             flexGrow: { md: 1 },
             display: { md: 'flex' },
-            height: { xs: 800, md: 2 },
+            height: { xs: 800, md: '1px' },
             flexDirection: { md: 'column' },
           }}
         >
@@ -262,19 +274,19 @@ export function ProductListView() {
             columns={columns}
             loading={productsLoading}
             getRowHeight={() => 'auto'}
-            pageSizeOptions={[5, 10, 25]}
+            pageSizeOptions={[5, 10, 20, { value: -1, label: 'All' }]}
             initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
             onRowSelectionModelChange={(newSelectionModel) => setSelectedRowIds(newSelectionModel)}
             columnVisibilityModel={columnVisibilityModel}
             onColumnVisibilityModelChange={(newModel) => setColumnVisibilityModel(newModel)}
             slots={{
-              toolbar: CustomToolbarCallback as GridSlots['toolbar'],
+              toolbar: CustomToolbarCallback,
               noRowsOverlay: () => <EmptyContent />,
               noResultsOverlay: () => <EmptyContent title="No results found" />,
             }}
             slotProps={{
-              panel: { anchorEl: filterButtonEl },
               toolbar: { setFilterButtonEl },
+              panel: { anchorEl: filterButtonEl },
               columnsManagement: { getTogglableColumns },
             }}
             sx={{ [`& .${gridClasses.cell}`]: { alignItems: 'center', display: 'inline-flex' } }}
@@ -282,42 +294,27 @@ export function ProductListView() {
         </Card>
       </DashboardContent>
 
-      <ConfirmDialog
-        open={confirmRows.value}
-        onClose={confirmRows.onFalse}
-        title="Delete"
-        content={
-          <>
-            Are you sure want to delete <strong> {selectedRowIds.length} </strong> items?
-          </>
-        }
-        action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              handleDeleteRows();
-              confirmRows.onFalse();
-            }}
-          >
-            Delete
-          </Button>
-        }
-      />
+      {renderConfirmDialog()}
     </>
   );
 }
 
 // ----------------------------------------------------------------------
 
-interface CustomToolbarProps {
+declare module '@mui/x-data-grid' {
+  interface ToolbarPropsOverrides {
+    setFilterButtonEl: React.Dispatch<React.SetStateAction<HTMLButtonElement | null>>;
+  }
+}
+
+type CustomToolbarProps = GridSlotProps['toolbar'] & {
   canReset: boolean;
   filteredResults: number;
   selectedRowIds: GridRowSelectionModel;
-  onOpenConfirmDeleteRows: () => void;
   filters: UseSetStateReturn<IProductTableFilters>;
-  setFilterButtonEl: React.Dispatch<React.SetStateAction<HTMLButtonElement | null>>;
-}
+
+  onOpenConfirmDeleteRows: () => void;
+};
 
 function CustomToolbar({
   filters,
@@ -337,12 +334,14 @@ function CustomToolbar({
 
         <GridToolbarQuickFilter />
 
-        <Stack
-          spacing={1}
-          flexGrow={1}
-          direction="row"
-          alignItems="center"
-          justifyContent="flex-end"
+        <Box
+          sx={{
+            gap: 1,
+            flexGrow: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+          }}
         >
           {!!selectedRowIds.length && (
             <Button
@@ -358,7 +357,7 @@ function CustomToolbar({
           <GridToolbarColumnsButton />
           <GridToolbarFilterButton ref={setFilterButtonEl} />
           <GridToolbarExport />
-        </Stack>
+        </Box>
       </GridToolbarContainer>
 
       {canReset && (
@@ -371,6 +370,34 @@ function CustomToolbar({
     </>
   );
 }
+
+// ----------------------------------------------------------------------
+
+type GridActionsLinkItemProps = Pick<GridActionsCellItemProps, 'icon' | 'label' | 'showInMenu'> & {
+  href: string;
+  sx?: SxProps<Theme>;
+};
+
+export const GridActionsLinkItem = forwardRef<HTMLLIElement, GridActionsLinkItemProps>(
+  (props, ref) => {
+    const { href, label, icon, sx } = props;
+
+    return (
+      <MenuItem ref={ref} sx={sx}>
+        <Link
+          component={RouterLink}
+          href={href}
+          underline="none"
+          color="inherit"
+          sx={{ width: 1, display: 'flex', alignItems: 'center' }}
+        >
+          {icon && <ListItemIcon>{icon}</ListItemIcon>}
+          {label}
+        </Link>
+      </MenuItem>
+    );
+  }
+);
 
 // ----------------------------------------------------------------------
 

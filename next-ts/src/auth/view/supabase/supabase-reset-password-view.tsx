@@ -34,7 +34,7 @@ export const ResetPasswordSchema = zod.object({
 export function SupabaseResetPasswordView() {
   const router = useRouter();
 
-  const defaultValues = {
+  const defaultValues: ResetPasswordSchemaType = {
     email: '',
   };
 
@@ -58,14 +58,14 @@ export function SupabaseResetPasswordView() {
     }
   });
 
-  const renderForm = (
-    <Box gap={3} display="flex" flexDirection="column">
+  const renderForm = () => (
+    <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
       <Field.Text
         autoFocus
         name="email"
         label="Email address"
         placeholder="example@gmail.com"
-        InputLabelProps={{ shrink: true }}
+        slotProps={{ inputLabel: { shrink: true } }}
       />
 
       <LoadingButton
@@ -90,7 +90,7 @@ export function SupabaseResetPasswordView() {
       />
 
       <Form methods={methods} onSubmit={onSubmit}>
-        {renderForm}
+        {renderForm()}
       </Form>
 
       <FormReturnLink href={paths.auth.supabase.signIn} />

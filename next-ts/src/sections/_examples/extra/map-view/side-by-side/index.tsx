@@ -1,27 +1,28 @@
-import type { MapProps, ViewStateChangeEvent } from 'react-map-gl';
+import type { MapProps } from 'src/components/map';
+import type { ViewStateChangeEvent } from 'react-map-gl';
 
 import { useMemo, useState, useCallback } from 'react';
 
 import { Map } from 'src/components/map';
 
-import { ControlPanel } from './control-panel';
+import { MapControlPanel } from './control-panel';
 
 import type { ModeProps } from './control-panel';
 
 // ----------------------------------------------------------------------
 
-const LeftMapStyle: React.CSSProperties = { position: 'absolute', width: '50%', height: '100%' };
+const LeftMapStyle: React.CSSProperties = { width: '50%', height: '100%', position: 'absolute' };
 
 const RightMapStyle: React.CSSProperties = {
-  position: 'absolute',
   left: '50%',
   width: '50%',
   height: '100%',
+  position: 'absolute',
 };
 
 // ----------------------------------------------------------------------
 
-export function MapSideBySide({ ...other }: MapProps) {
+export function MapSideBySide({ sx, ...other }: MapProps) {
   const [viewState, setViewState] = useState({
     longitude: -122.43,
     latitude: 37.78,
@@ -68,7 +69,7 @@ export function MapSideBySide({ ...other }: MapProps) {
   };
 
   return (
-    <>
+    <div style={{ position: 'relative' }}>
       <Map
         id="left-map"
         {...viewState}
@@ -81,6 +82,7 @@ export function MapSideBySide({ ...other }: MapProps) {
         }}
         style={LeftMapStyle}
         mapStyle="mapbox://styles/mapbox/light-v10"
+        sx={sx}
         {...other}
       />
 
@@ -96,10 +98,17 @@ export function MapSideBySide({ ...other }: MapProps) {
         }}
         style={RightMapStyle}
         mapStyle="mapbox://styles/mapbox/dark-v10"
+        sx={{
+          top: 0,
+          right: 0,
+          zIndex: 1,
+          position: 'absolute',
+          ...sx,
+        }}
         {...other}
       />
 
-      <ControlPanel mode={mode} onModeChange={handleChangeMode} />
-    </>
+      <MapControlPanel mode={mode} onModeChange={handleChangeMode} />
+    </div>
   );
 }

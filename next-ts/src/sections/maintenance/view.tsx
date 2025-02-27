@@ -12,7 +12,7 @@ import { MaintenanceIllustration } from 'src/assets/illustrations';
 
 export function MaintenanceView() {
   return (
-    <Box display="flex" alignItems="center" flexDirection="column">
+    <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
       <Typography variant="h3" sx={{ mb: 2 }}>
         Website currently under maintenance
       </Typography>

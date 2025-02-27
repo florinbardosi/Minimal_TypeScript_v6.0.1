@@ -4,6 +4,7 @@ import { z as zod } from 'zod';
 import { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useBoolean, useCountdownSeconds } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
@@ -12,9 +13,6 @@ import InputAdornment from '@mui/material/InputAdornment';
 
 import { paths } from 'src/routes/paths';
 import { useRouter, useSearchParams } from 'src/routes/hooks';
-
-import { useBoolean } from 'src/hooks/use-boolean';
-import { useCountdownSeconds } from 'src/hooks/use-countdown';
 
 import { SentIcon } from 'src/assets/icons';
 
@@ -60,11 +58,11 @@ export function AmplifyUpdatePasswordView() {
 
   const email = searchParams.get('email');
 
-  const password = useBoolean();
+  const showPassword = useBoolean();
 
   const countdown = useCountdownSeconds(5);
 
-  const defaultValues = {
+  const defaultValues: UpdatePasswordSchemaType = {
     code: '',
     email: email || '',
     password: '',
@@ -111,13 +109,13 @@ export function AmplifyUpdatePasswordView() {
     }
   }, [countdown, values.email]);
 
-  const renderForm = (
-    <Box gap={3} display="flex" flexDirection="column">
+  const renderForm = () => (
+    <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
       <Field.Text
         name="email"
         label="Email address"
         placeholder="example@gmail.com"
-        InputLabelProps={{ shrink: true }}
+        slotProps={{ inputLabel: { shrink: true } }}
         disabled
       />
 
@@ -127,32 +125,36 @@ export function AmplifyUpdatePasswordView() {
         name="password"
         label="Password"
         placeholder="6+ characters"
-        type={password.value ? 'text' : 'password'}
-        InputLabelProps={{ shrink: true }}
-        InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              <IconButton onClick={password.onToggle} edge="end">
-                <Iconify icon={password.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
-              </IconButton>
-            </InputAdornment>
-          ),
+        type={showPassword.value ? 'text' : 'password'}
+        slotProps={{
+          inputLabel: { shrink: true },
+          input: {
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton onClick={showPassword.onToggle} edge="end">
+                  <Iconify icon={showPassword.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
+                </IconButton>
+              </InputAdornment>
+            ),
+          },
         }}
       />
 
       <Field.Text
         name="confirmPassword"
         label="Confirm new password"
-        type={password.value ? 'text' : 'password'}
-        InputLabelProps={{ shrink: true }}
-        InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              <IconButton onClick={password.onToggle} edge="end">
-                <Iconify icon={password.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
-              </IconButton>
-            </InputAdornment>
-          ),
+        type={showPassword.value ? 'text' : 'password'}
+        slotProps={{
+          inputLabel: { shrink: true },
+          input: {
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton onClick={showPassword.onToggle} edge="end">
+                  <Iconify icon={showPassword.value ? 'solar:eye-bold' : 'solar:eye-closed-bold'} />
+                </IconButton>
+              </InputAdornment>
+            ),
+          },
         }}
       />
 
@@ -178,7 +180,7 @@ export function AmplifyUpdatePasswordView() {
       />
 
       <Form methods={methods} onSubmit={onSubmit}>
-        {renderForm}
+        {renderForm()}
       </Form>
 
       <FormResendCode

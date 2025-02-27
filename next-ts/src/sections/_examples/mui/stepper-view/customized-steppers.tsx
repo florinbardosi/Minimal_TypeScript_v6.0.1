@@ -1,6 +1,7 @@
 import type { StepIconProps } from '@mui/material/StepIcon';
 
 import { useState } from 'react';
+import { varAlpha } from 'minimal-shared/utils';
 
 import Box from '@mui/material/Box';
 import Step from '@mui/material/Step';
@@ -11,8 +12,6 @@ import { styled } from '@mui/material/styles';
 import StepLabel from '@mui/material/StepLabel';
 import Typography from '@mui/material/Typography';
 import StepConnector, { stepConnectorClasses } from '@mui/material/StepConnector';
-
-import { varAlpha, bgGradient, stylesMode } from 'src/theme/styles';
 
 import { Iconify } from 'src/components/iconify';
 
@@ -62,39 +61,16 @@ const QontoStepIconRoot = styled('div')<{
   },
 }));
 
-function QontoStepIcon(props: StepIconProps) {
-  const { active, completed, className } = props;
-
-  return (
-    <QontoStepIconRoot ownerState={{ active }} className={className}>
-      {completed ? (
-        <Iconify
-          icon="eva:checkmark-fill"
-          className="QontoStepIcon-completedIcon"
-          width={24}
-          height={24}
-        />
-      ) : (
-        <div className="QontoStepIcon-circle" />
-      )}
-    </QontoStepIconRoot>
-  );
-}
-
 const ColorlibConnector = styled(StepConnector)(({ theme }) => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: { top: 22 },
   [`&.${stepConnectorClasses.active}`]: {
     [`& .${stepConnectorClasses.line}`]: {
-      ...bgGradient({
-        color: `0deg, ${theme.vars.palette.error.light}, ${theme.vars.palette.error.main}`,
-      }),
+      backgroundImage: `linear-gradient(to top, ${theme.vars.palette.error.light}, ${theme.vars.palette.error.main})`,
     },
   },
   [`&.${stepConnectorClasses.completed}`]: {
     [`& .${stepConnectorClasses.line}`]: {
-      ...bgGradient({
-        color: `0deg, ${theme.vars.palette.error.light}, ${theme.vars.palette.error.main}`,
-      }),
+      backgroundImage: `linear-gradient(to top, ${theme.vars.palette.error.light}, ${theme.vars.palette.error.main})`,
     },
   },
   [`& .${stepConnectorClasses.line}`]: {
@@ -120,21 +96,33 @@ const ColorlibStepIconRoot = styled('div')<{
   justifyContent: 'center',
   color: theme.vars.palette.text.disabled,
   backgroundColor: theme.vars.palette.grey[300],
-  [stylesMode.dark]: { backgroundColor: theme.vars.palette.grey[700] },
+  ...theme.applyStyles('dark', {
+    backgroundColor: theme.vars.palette.grey[700],
+  }),
   ...(ownerState.active && {
-    ...bgGradient({
-      color: `0deg, ${theme.vars.palette.error.light}, ${theme.vars.palette.error.main}`,
-    }),
     color: theme.vars.palette.common.white,
     boxShadow: '0 4px 10px 0 rgba(0,0,0,0.25)',
+    backgroundImage: `linear-gradient(to top, ${theme.vars.palette.error.light}, ${theme.vars.palette.error.main})`,
   }),
   ...(ownerState.completed && {
     color: theme.vars.palette.common.white,
-    ...bgGradient({
-      color: `0deg, ${theme.vars.palette.error.light}, ${theme.vars.palette.error.main}`,
-    }),
+    backgroundImage: `linear-gradient(to top, ${theme.vars.palette.error.light}, ${theme.vars.palette.error.main})`,
   }),
 }));
+
+function QontoStepIcon(props: StepIconProps) {
+  const { active, completed, className } = props;
+
+  return (
+    <QontoStepIconRoot ownerState={{ active }} className={className}>
+      {completed ? (
+        <Iconify width={24} icon="eva:checkmark-fill" className="QontoStepIcon-completedIcon" />
+      ) : (
+        <div className="QontoStepIcon-circle" />
+      )}
+    </QontoStepIconRoot>
+  );
+}
 
 function ColorlibStepIcon(props: StepIconProps) {
   const { active, completed, className, icon } = props;
@@ -167,6 +155,8 @@ function getStepContent(step: number) {
   }
 }
 
+// ----------------------------------------------------------------------
+
 export function CustomizedSteppers() {
   const [activeStep, setActiveStep] = useState(0);
 
@@ -187,7 +177,7 @@ export function CustomizedSteppers() {
       <Stepper alternativeLabel activeStep={activeStep} connector={<QontoConnector />}>
         {STEPS.map((label) => (
           <Step key={label}>
-            <StepLabel StepIconComponent={QontoStepIcon}>{label}</StepLabel>
+            <StepLabel slots={{ stepIcon: QontoStepIcon }}>{label}</StepLabel>
           </Step>
         ))}
       </Stepper>
@@ -197,7 +187,7 @@ export function CustomizedSteppers() {
       <Stepper alternativeLabel activeStep={activeStep} connector={<ColorlibConnector />}>
         {STEPS.map((label) => (
           <Step key={label}>
-            <StepLabel StepIconComponent={ColorlibStepIcon}>{label}</StepLabel>
+            <StepLabel slots={{ stepIcon: ColorlibStepIcon }}>{label}</StepLabel>
           </Step>
         ))}
       </Stepper>
@@ -205,12 +195,14 @@ export function CustomizedSteppers() {
       {activeStep === STEPS.length ? (
         <>
           <Paper
-            sx={{
-              p: 3,
-              my: 3,
-              minHeight: 120,
-              bgcolor: (theme) => varAlpha(theme.vars.palette.grey['500Channel'], 0.12),
-            }}
+            sx={[
+              (theme) => ({
+                p: 3,
+                my: 3,
+                minHeight: 120,
+                bgcolor: varAlpha(theme.vars.palette.grey['500Channel'], 0.12),
+              }),
+            ]}
           >
             <Typography sx={{ my: 1 }}>All steps completed - you&apos;re finished</Typography>
           </Paper>
@@ -222,12 +214,14 @@ export function CustomizedSteppers() {
       ) : (
         <>
           <Paper
-            sx={{
-              p: 3,
-              my: 3,
-              minHeight: 120,
-              bgcolor: (theme) => varAlpha(theme.vars.palette.grey['500Channel'], 0.12),
-            }}
+            sx={[
+              (theme) => ({
+                p: 3,
+                my: 3,
+                minHeight: 120,
+                bgcolor: varAlpha(theme.vars.palette.grey['500Channel'], 0.12),
+              }),
+            ]}
           >
             <Typography sx={{ my: 1 }}>{getStepContent(activeStep)}</Typography>
           </Paper>

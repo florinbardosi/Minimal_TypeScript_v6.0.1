@@ -2,6 +2,8 @@ import type { IKanbanTask } from 'src/types/kanban';
 
 import dayjs from 'dayjs';
 import { useState, useCallback } from 'react';
+import { varAlpha } from 'minimal-shared/utils';
+import { useTabs, useBoolean } from 'minimal-shared/hooks';
 
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
@@ -18,11 +20,6 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import LinearProgress from '@mui/material/LinearProgress';
 import FormControlLabel from '@mui/material/FormControlLabel';
-
-import { useTabs } from 'src/hooks/use-tabs';
-import { useBoolean } from 'src/hooks/use-boolean';
-
-import { varAlpha } from 'src/theme/styles';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
@@ -47,7 +44,7 @@ const SUBTASKS = [
   'Implement authentication system',
 ];
 
-const StyledLabel = styled('span')(({ theme }) => ({
+const BlockLabel = styled('span')(({ theme }) => ({
   ...theme.typography.caption,
   width: 100,
   flexShrink: 0,
@@ -59,32 +56,22 @@ const StyledLabel = styled('span')(({ theme }) => ({
 
 type Props = {
   task: IKanbanTask;
-  openDetails: boolean;
+  open: boolean;
+  onClose: () => void;
   onDeleteTask: () => void;
-  onCloseDetails: () => void;
   onUpdateTask: (updateTask: IKanbanTask) => void;
 };
 
-export function KanbanDetails({
-  task,
-  openDetails,
-  onUpdateTask,
-  onDeleteTask,
-  onCloseDetails,
-}: Props) {
+export function KanbanDetails({ task, open, onUpdateTask, onDeleteTask, onClose }: Props) {
   const tabs = useTabs('overview');
 
-  const [priority, setPriority] = useState(task.priority);
+  const likeToggle = useBoolean();
+  const contactsDialog = useBoolean();
 
   const [taskName, setTaskName] = useState(task.name);
-
-  const [subtaskCompleted, setSubtaskCompleted] = useState(SUBTASKS.slice(0, 2));
-
-  const like = useBoolean();
-
-  const contacts = useBoolean();
-
+  const [priority, setPriority] = useState(task.priority);
   const [taskDescription, setTaskDescription] = useState(task.description);
+  const [subtaskCompleted, setSubtaskCompleted] = useState(SUBTASKS.slice(0, 2));
 
   const rangePicker = useDateRangePicker(dayjs(task.due[0]), dayjs(task.due[1]));
 
@@ -123,18 +110,18 @@ export function KanbanDetails({
     setSubtaskCompleted(selected);
   };
 
-  const renderToolbar = (
+  const renderToolbar = () => (
     <KanbanDetailsToolbar
-      liked={like.value}
       taskName={task.name}
-      onLike={like.onToggle}
       onDelete={onDeleteTask}
       taskStatus={task.status}
-      onCloseDetails={onCloseDetails}
+      liked={likeToggle.value}
+      onCloseDetails={onClose}
+      onLikeToggle={likeToggle.onToggle}
     />
   );
 
-  const renderTabs = (
+  const renderTabs = () => (
     <CustomTabs
       value={tabs.value}
       onChange={tabs.onChange}
@@ -151,7 +138,7 @@ export function KanbanDetails({
     </CustomTabs>
   );
 
-  const renderTabOverview = (
+  const renderTabOverview = () => (
     <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
       {/* Task name */}
       <KanbanInputName
@@ -159,18 +146,18 @@ export function KanbanDetails({
         value={taskName}
         onChange={handleChangeTaskName}
         onKeyUp={handleUpdateTask}
-        inputProps={{ id: `input-task-${taskName}` }}
+        inputProps={{ id: `${taskName}-task-input` }}
       />
 
       {/* Reporter */}
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <StyledLabel>Reporter</StyledLabel>
+        <BlockLabel>Reporter</BlockLabel>
         <Avatar alt={task.reporter.name} src={task.reporter.avatarUrl} />
       </Box>
 
       {/* Assignee */}
       <Box sx={{ display: 'flex' }}>
-        <StyledLabel sx={{ height: 40, lineHeight: '40px' }}>Assignee</StyledLabel>
+        <BlockLabel sx={{ height: 40, lineHeight: '40px' }}>Assignee</BlockLabel>
 
         <Box sx={{ gap: 1, display: 'flex', flexWrap: 'wrap' }}>
           {task.assignee.map((user) => (
@@ -179,11 +166,13 @@ export function KanbanDetails({
 
           <Tooltip title="Add assignee">
             <IconButton
-              onClick={contacts.onTrue}
-              sx={{
-                bgcolor: (theme) => varAlpha(theme.vars.palette.grey['500Channel'], 0.08),
-                border: (theme) => `dashed 1px ${theme.vars.palette.divider}`,
-              }}
+              onClick={contactsDialog.onTrue}
+              sx={[
+                (theme) => ({
+                  border: `dashed 1px ${theme.vars.palette.divider}`,
+                  bgcolor: varAlpha(theme.vars.palette.grey['500Channel'], 0.08),
+                }),
+              ]}
             >
               <Iconify icon="mingcute:add-line" />
             </IconButton>
@@ -191,15 +180,15 @@ export function KanbanDetails({
 
           <KanbanContactsDialog
             assignee={task.assignee}
-            open={contacts.value}
-            onClose={contacts.onFalse}
+            open={contactsDialog.value}
+            onClose={contactsDialog.onFalse}
           />
         </Box>
       </Box>
 
       {/* Label */}
       <Box sx={{ display: 'flex' }}>
-        <StyledLabel sx={{ height: 24, lineHeight: '24px' }}>Labels</StyledLabel>
+        <BlockLabel sx={{ height: 24, lineHeight: '24px' }}>Labels</BlockLabel>
 
         {!!task.labels.length && (
           <Box sx={{ gap: 1, display: 'flex', flexWrap: 'wrap' }}>
@@ -212,7 +201,7 @@ export function KanbanDetails({
 
       {/* Due date */}
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <StyledLabel> Due date </StyledLabel>
+        <BlockLabel> Due date </BlockLabel>
 
         {rangePicker.selected ? (
           <Button size="small" onClick={rangePicker.onOpen}>
@@ -222,10 +211,12 @@ export function KanbanDetails({
           <Tooltip title="Add due date">
             <IconButton
               onClick={rangePicker.onOpen}
-              sx={{
-                bgcolor: (theme) => varAlpha(theme.vars.palette.grey['500Channel'], 0.08),
-                border: (theme) => `dashed 1px ${theme.vars.palette.divider}`,
-              }}
+              sx={[
+                (theme) => ({
+                  border: `dashed 1px ${theme.vars.palette.divider}`,
+                  bgcolor: varAlpha(theme.vars.palette.grey['500Channel'], 0.08),
+                }),
+              ]}
             >
               <Iconify icon="mingcute:add-line" />
             </IconButton>
@@ -248,13 +239,13 @@ export function KanbanDetails({
 
       {/* Priority */}
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <StyledLabel>Priority</StyledLabel>
+        <BlockLabel>Priority</BlockLabel>
         <KanbanDetailsPriority priority={priority} onChangePriority={handleChangePriority} />
       </Box>
 
       {/* Description */}
       <Box sx={{ display: 'flex' }}>
-        <StyledLabel> Description </StyledLabel>
+        <BlockLabel> Description </BlockLabel>
         <TextField
           fullWidth
           multiline
@@ -262,19 +253,19 @@ export function KanbanDetails({
           minRows={4}
           value={taskDescription}
           onChange={handleChangeTaskDescription}
-          InputProps={{ sx: { typography: 'body2' } }}
+          slotProps={{ input: { sx: { typography: 'body2' } } }}
         />
       </Box>
 
       {/* Attachments */}
       <Box sx={{ display: 'flex' }}>
-        <StyledLabel>Attachments</StyledLabel>
+        <BlockLabel>Attachments</BlockLabel>
         <KanbanDetailsAttachments attachments={task.attachments} />
       </Box>
     </Box>
   );
 
-  const renderTabSubtasks = (
+  const renderTabSubtasks = () => (
     <Box sx={{ gap: 3, display: 'flex', flexDirection: 'column' }}>
       <div>
         <Typography variant="body2" sx={{ mb: 1 }}>
@@ -314,26 +305,24 @@ export function KanbanDetails({
     </Box>
   );
 
-  const renderTabComments = (
-    <>{!!task.comments.length && <KanbanDetailsCommentList comments={task.comments} />}</>
-  );
+  const renderTabComments = () =>
+    !!task.comments.length && <KanbanDetailsCommentList comments={task.comments} />;
 
   return (
     <Drawer
-      open={openDetails}
-      onClose={onCloseDetails}
+      open={open}
+      onClose={onClose}
       anchor="right"
       slotProps={{ backdrop: { invisible: true } }}
       PaperProps={{ sx: { width: { xs: 1, sm: 480 } } }}
     >
-      {renderToolbar}
-
-      {renderTabs}
+      {renderToolbar()}
+      {renderTabs()}
 
       <Scrollbar fillContent sx={{ py: 3, px: 2.5 }}>
-        {tabs.value === 'overview' && renderTabOverview}
-        {tabs.value === 'subTasks' && renderTabSubtasks}
-        {tabs.value === 'comments' && renderTabComments}
+        {tabs.value === 'overview' && renderTabOverview()}
+        {tabs.value === 'subTasks' && renderTabSubtasks()}
+        {tabs.value === 'comments' && renderTabComments()}
       </Scrollbar>
 
       {tabs.value === 'comments' && <KanbanDetailsCommentInput />}

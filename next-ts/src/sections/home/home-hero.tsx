@@ -1,5 +1,6 @@
-import type { MotionValue } from 'framer-motion';
 import type { BoxProps } from '@mui/material/Box';
+import type { Breakpoint } from '@mui/material/styles';
+import type { MotionProps, MotionValue, SpringOptions } from 'framer-motion';
 
 import { useRef, useState } from 'react';
 import { m, useScroll, useSpring, useTransform, useMotionValueEvent } from 'framer-motion';
@@ -12,65 +13,70 @@ import Container from '@mui/material/Container';
 import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import AvatarGroup from '@mui/material/AvatarGroup';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import Avatar, { avatarClasses } from '@mui/material/Avatar';
 
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 
-import { useResponsive } from 'src/hooks/use-responsive';
-
 import { _mock } from 'src/_mock';
-import { CONFIG } from 'src/config-global';
-import { textGradient } from 'src/theme/styles';
+import { CONFIG } from 'src/global-config';
 
 import { Iconify } from 'src/components/iconify';
-import { SvgColor } from 'src/components/svg-color';
 import { varFade, MotionContainer } from 'src/components/animate';
 
 import { HeroBackground } from './components/hero-background';
 
 // ----------------------------------------------------------------------
 
-const smKey = 'sm';
-const mdKey = 'md';
-const lgKey = 'lg';
+const smKey: Breakpoint = 'sm';
+const mdKey: Breakpoint = 'md';
+const lgKey: Breakpoint = 'lg';
+
+const motionProps: MotionProps = {
+  variants: varFade('inUp', { distance: 24 }),
+};
 
 export function HomeHero({ sx, ...other }: BoxProps) {
+  const scrollProgress = useScrollPercent();
+
   const theme = useTheme();
+  const mdUp = useMediaQuery(theme.breakpoints.up(mdKey));
 
-  const scroll = useScrollPercent();
+  const distance = mdUp ? scrollProgress.percent : 0;
 
-  const mdUp = useResponsive('up', mdKey);
-
-  const distance = mdUp ? scroll.percent : 0;
-
-  const y1 = useTransformY(scroll.scrollY, distance * -7);
-  const y2 = useTransformY(scroll.scrollY, distance * -6);
-  const y3 = useTransformY(scroll.scrollY, distance * -5);
-  const y4 = useTransformY(scroll.scrollY, distance * -4);
-  const y5 = useTransformY(scroll.scrollY, distance * -3);
+  const y1 = useTransformY(scrollProgress.scrollY, distance * -7);
+  const y2 = useTransformY(scrollProgress.scrollY, distance * -6);
+  const y3 = useTransformY(scrollProgress.scrollY, distance * -5);
+  const y4 = useTransformY(scrollProgress.scrollY, distance * -4);
+  const y5 = useTransformY(scrollProgress.scrollY, distance * -3);
 
   const opacity: MotionValue<number> = useTransform(
-    scroll.scrollY,
+    scrollProgress.scrollY,
     [0, 1],
-    [1, mdUp ? Number((1 - scroll.percent / 100).toFixed(1)) : 1]
+    [1, mdUp ? Number((1 - scrollProgress.percent / 100).toFixed(1)) : 1]
   );
 
-  const renderHeading = (
-    <AnimatedDiv>
+  const renderHeading = () => (
+    <m.div {...motionProps}>
       <Box
         component="h1"
-        display="flex"
-        flexWrap="wrap"
-        justifyContent="center"
-        sx={{
-          ...theme.typography.h2,
-          my: 0,
-          mx: 'auto',
-          maxWidth: 680,
-          fontFamily: theme.typography.fontSecondaryFamily,
-          [theme.breakpoints.up(lgKey)]: { fontSize: 72, lineHeight: '90px' },
-        }}
+        sx={[
+          {
+            my: 0,
+            mx: 'auto',
+            maxWidth: 680,
+            display: 'flex',
+            flexWrap: 'wrap',
+            typography: 'h2',
+            justifyContent: 'center',
+            fontFamily: theme.typography.fontSecondaryFamily,
+            [theme.breakpoints.up(lgKey)]: {
+              fontSize: theme.typography.pxToRem(72),
+              lineHeight: '90px',
+            },
+          },
+        ]}
       >
         <Box component="span" sx={{ width: 1, opacity: 0.24 }}>
           Boost your building
@@ -86,7 +92,7 @@ export function HomeHero({ sx, ...other }: BoxProps) {
             repeatType: 'reverse',
           }}
           sx={{
-            ...textGradient(
+            ...theme.mixins.textGradient(
               `300deg, ${theme.vars.palette.primary.main} 0%, ${theme.vars.palette.warning.main} 25%, ${theme.vars.palette.primary.main} 50%, ${theme.vars.palette.warning.main} 75%, ${theme.vars.palette.primary.main} 100%`
             ),
             backgroundSize: '400%',
@@ -96,11 +102,11 @@ export function HomeHero({ sx, ...other }: BoxProps) {
           Minimal
         </Box>
       </Box>
-    </AnimatedDiv>
+    </m.div>
   );
 
-  const renderText = (
-    <AnimatedDiv>
+  const renderText = () => (
+    <m.div {...motionProps}>
       <Typography
         variant="body2"
         sx={{
@@ -111,21 +117,23 @@ export function HomeHero({ sx, ...other }: BoxProps) {
       >
         {`The starting point for your next project is based on MUI. \nEasy customization helps you build apps faster and better.`}
       </Typography>
-    </AnimatedDiv>
+    </m.div>
   );
 
-  const renderRatings = (
-    <AnimatedDiv>
+  const renderRatings = () => (
+    <m.div {...motionProps}>
       <Box
-        gap={1.5}
-        display="flex"
-        flexWrap="wrap"
-        alignItems="center"
-        justifyContent="center"
-        sx={{ typography: 'subtitle2' }}
+        sx={{
+          gap: 1.5,
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          typography: 'subtitle2',
+          justifyContent: 'center',
+        }}
       >
         <AvatarGroup sx={{ [`& .${avatarClasses.root}`]: { width: 32, height: 32 } }}>
-          {[...Array(3)].map((_, index) => (
+          {Array.from({ length: 3 }, (_, index) => (
             <Avatar
               key={_mock.fullName(index + 1)}
               alt={_mock.fullName(index + 1)}
@@ -135,13 +143,20 @@ export function HomeHero({ sx, ...other }: BoxProps) {
         </AvatarGroup>
         160+ Happy customers
       </Box>
-    </AnimatedDiv>
+    </m.div>
   );
 
-  const renderButtons = (
-    <Box display="flex" flexWrap="wrap" justifyContent="center" gap={{ xs: 1.5, sm: 2 }}>
-      <AnimatedDiv>
-        <Stack alignItems="center" spacing={2.5}>
+  const renderButtons = () => (
+    <Box
+      sx={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        gap: { xs: 1.5, sm: 2 },
+      }}
+    >
+      <m.div {...motionProps}>
+        <Stack spacing={2.5} sx={{ alignItems: 'center' }}>
           <Button
             component={RouterLink}
             href={paths.dashboard.root}
@@ -174,15 +189,15 @@ export function HomeHero({ sx, ...other }: BoxProps) {
             rel="noopener"
             href={paths.freeUI}
             underline="always"
-            sx={{ gap: 0.5, alignItems: 'center', display: 'inline-flex' }}
+            sx={{ gap: 0.75, alignItems: 'center', display: 'inline-flex' }}
           >
-            Get free version
             <Iconify width={16} icon="eva:external-link-fill" />
+            Get free version
           </Link>
         </Stack>
-      </AnimatedDiv>
+      </m.div>
 
-      <AnimatedDiv>
+      <m.div {...motionProps}>
         <Button
           color="inherit"
           size="large"
@@ -195,57 +210,60 @@ export function HomeHero({ sx, ...other }: BoxProps) {
         >
           Figma preview
         </Button>
-      </AnimatedDiv>
+      </m.div>
     </Box>
   );
 
-  const renderIcons = (
+  const renderIcons = () => (
     <Stack spacing={3} sx={{ textAlign: 'center' }}>
-      <AnimatedDiv>
+      <m.div {...motionProps}>
         <Typography variant="overline" sx={{ opacity: 0.4 }}>
           Available For
         </Typography>
-      </AnimatedDiv>
+      </m.div>
 
-      <Stack spacing={2.5} direction="row">
+      <Box sx={{ gap: 2.5, display: 'flex' }}>
         {['js', 'ts', 'nextjs', 'vite', 'figma'].map((platform) => (
-          <AnimatedDiv key={platform}>
-            {platform === 'nextjs' ? (
-              <SvgColor
-                src={`${CONFIG.assetsDir}/assets/icons/platforms/ic-${platform}.svg`}
-                sx={{ width: 24, height: 24 }}
-              />
-            ) : (
-              <Box
-                component="img"
-                alt={platform}
-                src={`${CONFIG.assetsDir}/assets/icons/platforms/ic-${platform}.svg`}
-                sx={{ width: 24, height: 24 }}
-              />
-            )}
-          </AnimatedDiv>
+          <m.div {...motionProps} key={platform}>
+            <Box
+              component="img"
+              alt={platform}
+              src={`${CONFIG.assetsDir}/assets/icons/platforms/ic-${platform}.svg`}
+              sx={[
+                {
+                  width: 24,
+                  height: 24,
+                  ...theme.applyStyles('dark', {
+                    ...(platform === 'nextjs' && { filter: 'invert(1)' }),
+                  }),
+                },
+              ]}
+            />
+          </m.div>
         ))}
-      </Stack>
+      </Box>
     </Stack>
   );
 
   return (
     <Box
-      ref={scroll.elementRef}
+      ref={scrollProgress.elementRef}
       component="section"
-      sx={{
-        overflow: 'hidden',
-        position: 'relative',
-        [theme.breakpoints.up(mdKey)]: {
-          minHeight: 760,
-          height: '100vh',
-          maxHeight: 1440,
-          display: 'block',
-          willChange: 'opacity',
-          mt: 'calc(var(--layout-header-desktop-height) * -1)',
+      sx={[
+        {
+          overflow: 'hidden',
+          position: 'relative',
+          [theme.breakpoints.up(mdKey)]: {
+            minHeight: 760,
+            height: '100vh',
+            maxHeight: 1440,
+            display: 'block',
+            willChange: 'opacity',
+            mt: 'calc(var(--layout-header-desktop-height) * -1)',
+          },
         },
-        ...sx,
-      }}
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...other}
     >
       <Box
@@ -277,12 +295,13 @@ export function HomeHero({ sx, ...other }: BoxProps) {
           }}
         >
           <Stack spacing={3} sx={{ textAlign: 'center' }}>
-            <m.div style={{ y: y1 }}>{renderHeading}</m.div>
-            <m.div style={{ y: y2 }}>{renderText}</m.div>
+            <m.div style={{ y: y1 }}>{renderHeading()}</m.div>
+            <m.div style={{ y: y2 }}>{renderText()}</m.div>
           </Stack>
-          <m.div style={{ y: y3 }}>{renderRatings}</m.div>
-          <m.div style={{ y: y4 }}>{renderButtons}</m.div>
-          <m.div style={{ y: y5 }}>{renderIcons}</m.div>
+
+          <m.div style={{ y: y3 }}>{renderRatings()}</m.div>
+          <m.div style={{ y: y4 }}>{renderButtons()}</m.div>
+          <m.div style={{ y: y5 }}>{renderIcons()}</m.div>
         </Container>
 
         <HeroBackground />
@@ -293,18 +312,8 @@ export function HomeHero({ sx, ...other }: BoxProps) {
 
 // ----------------------------------------------------------------------
 
-function AnimatedDiv({ children, component = m.div }: BoxProps & { children: React.ReactNode }) {
-  return (
-    <Box component={component} variants={varFade({ distance: 24 }).inUp}>
-      {children}
-    </Box>
-  );
-}
-
-// ----------------------------------------------------------------------
-
 function useTransformY(value: MotionValue<number>, distance: number) {
-  const physics = {
+  const physics: SpringOptions = {
     mass: 0.1,
     damping: 20,
     stiffness: 300,

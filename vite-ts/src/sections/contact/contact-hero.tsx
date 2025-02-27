@@ -1,53 +1,37 @@
 import type { BoxProps } from '@mui/material/Box';
 
 import { m } from 'framer-motion';
+import { varAlpha } from 'minimal-shared/utils';
 
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
-import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 
-import { CONFIG } from 'src/config-global';
-import { varAlpha, bgGradient } from 'src/theme/styles';
+import { CONFIG } from 'src/global-config';
 
 import { varFade, AnimateText, MotionContainer, animateTextClasses } from 'src/components/animate';
 
 // ----------------------------------------------------------------------
 
-const CONTACTS = [
-  { country: 'Bali', address: '508 Bridle Avenue Newnan, GA 30263', phoneNumber: '(239) 555-0108' },
-  {
-    country: 'London',
-    address: '508 Bridle Avenue Newnan, GA 30263',
-    phoneNumber: '(319) 555-0115',
-  },
-  {
-    country: 'Prague',
-    address: '508 Bridle Avenue Newnan, GA 30263',
-    phoneNumber: '(252) 555-0126',
-  },
-  { country: 'Moscow', address: '508 Bridle', phoneNumber: '(307) 555-0133' },
-];
-
-// ----------------------------------------------------------------------
-
 export function ContactHero({ sx, ...other }: BoxProps) {
-  const theme = useTheme();
-
   return (
     <Box
       component="section"
-      sx={{
-        ...bgGradient({
-          color: `0deg, ${varAlpha(theme.vars.palette.grey['900Channel'], 0.8)}, ${varAlpha(theme.vars.palette.grey['900Channel'], 0.8)}`,
-          imgUrl: `${CONFIG.assetsDir}/assets/images/contact/hero.webp`,
+      sx={[
+        (theme) => ({
+          ...theme.mixins.bgGradient({
+            images: [
+              `linear-gradient(0deg, ${varAlpha(theme.vars.palette.grey['900Channel'], 0.8)}, ${varAlpha(theme.vars.palette.grey['900Channel'], 0.8)})`,
+              `url(${CONFIG.assetsDir}/assets/images/contact/hero.webp)`,
+            ],
+          }),
+          overflow: 'hidden',
+          height: { md: 560 },
+          position: 'relative',
+          py: { xs: 10, md: 0 },
         }),
-        height: { md: 560 },
-        py: { xs: 10, md: 0 },
-        overflow: 'hidden',
-        position: 'relative',
-        ...sx,
-      }}
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...other}
     >
       <Container component={MotionContainer}>
@@ -61,8 +45,8 @@ export function ContactHero({ sx, ...other }: BoxProps) {
           <AnimateText
             component="h1"
             variant="h1"
-            text={['Where', 'to find us?']}
-            variants={varFade({ distance: 24 }).inUp}
+            textContent={['Where', 'to find us?']}
+            variants={varFade('inUp', { distance: 24 })}
             sx={{
               color: 'common.white',
               [`& .${animateTextClasses.line}[data-index="0"]`]: {
@@ -72,26 +56,30 @@ export function ContactHero({ sx, ...other }: BoxProps) {
           />
 
           <Box
-            columnGap={{ xs: 2, md: 5 }}
-            rowGap={{ xs: 5, md: 0 }}
-            display={{ xs: 'grid', md: 'flex' }}
-            gridTemplateColumns={{ xs: 'repeat(2, 1fr)' }}
-            sx={{ mt: 5, color: 'common.white' }}
+            component="ul"
+            sx={{
+              mt: 5,
+              display: 'grid',
+              color: 'common.white',
+              rowGap: { xs: 5, md: 0 },
+              columnGap: { xs: 2, md: 5 },
+              gridTemplateColumns: { xs: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
+            }}
           >
             {CONTACTS.map((contact) => (
-              <Box key={contact.country}>
-                <m.div variants={varFade({ distance: 24 }).inUp}>
+              <li key={contact.country}>
+                <m.div variants={varFade('inUp', { distance: 24 })}>
                   <Typography variant="h6" sx={{ mb: 1 }}>
                     {contact.country}
                   </Typography>
                 </m.div>
 
-                <m.div variants={varFade({ distance: 24 }).inUp}>
+                <m.div variants={varFade('inUp', { distance: 24 })}>
                   <Typography variant="body2" sx={{ opacity: 0.8 }}>
                     {contact.address}
                   </Typography>
                 </m.div>
-              </Box>
+              </li>
             ))}
           </Box>
         </Box>
@@ -99,3 +87,28 @@ export function ContactHero({ sx, ...other }: BoxProps) {
     </Box>
   );
 }
+
+// ----------------------------------------------------------------------
+
+const CONTACTS = [
+  {
+    country: 'Bali',
+    address: '508 Bridle Avenue Newnan, GA 30263',
+    phoneNumber: '(239) 555-0108',
+  },
+  {
+    country: 'London',
+    address: '508 Bridle Avenue Newnan, GA 30263',
+    phoneNumber: '(319) 555-0115',
+  },
+  {
+    country: 'Prague',
+    address: '508 Bridle Avenue Newnan, GA 30263',
+    phoneNumber: '(252) 555-0126',
+  },
+  {
+    country: 'Moscow',
+    address: '508 Bridle',
+    phoneNumber: '(307) 555-0133',
+  },
+];
